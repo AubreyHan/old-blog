@@ -1,0 +1,1111 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,网络," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Azure网络安全解析作为公有云最重要环节之一，网络安全一直是Azure的重中之重。在Azure中，多种安全技术共同构成了立体的网络保护：  其中，最常和用户打交道的就是NSG（网络安全组），vm和网络的连接、不同子网间的连接等都可以用NSG来做限制和保护。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NSG简介">
+<meta property="og:url" content="http://aubreyhan.net/undefined/57770/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="Azure网络安全解析作为公有云最重要环节之一，网络安全一直是Azure的重中之重。在Azure中，多种安全技术共同构成了立体的网络保护：  其中，最常和用户打交道的就是NSG（网络安全组），vm和网络的连接、不同子网间的连接等都可以用NSG来做限制和保护。">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhz54v8j30ye0fk0w3.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/205221137.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhzkwhxj30yx0h9tcd.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrri0giv1j30890d7glw.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/213725742.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/213939613.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrri0xf4uj308709idfu.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrri1x5wyj30tu0hsq47.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/220013903.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/220151395.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri2e59pj31ee08oaat.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/222252865.png?imageslim">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrri2u4ssj31eu0atglz.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri4ati3j31f50b774w.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrri54z9vj31ey0e3zll.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/223242285.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri5n5dlj30kp0cmt9u.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrri71ysej30co0hkjro.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrri80336j30kp0cmq42.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/223914520.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170427/225227352.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri90364j31hc0sq7bl.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri9w1eqj31hc0sq3zv.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/091051395.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrricb1c0j31fc0ifdgr.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrid6x6gj308m0mdmyb.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/092735772.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrie4to4j30f2090aau.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrif3wmuj31hc0sqq6m.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/094512002.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/104906578.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrifybecj30f2090aau.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrigfwe4j31hc0sq7cr.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/114026068.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/114331562.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/114640780.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/115257558.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/115907750.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/120045957.png?imageslim">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrihsa0wj30o90n80tl.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrij9n7yj31hc0u07d8.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/151943179.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrik68imj31hc0u0aca.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/153226834.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrim3ocyj31hc0u011b.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrin0a9ij31hc0u0tgx.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/154400705.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrinoa3ij30uf0gead8.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrriouyjlj30nx0my0th.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrripagi8j31hc0u00v0.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrriq8oixj31fc0gdq4y.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/162337418.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170428/164249600.png?imageslim">
+<meta property="article:published_time" content="2017-04-27T10:50:41.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhz54v8j30ye0fk0w3.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/57770/"/>
+
+
+
+
+
+  <title> NSG简介 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/57770/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                NSG简介
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-27T18:50:41+08:00">
+                2017-04-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index">
+                    <span itemprop="name">网络</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Azure网络安全解析"><a href="#Azure网络安全解析" class="headerlink" title="Azure网络安全解析"></a>Azure网络安全解析</h1><p>作为公有云最重要环节之一，网络安全一直是Azure的重中之重。在Azure中，多种安全技术共同构成了立体的网络保护：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhz54v8j30ye0fk0w3.jpg" alt="mark"></p>
+<p>其中，最常和用户打交道的就是NSG（网络安全组），vm和网络的连接、不同子网间的连接等都可以用NSG来做限制和保护。<a id="more"></a></p>
+<h1 id="NSG的定义"><a href="#NSG的定义" class="headerlink" title="NSG的定义"></a>NSG的定义</h1><p>顾名思义，NSG（网络安全组）是由一些列规则（rule）形成的组合。这些规则不关心具体的传输内容（这些在WAF、IPS等解决），而是通过从哪里来（源）、到哪里去（目标）、经过哪个门洞（源端口、目标端口）、传输的什么东西（UDP or TCP）来决定采取什么措施（允许还是拒绝），如下图所示：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/205221137.png?imageslim" alt="mark"></p>
+<p>那么，在同一个NSG的多条规则是如何同时生效呢？可见如下流程：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhzkwhxj30yx0h9tcd.jpg" alt="mark"></p>
+<p>简单描述，就是首先根据数据走向决定采用入站规则还是出站规则，然后根据条件（源地址、目标地址、源端口、目标端口、协议类型等）按优先级顺序匹配规则，按照第一个符合条件的规则处理数据流（允许还是拒绝），完成NSG操作；需要注意的是，如果同时符合多个规则的条件，也只执行第一个规则。如果所有规则都不满足，该数据流被丢弃（实际是由最后一条默认规则决定）。</p>
+<p>举个例子，给一台网站服务器配置NSG，要求只能访问http服务（80端口），其他端口访问均禁止，制订了如下两条规则：</p>
+<p>​    1. 允许所有地址都可以访问80端口（rule1）</p>
+<p>​    2. 拒绝所有地址访问任意端口（rule2）</p>
+<p>当rule1优先级高时，访问http服务首先满足了rule1，可以访问80端口，不再执行rule2；而访问其他端口的行为不满足rule1，则继续执行rule2，拒绝访问。</p>
+<p>当rule2优先级高时，则无论访问哪个端口（包含80）都首先满足rule2，拒绝访问，不再继续执行rule1，所以http的访问也会被禁止。</p>
+<p>由此可见，规则的顺序非常重要。</p>
+<p>下边就结合具体操作简单讲解NSG如何配置及产生作用。</p>
+<h1 id="NSG的配置管理——环境准备"><a href="#NSG的配置管理——环境准备" class="headerlink" title="NSG的配置管理——环境准备"></a>NSG的配置管理——环境准备</h1><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>NSG的创建一般可以在两个地方进行：创建虚机的同时创建NSG；或者单独创建NSG。</p>
+<p>本次测试中（所有配置都在资源组HyNSGDemoRG中进行）：</p>
+<h3 id="子网创建："><a href="#子网创建：" class="headerlink" title="子网创建："></a>子网创建：</h3><p>创建名为NSGDemoVnet的虚拟网络，并在其下创建名为NSGDemoSunnet的子网：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrri0giv1j30890d7glw.jpg" alt="mark"></p>
+<h3 id="虚机创建"><a href="#虚机创建" class="headerlink" title="虚机创建"></a>虚机创建</h3><p>两台基于windows server的vm：vm01和vm02：</p>
+<p>vm01创建时NSG选择无：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/213725742.png?imageslim" alt="mark"></p>
+<p>vm02选择默认NSG（vm02-nsg）；</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/213939613.png?imageslim" alt="mark"></p>
+<p>两台vm都连接到子网NSGDemoSunnet。</p>
+<p>检查两台vm的网络配置，汇总如下：</p>
+<table>
+<thead>
+<tr>
+<th>虚机</th>
+<th>网络接口</th>
+<th>公网ip</th>
+<th>私网IP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vm01</td>
+<td>vm01234</td>
+<td>139.217.2.162</td>
+<td>10.5.0.4</td>
+</tr>
+<tr>
+<td>vm02</td>
+<td>vm02549</td>
+<td>139.217.2.198</td>
+<td>10.5.0.5</td>
+</tr>
+</tbody></table>
+<h3 id="NSG创建："><a href="#NSG创建：" class="headerlink" title="NSG创建："></a>NSG创建：</h3><p>创建名为NSGDemo的NSG：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrri0xf4uj308709idfu.jpg" alt="mark"></p>
+<h2 id="NSG比较"><a href="#NSG比较" class="headerlink" title="NSG比较"></a>NSG比较</h2><p>检查资源组里的资源，可以看到有两个NSG：单独创建的NSGDemo和随vm02创建的vm-nsg：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrri1x5wyj30tu0hsq47.jpg" alt="mark"></p>
+<h3 id="NSGDemo"><a href="#NSGDemo" class="headerlink" title="NSGDemo:"></a>NSGDemo:</h3><p>首先查看NSGDemo，进入NSGDemo，从概述里可以发现，由于是新建NSG，所以出站入站的规则都是空的：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/220013903.png?imageslim" alt="mark"></p>
+<p>再点击入站安全规则，进入后点击默认规则，这时候会显示如下默认规则：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/220151395.png?imageslim" alt="mark"></p>
+<p>这是优先级最低的三条规则，如果一个入站数据流所有自定义规则都不满足，就会最终执行这三条规则中的一条。三条规则按顺序分别定义了：</p>
+<p>1.从vnet到vnet所有入站网络可通（Allow）</p>
+<p>2.从Azure的LB到所有入站网络可通（Allow）</p>
+<p>3.从任意网络到任意网络如站不通（Deny）</p>
+<p>在没有添加自定义规则的情况下，如果需要访问该NSG后端的网络与设备：</p>
+<p>1.如果源和目标都是vnet，满足65000可以访问</p>
+<p>2.如果源是Azure的LB，无论目标是什么，都满足65001，都可以访问</p>
+<p>3.其他情况，满足65500，网络不通</p>
+<p>同样查看出站安全规则的默认规则，也可看到三条默认规则：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri2e59pj31ee08oaat.jpg" alt="mark"></p>
+<p>按顺序定义了：vnet到vnet所有出站可通；所有源到internet出站可通（所有设备可访问internet），其它情况出站都不通。</p>
+<p>默认规则不能删除、修改以及调整优先级。</p>
+<p>再检查该NSG管理的网络接口和子网，由于是新建，所以没有任何设备：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/222252865.png?imageslim" alt="mark"></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrri2u4ssj31eu0atglz.jpg" alt="mark"></p>
+<h3 id="vm02-nsg"><a href="#vm02-nsg" class="headerlink" title="vm02-nsg:"></a>vm02-nsg:</h3><p>检查vm02-nsg，发现与NSGDemo不同之处在于：</p>
+<p><em>已经添加了vm02的网络接口vm02549：</em></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri4ati3j31f50b774w.jpg" alt="mark"></p>
+<p><em>默认建立了一个入站规则default-allow-rdp：</em></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrri54z9vj31ey0e3zll.jpg" alt="mark"></p>
+<p>这条规则有什么作用？查看其属性：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/223242285.png?imageslim" alt="mark"></p>
+<p>其含义是：此规则优先级1000，允许任意源地址访问该规则下所以设备（目前只有vm02）的rpd端口3389。即任意一台联网的电脑可通过远程桌面访问vm02。</p>
+<p>测试通过：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri5n5dlj30kp0cmt9u.jpg" alt="mark"></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrri71ysej30co0hkjro.jpg" alt="mark"></p>
+<p>再测试vm01：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrri80336j30kp0cmq42.jpg" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/223914520.png?imageslim" alt="mark"></p>
+<p>可以看到因为vm01没有任何NSG的安全限制，可以认为是直接暴露在公网，所以也可以远程桌面访问。</p>
+<h2 id="验证NSG作用"><a href="#验证NSG作用" class="headerlink" title="验证NSG作用"></a>验证NSG作用</h2><p>做进一步的测试确认NSG的作用。</p>
+<p>分别在两台vm启用IIS服务，并确认本机浏览器访问127.0.0.1可打开默认界面：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170427/225227352.png?imageslim" alt="mark"></p>
+<p>本地浏览器访问vm01：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri90364j31hc0sq7bl.jpg" alt="mark"></p>
+<p>本地浏览器访问vm02：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrri9w1eqj31hc0sq3zv.jpg" alt="mark"></p>
+<p>说明：</p>
+<ul>
+<li>vm01没有NSG保护，任意端口（rdp3389、http80等）都可以访问<ul>
+<li>vm02有NSG保护，除了rdp3389以外，从internet到其他端口的访问均被拒绝，提升了相应安全性</li>
+</ul>
+</li>
+</ul>
+<h1 id="NSG的配置管理——NSG规则配置测试"><a href="#NSG的配置管理——NSG规则配置测试" class="headerlink" title="NSG的配置管理——NSG规则配置测试"></a>NSG的配置管理——NSG规则配置测试</h1><p>查看NSG的信息可知，NSG可关联两种类型的设备：网络接口和子网：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/091051395.png?imageslim" alt="mark"></p>
+<p>下边分别对这两种设备进行NSG的配置管理和测试：</p>
+<h2 id="网络接口的NSG配置管理："><a href="#网络接口的NSG配置管理：" class="headerlink" title="网络接口的NSG配置管理："></a>网络接口的NSG配置管理：</h2><p>点击NSGDemo-网络接口：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrricb1c0j31fc0ifdgr.jpg" alt="mark"></p>
+<p>点击关联为NSGDemo增加关联的网络接口：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrid6x6gj308m0mdmyb.jpg" alt="mark"></p>
+<p>可以看到NSG可以关联到同一个订阅里所有的网络接口，但是已被关联到其他NSG的网络接口无法再被关联，除非取消与其他NSG的关联。</p>
+<p>将vm01的网络接口vm01234关联到NSGDemo：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/092735772.png?imageslim" alt="mark"></p>
+<p>vm01的公共IP和专用IP都被加入了NSG。</p>
+<p>完成后可以继续关联其它网络端口，所以网络端口与NSG的关系是多对一。</p>
+<p>再通过远程桌面和http去连接vm01，发现已无法连接：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrie4to4j30f2090aau.jpg" alt="mark"></p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrif3wmuj31hc0sqq6m.jpg" alt="mark"></p>
+<p>点击NSGDemo-入站安全规则-添加-高级，可看到每条规则需要如下元素：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/094512002.png?imageslim" alt="mark"></p>
+<p>其中：</p>
+<ul>
+<li><p>名称：该规则的名字，无影响，建议取一个能体现规则含义的简称，例如vm01_http</p>
+</li>
+<li><p>优先级：纯数字，非常重要，决定了规则的执行顺序（以下用rule+优先级代表规则，例如rule300代表优先级为300的规则）。</p>
+<p><em>Tips：</em></p>
+<ul>
+<li>优先级的范围是100——4096</li>
+<li>不要将规则指定为100和4096，避免需要添加更高优先级或更低优先级时需要编辑rule100和rule4096</li>
+<li>优先级不要连续排列，最好中间有一定间隔，例如200、300、400、500，便于以后插入优先级</li>
+<li>建议首先创建名为DenyAll的rule4000，拒绝所有未经允许的连接；这条规则其实与最后一条默认入站规则rule65500一样，为什么还要单独创建？因为在Azure中对规则不能单独enable和disable，所以如果要临时禁用一条规则只能删除。如果创建了DenyAll的rule4000，需要临时禁用的规则可以将优先级调整到4000以后，这样勿需删除，重新启用时将优先级调整至合适的数字即可</li>
+</ul>
+</li>
+<li><p>源：数据流的来源，可定义为Any（所有来源，不限制）、CIDR block、Tag</p>
+<p><em>Tips：</em></p>
+<ul>
+<li>CIDR block：以CIDR的方式描述一个IP段，例如192.168.1.0/24，或者一个确定的IP地址如192.168.1.5</li>
+<li>Tag：Azure内部对某个类型的网络的标记，一般包含：Internet（外网）、VirtualNetwork（vnet）、AzureLoadBalancer（Azure的LB）</li>
+</ul>
+</li>
+<li><p>协议：TCP还是UDP，或者两者都包含</p>
+</li>
+<li><p>源端口范围：1-65536，从源的哪个端口来，可以指定的一个端口（例如80）、或一个端口范围（例如80-1000）、或所有端口（*）</p>
+</li>
+<li><p>目标：要访问的设备，同样可定义为Any（所有来源，不限制）、CIDR block、Tag</p>
+<p><em>Tips：</em></p>
+<p>​    如果将目标设置为NSG没有的成员，没有任何意义。</p>
+</li>
+<li><p>目标端口范围：1-65536，到目标的哪个端口，制定方法同源端口范围</p>
+</li>
+<li><p>操作：拒绝或允许</p>
+</li>
+</ul>
+<p>现在为vm01在NSGDemo添加规则，允许任何主机http访问，但是不允许rdp连接，可按如下制定规则：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>优先级</th>
+<th>源</th>
+<th>协议</th>
+<th>源端口范围</th>
+<th>目标</th>
+<th>目标端口范围</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DenyAll</td>
+<td>4000</td>
+<td>Any</td>
+<td>TCP</td>
+<td>*</td>
+<td>Any</td>
+<td>*</td>
+<td>拒绝</td>
+</tr>
+<tr>
+<td>vm01_http</td>
+<td>300</td>
+<td>Any</td>
+<td>TCP</td>
+<td>*</td>
+<td>Any</td>
+<td>80</td>
+<td>允许</td>
+</tr>
+</tbody></table>
+<p>制定好的规则如下：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/104906578.png?imageslim" alt="mark"></p>
+<p>再次验证，发现rdp仍然无法连通，但http已可以访问：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrifybecj30f2090aau.jpg" alt="mark"></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrigfwe4j31hc0sq7cr.jpg" alt="mark"></p>
+<h2 id="子网的NSG管理配置："><a href="#子网的NSG管理配置：" class="headerlink" title="子网的NSG管理配置："></a>子网的NSG管理配置：</h2><p>为了避免干扰，先进入vm01和vm02，取消所有NSG关联。具体做法点击相应vm-网络接口-选择网络接口-网络安全组-编辑-选择无并保存：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/114026068.png?imageslim" alt="mark"></p>
+<p>进入NSGDemo，删除rule4000以外所有的自建规则：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/114331562.png?imageslim" alt="mark"></p>
+<p>现在点击子网，关联NSGDemoVnet下的子网NSGDemoSunnet：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/114640780.png?imageslim" alt="mark"></p>
+<p>现在分别访问vm01和vm02的http，都无法访问，因为vm01和vm都连接到NSGDemoSunnet，而NSGDemo的规则禁止了对NSGDemoSunnet的所有入站访问（此测试在浏览器隐身模式下进行，避免缓存影响）：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/115257558.png?imageslim" alt="mark"></p>
+<p>现在新建一个规则rule300如下：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>优先级</th>
+<th>源</th>
+<th>协议</th>
+<th>源端口范围</th>
+<th>目标</th>
+<th>目标端口范围</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vm_http</td>
+<td>300</td>
+<td>Any</td>
+<td>TCP</td>
+<td>*</td>
+<td>Any</td>
+<td>80</td>
+<td>允许</td>
+</tr>
+</tbody></table>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/115907750.png?imageslim" alt="mark"></p>
+<p>现在可以看到两台vm的http均可访问：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/120045957.png?imageslim" alt="mark"></p>
+<h2 id="关于NSG目标的进一步探讨："><a href="#关于NSG目标的进一步探讨：" class="headerlink" title="关于NSG目标的进一步探讨："></a>关于NSG目标的进一步探讨：</h2><p>在NSGDemo里，关联了一个子网NSGDemoSunnet，而NSGDemoSunnet连接了vm01和vm02的网卡。如果希望做进一步的限制，只允许访问vm01的http，而不允许访问vm02，应该如何设置？这时候就需要通过规则的目标来限制了。</p>
+<p>查询到vm01和vm02连接到NSGDemoSunnet的网络Tag都是VirtualNet，没办法通过Tag来区分，但是两台vm的IP地址不一样，所以只能用CIDR来限制。</p>
+<p>修改之前的rule300，将目标从Any改为CIDR block，内容为10.5.0.4，其他保持不变，如下图：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrihsa0wj30o90n80tl.jpg" alt="mark"></p>
+<p>再分别访问两台vm的http，可以看到vm01的http可以访问，而vm02的则被拒绝了：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrij9n7yj31hc0u07d8.jpg" alt="mark"></p>
+<p>再将rule300做一下修改，目标改为vm01的公网IP：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/151943179.png?imageslim" alt="mark"></p>
+<p>测试vm01的http连接，发现无法打开：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrik68imj31hc0u0aca.jpg" alt="mark"></p>
+<p>因为NSG关联的子网NSGDemoSunnet连接的vm的专用IP，所以vm01的公网IP并不是NSGDemo的成员，所以连接需求不满足rule300的条件，不执行该规则，直接执行rule4000，禁止所有入站连接。</p>
+<p>如果NSG关联的是网络接口，其中成员既包含公网IP也包含专用IP，目标分别设置为公网IP和专用IP，会有什么区别？</p>
+<p>重新对NSGDemo进行配置，取消对子网的关联，增加对vm01的网络接口vm01234的关联。</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/153226834.png?imageslim" alt="mark"></p>
+<p>可以看到，NSGDemo关联到两个IP（139.217.2.162和10.5.0.4）。</p>
+<p>分三次配置rule300如下，并检查vm01的http访问情况</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>优先级</th>
+<th>源</th>
+<th>协议</th>
+<th>源端口范围</th>
+<th>目标</th>
+<th>目标端口范围</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vm_http</td>
+<td>300</td>
+<td>Any</td>
+<td>TCP</td>
+<td>*</td>
+<td>Any</td>
+<td>80</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>vm_http</td>
+<td>300</td>
+<td>Any</td>
+<td>TCP</td>
+<td>*</td>
+<td>10.5.0.4</td>
+<td>80</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>vm_http</td>
+<td>300</td>
+<td>Any</td>
+<td>TCP</td>
+<td>*</td>
+<td>139.217.2.162</td>
+<td>80</td>
+<td>允许</td>
+</tr>
+</tbody></table>
+<p>当目标为Any时：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrim3ocyj31hc0u011b.jpg" alt="mark"></p>
+<p>当目标为专用IP（10.5.0.4）时：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrin0a9ij31hc0u0tgx.jpg" alt="mark"></p>
+<p>当目标为公网IP（139.217.2.162）时：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/154400705.png?imageslim" alt="mark"></p>
+<p>比较这三种情况，可以发现对公网IP设置的规则是不生效的。</p>
+<p>远程桌面到一台vm，运行ipconfig检查IP配置：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrinoa3ij30uf0gead8.jpg" alt="mark"></p>
+<p>可以发现，Azure的vm实际是没有公网IP的，在Azure中给vm分配的公网IP实际是通过类似NAT的方式付给vm，而NSG是直接针对vm的网络接口生效，看不到前段的NAT设备，所以在vm的NSG里配置对公网IP是没意义的，无法生效。</p>
+<h2 id="出站规则的管理配置："><a href="#出站规则的管理配置：" class="headerlink" title="出站规则的管理配置："></a>出站规则的管理配置：</h2><p>以上的配置都是针对入站规则，那么出站规则如何生效？</p>
+<p>默认情况下，出站规则允许所有的对外访问。一般情况下，出站的端口是随机挑选，所以很难通过源端口对出站进行操作（允许或拒绝），除非程序很明确有固定的出战端口。而NSG不同于OS的防火墙，对程序无感知，也无法通过对程序进行判断来进行操作（允许或拒绝）。而目标的端口相对来说比较固定，可以通过对目标端口的判断来进行操作（允许或拒绝）。</p>
+<p>例如如下出站规则禁止了NSG中所有设备对http（80）的访问：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrriouyjlj30nx0my0th.jpg" alt="mark"></p>
+<p>但是，如果外网的http服务使用了其它端口（例如81），这条规则就无法生效。</p>
+<p><em>Tips：</em></p>
+<ul>
+<li>在严格安全管理的企业网络里，出站也应该严格禁止，所以一般的配置方式是制定一个优先级低的拒绝所有出站的规则，再逐步添加对某一个条件允许的规则</li>
+</ul>
+<h2 id="多NSG的管理配置："><a href="#多NSG的管理配置：" class="headerlink" title="多NSG的管理配置："></a>多NSG的管理配置：</h2><p>之前的描述中，提到可以对子网也可以对vm的网络接口配置NSG，如果子网和vm的网络接口分别有NSG，即同时有多个NSG对一个设备有效时，优先级怎么判断？下边通过测试来检验。</p>
+<p>先将所有NSG删除，再建立连个NSG：NSG01关联到子网NSGDemoSunnet，NSG02关联到vm01的网络接口vm01234。</p>
+<p>此时两个NSG的默认入站规则拒绝了所有入站，所以http无法打开：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrripagi8j31hc0u00v0.jpg" alt="mark"></p>
+<p>现在NSG01配置允许http访问：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrriq8oixj31fc0gdq4y.jpg" alt="mark"></p>
+<p>访问http依然无法打开。</p>
+<p>删除NSG01建立的入站规则，在NSG02配置允许http访问：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/162337418.png?imageslim" alt="mark"></p>
+<p>再次访问http也无法打开。</p>
+<p>可以看出，多个NSG时，彼此间没有顺序，而是采用拒绝优先的方式。即：当每个NSG都匹配到首个满足的规则时，如果其中一个规则是拒绝，则采用拒绝的规则。</p>
+<p>在如上的测试中，每次都只给一个NSG配置了允许http的规则，会满足另一个NSG的默认规则rule65500，拒绝入站，由于拒绝优先，所以导致http无法访问。</p>
+<p>现在两个NSG中都配置允许http访问的规则，现在访问vm01的http正常了：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170428/164249600.png?imageslim" alt="mark"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>NSG的配置在Azure的配置并不难，关键是弄清楚相关的逻辑关系，合理的规划规则以及规则顺序，结合其他技术，就可以为Azure提供良好的安全保护。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"># 网络</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/24305/" rel="next" title="Azure下共享目录的使用方法">
+                <i class="fa fa-chevron-left"></i> Azure下共享目录的使用方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/44759/" rel="prev" title="Blob简单文件操作">
+                Blob简单文件操作 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure网络安全解析"><span class="nav-number">1.</span> <span class="nav-text">Azure网络安全解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NSG的定义"><span class="nav-number">2.</span> <span class="nav-text">NSG的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NSG的配置管理——环境准备"><span class="nav-number">3.</span> <span class="nav-text">NSG的配置管理——环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境准备"><span class="nav-number">3.1.</span> <span class="nav-text">环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#子网创建："><span class="nav-number">3.1.1.</span> <span class="nav-text">子网创建：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚机创建"><span class="nav-number">3.1.2.</span> <span class="nav-text">虚机创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSG创建："><span class="nav-number">3.1.3.</span> <span class="nav-text">NSG创建：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSG比较"><span class="nav-number">3.2.</span> <span class="nav-text">NSG比较</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NSGDemo"><span class="nav-number">3.2.1.</span> <span class="nav-text">NSGDemo:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vm02-nsg"><span class="nav-number">3.2.2.</span> <span class="nav-text">vm02-nsg:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#验证NSG作用"><span class="nav-number">3.3.</span> <span class="nav-text">验证NSG作用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NSG的配置管理——NSG规则配置测试"><span class="nav-number">4.</span> <span class="nav-text">NSG的配置管理——NSG规则配置测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#网络接口的NSG配置管理："><span class="nav-number">4.1.</span> <span class="nav-text">网络接口的NSG配置管理：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#子网的NSG管理配置："><span class="nav-number">4.2.</span> <span class="nav-text">子网的NSG管理配置：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于NSG目标的进一步探讨："><span class="nav-number">4.3.</span> <span class="nav-text">关于NSG目标的进一步探讨：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#出站规则的管理配置："><span class="nav-number">4.4.</span> <span class="nav-text">出站规则的管理配置：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多NSG的管理配置："><span class="nav-number">4.5.</span> <span class="nav-text">多NSG的管理配置：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

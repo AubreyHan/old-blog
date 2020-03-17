@@ -1,0 +1,801 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;上公有云都会谈到云原生架构。其中重要一点就是计算与存储的解耦合。这就意味着在架构里要尽可能把数据与计算分离，让计算可以随时随地访问到数据。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="东边不亮西边亮，条条大路通罗马——在Linux挂载Blob">
+<meta property="og:url" content="http://aubreyhan.net/undefined/25271/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;上公有云都会谈到云原生架构。其中重要一点就是计算与存储的解耦合。这就意味着在架构里要尽可能把数据与计算分离，让计算可以随时随地访问到数据。">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgk3ly9j31kw0diwh5.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgl5k4uj30tk0fa401.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrglh5uhj30qs0juwgo.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgm1newj31kw088q9l.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgnudfpj31kw0xtgw8.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgobs4tj31kw0euq6c.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgpsfxij30q403q3zu.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgq6zsaj313s04875l.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgs09z8j30hk030q3g.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgsiwe0j31kw02jabq.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrguygavj30no1dajy5.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgvun1hj31kw08d789.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgw6w3jj30jc02a3z3.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgx4to9j31kw0hz77j.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgy4lygj30ss062gnz.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgyks6kj30um0nyn5k.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgz2y8vj30lw0gcta3.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgzjinrj30kk0h03zo.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgzzikaj30sq096dj3.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrh0gnaej31kw028gnt.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrh0xua8j313y03sdhj.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrh1uwxfj31kw01ygmw.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh3g77xj31kw06jgoq.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrh47be3j31kw03r766.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrh4oo4zj30im02ydgp.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrh54l1rj31k80h6tbq.jpg">
+<meta property="article:published_time" content="2018-08-28T11:22:48.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgk3ly9j31kw0diwh5.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/25271/"/>
+
+
+
+
+
+  <title> 东边不亮西边亮，条条大路通罗马——在Linux挂载Blob | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/25271/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                东边不亮西边亮，条条大路通罗马——在Linux挂载Blob
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-28T19:22:48+08:00">
+                2018-08-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;上公有云都会谈到云原生架构。其中重要一点就是计算与存储的解耦合。这就意味着在架构里要尽可能把数据与计算分离，让计算可以随时随地访问到数据。</p>
+<a id="more"></a>
+<p>&emsp;&emsp;Azure提供了File Storage来实现共享数据存储，但是有两个比较大的限制：1、对Linux支持有版本要求，需要较高版的Linux才能支持；2、单个File Share有容量限制，最大不能超过5TB。<br>&emsp;&emsp;对于很对用户，如果Linux版本较低或者对共享容量有较大要求时，File Storage就无法满足要求了。而Blob Storage没有容量限制（500TB），但却无法直接在Linux里当做文件系统使用。不过还好，有其他的解决方式方便的实现在Linux里挂载Blob，这就是Blobfuse。</p>
+<h1 id="Blobfuse的配置使用"><a href="#Blobfuse的配置使用" class="headerlink" title="Blobfuse的配置使用"></a>Blobfuse的配置使用</h1><p>&emsp;&emsp;fuse是一个开源的文件系统适配器，可以方便的挂载Linux不能原生支持的文件系统。而Blobfuse就是fuse的扩展，实现了Linux里操作Blob。<br>&emsp;&emsp;Azure上有一篇文档介绍fuse的使用：<br>&emsp;&emsp;<a href="https://docs.microsoft.com/zh-cn/azure/storage/blobs/storage-how-to-mount-container-linux" target="_blank" rel="noopener">如何使用 Blobfuse 将 Blob 存储装载为文件系统</a><br>&emsp;&emsp;但是这篇文档有些小问题，完全照做可能做不通，下边以CentOS为例，详细描述安装使用的方法。</p>
+<h2 id="Blobfuse的安装"><a href="#Blobfuse的安装" class="headerlink" title="Blobfuse的安装"></a>Blobfuse的安装</h2><p>&emsp;&emsp;先在Azure.com上创建一台CentOS6.9的虚机和一个存储账户，并在存储账户中创建一个Container：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgk3ly9j31kw0diwh5.jpg" alt="Capto_Capture 2018-08-28_07-56-17_PM"><br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgl5k4uj30tk0fa401.jpg" alt="Capto_Capture 2018-08-28_07-54-53_PM"><br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrglh5uhj30qs0juwgo.jpg" alt="Capto_Capture 2018-08-28_07-55-25_PM"></p>
+<p>&emsp;&emsp;现在Container里是空的.<br>&emsp;&emsp;登录到创建的虚机，按照文档说明说先添加MS的Linux软件库(如果是CentOS或RedHat7，请将如下链接的6改为7)：<br><code>sudo rpm -Uvh https://packages.microsoft.com/config/rhel/6/packages-microsoft-prod.rpm</code><br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgm1newj31kw088q9l.jpg" alt="Capto_Capture 2018-08-28_08-01-35_PM"></p>
+<p>&emsp;&emsp;然后安装Blobfuse：<br><code>sudo yum install -y blobfuse</code><br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgnudfpj31kw0xtgw8.jpg" alt="Capto_Capture 2018-08-28_08-09-55_PM"></p>
+<p>&emsp;&emsp;这里文档有个错误，还需要安装fuse，否则运行可能会报错：<br><code>sudo yum install -y fuse</code><br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgobs4tj31kw0euq6c.jpg" alt="Capto_Capture 2018-08-28_08-11-40_PM"></p>
+<h2 id="Blobfuse的配置"><a href="#Blobfuse的配置" class="headerlink" title="Blobfuse的配置"></a>Blobfuse的配置</h2><p>&emsp;&emsp;为了防止网络问题导致写入不成功，Blobfuse采用了本地缓存机制，将本地目录作为缓存，操作文件时，首先将文件放到这个缓存目录里，然后再进行文件系统操作。<br>&emsp;&emsp;为了保证性能，建议使用内存虚拟的ramdisk或者Azure的临时盘空间来做缓存。本文档里，采用临时盘缓存的方式。<br>&emsp;&emsp;Centos下，临时盘默认挂载在/mnt/resource目录下，我们在此目录下创建缓存目录，并将目录的宿主改为当前用户：<br><code>sudo mkdir /mnt/resource/tmp
+sudo chown blobfusevm /mnt/resource/tmp</code><br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgpsfxij30q403q3zu.jpg" alt="Capto_Capture 2018-08-28_08-20-31_PM"></p>
+<p>&emsp;&emsp;现在需要配置mount的blob信息，包含认证信息（AccountName、AccountKey，不会找这些信息的好好看一下存储账户介绍），需要mount的container等。<br>&emsp;&emsp;这些新科可以通过环境变量设置，也可以通过配置文件设置，这里采用配置文件的方式。<br>&emsp;&emsp;创建一个配置文件（fuse.cfg）：<br><code>vi fuse.cfg</code><br>&emsp;&emsp;文件内容如下：</p>
+<hr>
+<p>accountName blobfusesa<br>accountKey WGujAXmp+ifX/4I+WW6fwUT2eVouE7nHocnfL/3JJdHBksZr2pLG10cVp5vsP5MNbGM+bhJhT5ivhrRHaHvJCw==<br>containerName blobfusecontainer</p>
+<hr>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgq6zsaj313s04875l.jpg" alt="Capto_Capture 2018-08-28_08-30-56_PM"></p>
+<p>&emsp;&emsp;创建一个目录用作挂载Blob：<br><code>mkdir blobdir</code><br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgs09z8j30hk030q3g.jpg" alt="Capto_Capture 2018-08-28_08-34-07_PM"></p>
+<h2 id="挂载Blob"><a href="#挂载Blob" class="headerlink" title="挂载Blob"></a>挂载Blob</h2><p>&emsp;&emsp;现在可以执行命令挂载Blob：<br><code>blobfuse ~/blobdir --tmp-path=/mnt/resource/tmp  --config-file=./fuse.cfg -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120</code><br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgsiwe0j31kw02jabq.jpg" alt="Capto_Capture 2018-08-28_08-36-12_PM"></p>
+<p>&emsp;&emsp;却出现了权限问题。<br>&emsp;&emsp;产生这个问题的原因是安装blobfuse时，默认创建了一个名为 fuse的组，只有在这个组里的用户才能执行：<br><code>more /etc/group</code><br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrguygavj30no1dajy5.jpg" alt="Capto_Capture 2018-08-28_08-38-17_PM"></p>
+<p>&emsp;&emsp;把当前用户添加到这个组：<br><code>sudo usermod -a -G fuse blobfusevm</code><br>&emsp;&emsp;重新登录后，再次挂载：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgvun1hj31kw08d789.jpg" alt="Capto_Capture 2018-08-28_08-41-22_PM"></p>
+<p>&emsp;&emsp;挂载成功。<br>&emsp;&emsp;进入该目录并创建一个文件file01：<br><code>cd blobdir
+touch file01</code><br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrgw6w3jj30jc02a3z3.jpg" alt="Capto_Capture 2018-08-28_08-42-53_PM"></p>
+<p>&emsp;&emsp;再到azure的portal上检查container的内容：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgx4to9j31kw0hz77j.jpg" alt="Capto_Capture 2018-08-28_08-44-06_PM"></p>
+<p>&emsp;&emsp;在Linux下创建的文件出现了，说明目录与container的对应关系确实存在，挂载是成功的。</p>
+<h1 id="往前再走一步"><a href="#往前再走一步" class="headerlink" title="往前再走一步"></a>往前再走一步</h1><h2 id="关于容量的那些问题"><a href="#关于容量的那些问题" class="headerlink" title="关于容量的那些问题"></a>关于容量的那些问题</h2><p>&emsp;&emsp;在CentOS里检查文件系统容量：<br><code>df -k</code><br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgy4lygj30ss062gnz.jpg" alt="Capto_Capture 2018-08-28_08-47-56_PM"></p>
+<p>&emsp;&emsp;挂载的blob的容量只有大约8GB，远远没到存储账户的上限500TB，甚至连File Storage的单个共享容量5TB都没达到。为什么会这样？<br>&emsp;&emsp;产生的原因是我们选择了VM的临时盘来做缓存空间，而虚机的size是B2s，分配的临时盘是8GB，所以这里文件系统的容量显示为8GB。<br>&emsp;&emsp;那么，如果我们要存放的数据要大于缓存空间会出现什么情况？其实并不会影响，缓存只是暂时存处数据，里边的数据如果已经上传到blob，并且不再使用后，会自动删除，腾出空间来使用。<br>&emsp;&emsp;对此做一个测试，在挂载目录下生成一个4GB的文件：<br><code>dd if=/dev/zero bs=1MB of=file02 count=4000</code><br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgyks6kj30um0nyn5k.jpg" alt="Capto_Capture 2018-08-28_09-03-11_PM"></p>
+<p>&emsp;&emsp;可以看到在缓存目录下也生成了同样文件，占用了大约4GB空间。<br>&emsp;&emsp;查看虚机的metrics，文件创建后，网络流量开始突然增大，持续往Blob写入：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgz2y8vj30lw0gcta3.jpg" alt="Capto_Capture 2018-08-28_09-06-52_PM"></p>
+<p>&emsp;&emsp;同样，磁盘先有大量写入（生成文件），然后大量读出（传到Blob）：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrgzjinrj30kk0h03zo.jpg" alt="Capto_Capture 2018-08-28_09-09-34_PM"></p>
+<p>&emsp;&emsp;再查看缓存使用情况，容量已经空出，并且缓存目录下的文件消失（被自动清除）：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrgzzikaj30sq096dj3.jpg" alt="Capto_Capture 2018-08-28_09-10-15_PM"></p>
+<p>&emsp;&emsp;缓存目录下的文件被清除的时间可以通过挂载时的参数–file-cache-timeout-in-seconds=指定，单位为秒，默认120.当文件关闭超过这个时间会被自动删除。<br>&emsp;&emsp;缓存目录的设计可以大大提高Blob文件操作效率，避免网络影响。但是设置缓存目录时一定要注意容量大小，需要超过同时操作的所有文件总和。如果临时盘空间不满足，可以挂载一块大容量的空余磁盘设置为缓存目录，满足需求。</p>
+<h2 id="关于月饼的特殊性"><a href="#关于月饼的特殊性" class="headerlink" title="关于月饼的特殊性"></a>关于月饼的特殊性</h2><p>&emsp;&emsp;在Azure.cn(Mooncacke，俗称月饼)上进行同样测试：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrh0gnaej31kw028gnt.jpg" alt="Capto_Capture 2018-08-28_09-30-00_PM"></p>
+<p>&emsp;&emsp;却出现错误，无法连接到container。<br>&emsp;&emsp;仔细想想配置过程中对blob的配置，只提供了存储账户名和秘钥，没有关于路径的信息。因为木人情况下Blobfuse会去连接Global Azure，所以无需关于路径的信息。<br>&emsp;&emsp;而MC不一样，采用了不同的Endpoint格式，所以用默认配置，Blobfuse无法找到对应的Container。<br>&emsp;&emsp;找到问题就有了解决方法，在配置文件里加上对应的Endpoint即可：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrh0xua8j313y03sdhj.jpg" alt="Capto_Capture 2018-08-28_09-34-31_PM"></p>
+<p>&emsp;&emsp;再去挂载就没问题了：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrh1uwxfj31kw01ygmw.jpg" alt="Capto_Capture 2018-08-28_09-36-11_PM"></p>
+<p>&emsp;&emsp;这给了一个启发，Blobfuse访问Blob是通过http或https的方式，理论上可以跨wan，在不同region甚至on-premise的Linux上去挂载Blob。现在测试是否可行。<br>&emsp;&emsp;将MC上的配置文件传到Global的虚机：<br><code>scp ./fuse.cfg blobfusevm@13.77.164.62:~/mcfuse.cfg</code><br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh3g77xj31kw06jgoq.jpg" alt="Capto_Capture 2018-08-28_09-42-23_PM"></p>
+<p>&emsp;&emsp;在Global的虚机上用新的配置文件挂载：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrh47be3j31kw03r766.jpg" alt="Capto_Capture 2018-08-28_09-44-24_PM"></p>
+<p>&emsp;&emsp;生成一个文件并在MC的portal检查：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrh4oo4zj30im02ydgp.jpg" alt="Capto_Capture 2018-08-28_09-45-17_PM"><br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrh54l1rj31k80h6tbq.jpg" alt="Capto_Capture 2018-08-28_09-45-48_PM"></p>
+<p>&emsp;&emsp;由于是个空文件，所以很快就上传到了MC的Container。</p>
+<h1 id="小小的总结一下"><a href="#小小的总结一下" class="headerlink" title="小小的总结一下"></a>小小的总结一下</h1><p>&emsp;&emsp;通过测试，充分说明可以将Blob当做共享存储挂载到Linux里。不收Linux版本限制，并且空间足够大。<br>&emsp;&emsp;由于挂载方式是通过http或https，可以跨广域网，而且不会受到445端口的影响。<br>&emsp;&emsp;缓存目录的设置是个需要注意的地方，避免容量不都导致的问题。<br>&emsp;&emsp;其他一些配置细节，例如权限管理、加密传输等，可以参考Blobfuse的主页：<br><a href="https://github.com/Azure/azure-storage-fuse#blobfuse" target="_blank" rel="noopener">Blobfuse主页</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/56461/" rel="next" title="金凤玉露一相逢，便胜却人间无数——在Azure部署AVE">
+                <i class="fa fa-chevron-left"></i> 金凤玉露一相逢，便胜却人间无数——在Azure部署AVE
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/46107/" rel="prev" title="一桥飞架南北，天堑变通途——通过File Sync实现分布式NAS">
+                一桥飞架南北，天堑变通途——通过File Sync实现分布式NAS <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Blobfuse的配置使用"><span class="nav-number">1.</span> <span class="nav-text">Blobfuse的配置使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Blobfuse的安装"><span class="nav-number">1.1.</span> <span class="nav-text">Blobfuse的安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Blobfuse的配置"><span class="nav-number">1.2.</span> <span class="nav-text">Blobfuse的配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#挂载Blob"><span class="nav-number">1.3.</span> <span class="nav-text">挂载Blob</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#往前再走一步"><span class="nav-number">2.</span> <span class="nav-text">往前再走一步</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#关于容量的那些问题"><span class="nav-number">2.1.</span> <span class="nav-text">关于容量的那些问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于月饼的特殊性"><span class="nav-number">2.2.</span> <span class="nav-text">关于月饼的特殊性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小小的总结一下"><span class="nav-number">3.</span> <span class="nav-text">小小的总结一下</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

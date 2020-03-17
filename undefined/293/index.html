@@ -1,0 +1,808 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;昨天在Azure创建虚机时，无意中发现CentOS7.5已正式在Azure发布：  &amp;emsp;&amp;emsp;CentOS7.5虽然只是一个小版本升级，但是却引入了很多新功能。特别是存储方面，可以大大方便我们的工作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="忽如一夜春风来，千树万树梨花开——CentOS7.5新功能简介">
+<meta property="og:url" content="http://aubreyhan.net/undefined/293/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;昨天在Azure创建虚机时，无意中发现CentOS7.5已正式在Azure发布：  &amp;emsp;&amp;emsp;CentOS7.5虽然只是一个小版本升级，但是却引入了很多新功能。特别是存储方面，可以大大方便我们的工作。">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm93x0qj30ot077dfo.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm9kp3pj30q402bt8i.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/180604/BA1H8iHlK4.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/180604/4DGeLc0JaD.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrmapx1zj30pz07a744.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/180604/f74miKcKKB.png?imageslim">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrmbwdp1j30j10ckaa6.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmcyxdzj30iz02cdfl.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrmdsgeqj30kr0frmx0.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrme9whqj30ij04m3yb.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmeqp8lj30k105j3yb.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmfrxzzj30gv01j741.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmhoohej30he01z3y9.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmiie7ij30km06eq2r.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/180604/gH1Cg6a5e0.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/180604/IeDL9gkgb9.png?imageslim">
+<meta property="article:published_time" content="2018-06-04T02:44:18.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm93x0qj30ot077dfo.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/293/"/>
+
+
+
+
+
+  <title> 忽如一夜春风来，千树万树梨花开——CentOS7.5新功能简介 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/293/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                忽如一夜春风来，千树万树梨花开——CentOS7.5新功能简介
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-04T10:44:18+08:00">
+                2018-06-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;昨天在Azure创建虚机时，无意中发现CentOS7.5已正式在Azure发布：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm93x0qj30ot077dfo.jpg" alt="mark"></p>
+<p>&emsp;&emsp;CentOS7.5虽然只是一个小版本升级，但是却引入了很多新功能。特别是存储方面，可以大大方便我们的工作。</p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;首先，在China Azure创建一台CentOS7.5的虚机，位于China Azure的新region北2区（目前该区域还在内测）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm9kp3pj30q402bt8i.jpg" alt="mark"></p>
+<p>&emsp;&emsp;进入虚机检查kernel，是5月22号发布的最新版：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/180604/BA1H8iHlK4.png?imageslim" alt="mark"></p>
+<p>&emsp;&emsp;现在可以愉快的测试CentOS的新功能了。</p>
+<h1 id="跨Region的SMB访问"><a href="#跨Region的SMB访问" class="headerlink" title="跨Region的SMB访问"></a>跨Region的SMB访问</h1><p>&emsp;&emsp;众所周知，Azure提供了基于SMB2.X和3.0的文件共享服务，对于Linux，由于kernel限制，必须使用一定版本以上（例如CentOS7）才能支持，并且因为不支持SMB3.0加密，Linux无法做到像Windows那样跨广域网访问文件共享存储。</p>
+<p>&emsp;&emsp;现在CentOS新升级了kernel，再来做测试 。</p>
+<p>&emsp;&emsp;在Global Azure上创一个文件共享服务：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/180604/4DGeLc0JaD.png?imageslim" alt="mark"></p>
+<p>&emsp;&emsp;从该共享的域名地址：sa011.file.core.windows.net可以看出，属于Global Azure的服务。</p>
+<p>&emsp;&emsp;现从China Azure的虚机来mount这个文件共享：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrmapx1zj30pz07a744.jpg" alt="mark"></p>
+<p>&emsp;&emsp;成功实现。</p>
+<p>&emsp;&emsp;进入加载点，并创建一个文件：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/180604/f74miKcKKB.png?imageslim" alt="mark"></p>
+<p>&emsp;&emsp;回到Azure的该文件共享服务，刷新可看到该文件已出现：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrmbwdp1j30j10ckaa6.jpg" alt="mark"></p>
+<p>&emsp;&emsp;跨Region的文件共享可以大大简化我们的架构部署，实现数据的一致性，避免各Region之间文件复制导致的复杂性。甚至在家也可以通过internet访问文件共享服务。</p>
+<h1 id="块级重复数据消除"><a href="#块级重复数据消除" class="headerlink" title="块级重复数据消除"></a>块级重复数据消除</h1><p>&emsp;&emsp;如果说SMB3.0加密支持只是一个小改进，块级重复数据消除就是个重磅炸弹了。</p>
+<p>&emsp;&emsp;这个功能最早是在各存储厂商的盘阵推出（Thin-Provision），简单解释就是超分配，例如有1TB的空间，但在分配时，可以分配远远大于1TB的空间给用户（例如100TB），而用户并没有真正拥有该空间，只是在存放文件时，根据实际文件大小分配空间；管理员可以在后台随时扩充，而对客户是完全透明，没有感知。</p>
+<p>&emsp;&emsp;设想这样一个场景，IT运维人员调查五个业务部门的空间需求，每个业务部门都狮子大开口，需要50TB，但老板给的预算远远不够，只能买10TB存储。如果按实际容量分配给业务部门，每个业务部门只能有2TB空间，很有可能半年后一个部门的实际空间需求超过2TB，需要停机扩容，而另外的部门可能200GB都没用到，总空间有富裕却不能使用。如果采用了重复数据消除，给每个部门都分配50TB空间，就无需关心每个部门的空间使用情况，只需关注总的空间占用情况，快到10TB时，直接在后台对总空间扩容，而业务部门无感知。通过这种方式可大大提高存储的性价比。</p>
+<p>&emsp;&emsp;CentOS7.5的kernel已经内置了块级重复数据消除功能（VDO），下边看看如何使用。</p>
+<p>&emsp;&emsp;首先安装VDO模块：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmcyxdzj30iz02cdfl.jpg" alt="mark"></p>
+<p>&emsp;&emsp;可以看到在Azure的CentOS7.5已默认安装VDO所需模块。</p>
+<p>&emsp;&emsp;给虚机附加一块30GB磁盘（sdc），并在该磁盘上创建一个100GB的VDO设备：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrmdsgeqj30kr0frmx0.jpg" alt="mark"></p>
+<p>&emsp;&emsp;使用xfs格式化该设备：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrme9whqj30ij04m3yb.jpg" alt="mark"></p>
+<p>&emsp;&emsp;并挂载给一个目录（-o discard可以自动回收空间）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmeqp8lj30k105j3yb.jpg" alt="mark"></p>
+<p>&emsp;&emsp;可以看到，虽然sdc只有30GB容量，但我们却在上边建立了一个100GB的空间分配给系统使用。</p>
+<p>&emsp;&emsp;检查设备的容量情况，可以看到逻辑容量、实际使用量等：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmfrxzzj30gv01j741.jpg" alt="mark"></p>
+<p>&emsp;&emsp;该设备分配了100GB空间，但实际只占用了4.0GB（用来存放元数据等）。</p>
+<p>&emsp;&emsp;现在通过dd命令在该加载点下生成一个10GB的文件：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmhoohej30he01z3y9.jpg" alt="mark"></p>
+<p>&emsp;&emsp;再次检查VDO设备的容量情况：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmiie7ij30km06eq2r.jpg" alt="mark"></p>
+<p>&emsp;&emsp;目录里虽然多了一个10GB的文件，但实际占用空间并没有增加，因为这个文件里全部是0（来源/dev/zero），vdo会自动抛弃这部分内容，只是记录指针。</p>
+<p>​    再生成一个10GB有内容的文件：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/180604/gH1Cg6a5e0.png?imageslim" alt="mark"></p>
+<p>&emsp;&emsp;这次文件的来源是/dev/sda，相当于讲sda这块硬盘的前10GB内容复制到file02这个文件里。再次检查容量情况：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/180604/IeDL9gkgb9.png?imageslim" alt="mark"></p>
+<p>&emsp;&emsp;实际占用空间4.5GB，存放了2个10Gb的文件，消重率达到97%。</p>
+<p>&emsp;&emsp;通过实际测试可以发现，块级数据消重确实可以大量节省空间。但是文件读写过程中，可能大量顺序读写变味了随机读写，可能会导致一定性能损失。随着SSD高速磁盘的性能迅速提升，相信性能损失会降到基本忽略的水平。</p>
+<p>&emsp;&emsp;如果客户是容量成本比较敏感，可以通过此方式为客户节约成本。对VDO设备的创建作进一步改进，不是放到基本磁盘而是放到lvm设备，还可实现实际空间快满时的无间断扩容，满足性价比的需求。</p>
+<hr>
+<p>&emsp;&emsp;CentOS7.5在存储方面的新特性简单介绍到此为止，希望大家都能愉快的使用。</p>
+<h1 id="MS-Love-Linux！"><a href="#MS-Love-Linux！" class="headerlink" title="MS Love Linux！"></a>MS Love Linux！</h1>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/48551/" rel="next" title="滴血的CPU漏洞">
+                <i class="fa fa-chevron-left"></i> 滴血的CPU漏洞
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/41720/" rel="prev" title="东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之备份篇">
+                东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之备份篇 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#跨Region的SMB访问"><span class="nav-number">1.</span> <span class="nav-text">跨Region的SMB访问</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#块级重复数据消除"><span class="nav-number">2.</span> <span class="nav-text">块级重复数据消除</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MS-Love-Linux！"><span class="nav-number">3.</span> <span class="nav-text">MS Love Linux！</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

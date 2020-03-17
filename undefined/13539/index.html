@@ -1,0 +1,880 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Docker,数据库," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前几天，我软发布跨平台的SQL2017的消息刷屏了朋友圈。各位吃瓜群众纷纷发来贺电的同时，也提出了不少疑问，其中很重要一点就是如何实现SQL在容器里的数据持久化？今天就来聊聊这个问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL，到容器里来">
+<meta property="og:url" content="http://aubreyhan.net/undefined/13539/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="前几天，我软发布跨平台的SQL2017的消息刷屏了朋友圈。各位吃瓜群众纷纷发来贺电的同时，也提出了不少疑问，其中很重要一点就是如何实现SQL在容器里的数据持久化？今天就来聊聊这个问题。">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrljgkabj30ut0h8t8y.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrljt1iyj31gf05z3yq.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrll9kmfj30fx01j0si.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrln5e57j30pe01g0si.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171016/fG9AK9iD0e.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlnm62kj309u03j0si.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrloz0pkj30fl02bdfm.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrlpl82qj30io0c2q4v.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlqwzvwj30r50460sn.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlrvyn5j30bn01yt8h.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrltp19mj30gi08aweg.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlu554kj30j304g0sk.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171016/a9ajcjBgIh.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlv53bjj30t7033747.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlvko1yj30d9085a9w.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrlvzio3j30nu0gsmxh.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlwh9pnj30j60g3749.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlwx9y2j30zc052mx2.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlxep2ej30hh0da0sy.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrlz9wmoj30sr04ldfq.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrm16fojj30m40czmxe.jpg">
+<meta property="article:published_time" content="2017-10-16T07:53:25.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrljgkabj30ut0h8t8y.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/13539/"/>
+
+
+
+
+
+  <title> SQL，到容器里来 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/13539/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                SQL，到容器里来
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-16T15:53:25+08:00">
+                2017-10-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Docker/" itemprop="url" rel="index">
+                    <span itemprop="name">Docker</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Docker/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前几天，我软发布跨平台的SQL2017的消息刷屏了朋友圈。各位吃瓜群众纷纷发来贺电的同时，也提出了不少疑问，其中很重要一点就是如何实现SQL在容器里的数据持久化？今天就来聊聊这个问题。</p>
+<a id="more"></a>
+
+<h1 id="容器数据持久化"><a href="#容器数据持久化" class="headerlink" title="容器数据持久化#"></a>容器数据持久化#</h1><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>测试环境使用Azure上的CentOS7.3，安装完成首先升级所有软件到最新版：</p>
+<p><code>sudo yum update</code></p>
+<p>然后安装docker：</p>
+<p><code>sudo yum install docker* -y</code></p>
+<p>设置开机启动docker，并启动docker：</p>
+<p><code>sudo systemctl enable docker</code></p>
+<p><code>sudo systemctl start docker</code></p>
+<p>然后检查docker运行状态：</p>
+<p><code>sudo docker info</code></p>
+<p>出现如下页面就好了：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrljgkabj30ut0h8t8y.jpg" alt="mark"></p>
+<h2 id="数据持久化测试"><a href="#数据持久化测试" class="headerlink" title="数据持久化测试"></a>数据持久化测试</h2><p>先用ubuntu测试。可以先将ubuntu镜像下载（没加版本参数会下载最新版）：</p>
+<p><code>sudo docker pull ubuntu</code></p>
+<hr>
+<p>Tips</p>
+<p>​    国内可能下载速度很慢，可以通过镜像加速，方法是：</p>
+<ul>
+<li><p>打开DaoCloud网站注册一个账户并登陆：</p>
+<p><a href="https://www.daocloud.io/" target="_blank" rel="noopener">DaoCloud</a></p>
+</li>
+</ul>
+<ul>
+<li><p>进入个人主页后可以看到右上角有个加速器的火箭图标：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrljt1iyj31gf05z3yq.jpg" alt="mark"></p>
+</li>
+<li><p>点击图标，得到一个脚本，将国内镜像加入docker配置的json脚本</p>
+<p><code>curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://416d59dc.m.daocloud.io</code></p>
+</li>
+<li><p>重启docker服务生效：</p>
+<p><code>sudo systemctl restart docker</code></p>
+</li>
+</ul>
+<hr>
+<p>镜像下载完成，运行基于此镜像的第一个容器：</p>
+<p><code>sudo docker run --name docker01 -i -t ubuntu  /bin/bash</code></p>
+<hr>
+<p>解释一下几个参数：</p>
+<p>​    1、run：运行一个容器</p>
+<p>​    2、–name：给运行的容器取个名字（如果忽略，会随机给出一个）</p>
+<pre><code>3、-i：启用标准stdin</code></pre><p>​    4、-t：启用一个伪tty终端（才能登陆进去）</p>
+<p>​    5、ubuntu：运行容器的基础镜像，如果本地没有，直接从仓库里拉一个</p>
+<p>​    6、/bin/bash：进入容器tty后的sh</p>
+<hr>
+<p>现在就进入了运行的容器（一个极小化的ubuntu）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrll9kmfj30fx01j0si.jpg" alt="mark"></p>
+<p>进入家目录，并生成一个文件：</p>
+<p><code>cd</code></p>
+<p><code>touch test001</code></p>
+<p>退出容器：</p>
+<p>exit</p>
+<p>运行如下命令检查系统的容器列表：</p>
+<p><code>sudo docker ps</code></p>
+<p>可以看到输出是空的：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrln5e57j30pe01g0si.jpg" alt="mark"></p>
+<p>因为这个容器没有任何后台进程，所以退出容器后，容器就结束了。</p>
+<p>现在加上-a参数：</p>
+<p><code>sudo docker ps -a</code></p>
+<p>可以看到之前运行的容器出现了，状态是退出：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171016/fG9AK9iD0e.png?imageslim" alt="mark"></p>
+<p>重新启动此容器并附着到此容器：</p>
+<p><code>sudo docker start  docker01</code>    </p>
+<p><code>sudo docker attach docker01</code></p>
+<p>运行后进入家目录检查生成的文件：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlnm62kj309u03j0si.jpg" alt="mark"></p>
+<p>现在生成一个容器docker02，然后去检查家目录的文件：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrloz0pkj30fl02bdfm.jpg" alt="mark"></p>
+<p>可以发现找不到新生成的文件。</p>
+<p>发生这个问题的原因是由于镜像是只读的，通过镜像生成的容器里的写操作只在容器里起作用，用镜像生成的新容器不受影响，如下图：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrlpl82qj30io0c2q4v.jpg" alt="mark"></p>
+<p>如果容器的数据有持久化要求，启动时加载已有数据，就要通过Data Volume来解决。</p>
+<p>Data Volume有Bind Mount（将host指定目录映射到容器）和Docker Managed Volume（Docker自行管理目录两种方式），各有用途。这里讨论一下Bind Mount方式。</p>
+<p>Blind Mount很简单，只需运行容器时加上如下参数：</p>
+<p><code>-v HostDir:DockerDir</code></p>
+<p>现在将主机的/mnt目录映射到新容器docker03的/mnt/temp目录下：</p>
+<p><code>sudo docker run --name docker03 -i -t  -v /mnt:/mnt/temp ubuntu /bin/bash</code></p>
+<p>检查文件系统挂载情况：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlqwzvwj30r50460sn.jpg" alt="mark"></p>
+<p>可以看到/mnt/temp下被挂载了一个新分区，大小即主机/mnt所在分区的大小。</p>
+<p>到此目录创建一个文件：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlrvyn5j30bn01yt8h.jpg" alt="mark"></p>
+<p>坑爹的事情发生了，没有权限。经过修改主机、容器内的宿主、权限都不能解决此问题，后来在万能的google帮助下才发现是docker启动时启动了selinux，找到原因就简单了，修改/etc/sysconfig/docker文件：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrltp19mj30gi08aweg.jpg" alt="mark"></p>
+<p>删除高亮部分并重启docker服务即可。</p>
+<p>删除并重新运行docker03，再进入/mnt/temp下，可正常生成文件，并且在主机的/mnt目录下也可看到新生成的文件：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlu554kj30j304g0sk.jpg" alt="mark"></p>
+<h1 id="SQL-on-Docker的数据持久化"><a href="#SQL-on-Docker的数据持久化" class="headerlink" title="SQL on Docker的数据持久化#"></a>SQL on Docker的数据持久化#</h1><h2 id="SQL-on-Docker的配置使用"><a href="#SQL-on-Docker的配置使用" class="headerlink" title="SQL on Docker的配置使用"></a>SQL on Docker的配置使用</h2><p>今天还在网上看到有人问如何将SQL Server安装到容器里，其实我软早已做好，直接使用即可。</p>
+<p>先查找在docker.io的官方SQL Server 镜像：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171016/a9ajcjBgIh.png?imageslim" alt="mark"></p>
+<p>可以看到第一个就是官方版的mssql-linux的容器镜像。先拉回本地：</p>
+<p><code>sudo docker pull microsoft/mssql-server-linux</code></p>
+<p>SQL on Docker的运行很简单：</p>
+<p><code>sudo docker run -e &#39;ACCEPT_EULA=Y&#39; -e &#39;MSSQL_SA_PASSWORD=&lt;YourStrong!Passw0rd&gt;&#39; -p 1401:1433 --name sql01 -d microsoft/mssql-server-linux</code></p>
+<p>和之前比，不同之处在</p>
+<p>​    -e参数传递环境变量（这里包含同意许可和SA密码设置）</p>
+<p>​    -p端口映射（将主机的1401映射到sql的监听端口1433，可根据实际情况选择主机端口）</p>
+<p>​    -d说明作为守护进程运行</p>
+<p>运行后tty停留在主机，检查状态，多出一个sql01的容器：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlv53bjj30t7033747.jpg" alt="mark"></p>
+<p>现在用ssms去连接SQL（不要忘了打开nsg的对应端口）：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlvko1yj30d9085a9w.jpg" alt="mark"></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrlvzio3j30nu0gsmxh.jpg" alt="mark"></p>
+<p>可见，顺利登陆。</p>
+<p>检查数据库属性的文件，可以发现文件位置位于容器的/var/opt/mssql目录：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlwh9pnj30j60g3749.jpg" alt="mark"></p>
+<p>所以如果要将容器的数据库持久化，需要将此目录持久化，即映射到主机的目录里。</p>
+<h2 id="SQL-on-Docker数据持久化"><a href="#SQL-on-Docker数据持久化" class="headerlink" title="SQL on Docker数据持久化##"></a>SQL on Docker数据持久化##</h2><p>接下来就简单了，运行一个容器sql02，并将主机的新建目录~/mssql映射给容器（注意不要端口冲突）：</p>
+<p><code>sudo docker run -e &#39;ACCEPT_EULA=Y&#39; -e &#39;MSSQL_SA_PASSWORD=&lt;YourStrong!Passw0rd&gt;&#39; -p 1402:1433 -v ~/mssql:/var/opt/mssql --name sql02 -d microsoft/mssql-server-linux</code></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlwx9y2j30zc052mx2.jpg" alt="mark"></p>
+<p>可以看到sql02正常启动，并且在主机对应目录生成了数据库文件。</p>
+<p>登录到sql02并创建一个新数据库demodb：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlxep2ej30hh0da0sy.jpg" alt="mark"></p>
+<p>现在关闭sql02，创建sql03，并将~/mssql目录mount到sql03：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrlz9wmoj30sr04ldfq.jpg" alt="mark"></p>
+<p>现在通过ssms登录sql03：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrm16fojj30m40czmxe.jpg" alt="mark"></p>
+<p>可以看到sql02创建的demodb也出现了，说明数据文件的持久化成功。</p>
+<p>另外，在运行sql03时，没有通过-e参数指定sa的密码，因为sa的密码记录在数据库里，数据文件持久化后，密码保持不变。</p>
+<p>以上就是简单的SQL on Docker数据文件持久化测试。相信随着SQL的发展，SQL on Docker会功能越来越完善。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Docker/" rel="tag"># Docker</a>
+          
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/13004/" rel="next" title="看看他们做了些什么---Blob存储新功能预览">
+                <i class="fa fa-chevron-left"></i> 看看他们做了些什么---Blob存储新功能预览
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/30528/" rel="prev" title="今天，咱们来聊聊形而上">
+                今天，咱们来聊聊形而上 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#容器数据持久化"><span class="nav-number">1.</span> <span class="nav-text">容器数据持久化#</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境准备"><span class="nav-number">1.1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据持久化测试"><span class="nav-number">1.2.</span> <span class="nav-text">数据持久化测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SQL-on-Docker的数据持久化"><span class="nav-number">2.</span> <span class="nav-text">SQL on Docker的数据持久化#</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL-on-Docker的配置使用"><span class="nav-number">2.1.</span> <span class="nav-text">SQL on Docker的配置使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL-on-Docker数据持久化"><span class="nav-number">2.2.</span> <span class="nav-text">SQL on Docker数据持久化##</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

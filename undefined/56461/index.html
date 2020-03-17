@@ -1,0 +1,899 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;前边谈到了Azure原生的ASR服务，可以提供虚机、文件、数据库等的备份。但是ASR的功能有些限制，对应用的兼容性局限在MS的产品。如果用户有其他方面的备份要求，无疑ASR就不能满足需求了。 &amp;emsp;&amp;emsp;不过作为一个开放的平台，有很多第三方的工具可以满足客户的需求。今天就谈谈EMC的Avamar。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="金凤玉露一相逢，便胜却人间无数——在Azure部署AVE">
+<meta property="og:url" content="http://aubreyhan.net/undefined/56461/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;前边谈到了Azure原生的ASR服务，可以提供虚机、文件、数据库等的备份。但是ASR的功能有些限制，对应用的兼容性局限在MS的产品。如果用户有其他方面的备份要求，无疑ASR就不能满足需求了。 &amp;emsp;&amp;emsp;不过作为一个开放的平台，有很多第三方的工具可以满足客户的需求。今天就谈谈EMC的Avamar。">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrjy8irgj31670f974p.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrjys10tj30fl02ldfr.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrjz6ln1j30js032aa3.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrk1iqvmj314w01eweb.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrk2xk2bj31ae088mxn.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrk3dya9j30nu0kbdg2.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrk3uqunj31at0hsdgj.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrk58jbaj30pr0adaak.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrk68o5zj30he0jcgly.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrk6p46ij31420bsdg7.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrk79m6nj30hj0oh3yy.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrk844bij30gj0c3t8r.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrk8ktsvj30ph07dq37.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkavei6j312a0enmxs.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrkbci67j30iq0cf752.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkbtko6j30iu0c4ab9.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrkcbpu4j312x0o2n0e.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkctrbdj31h805ogm5.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/180611/kD27e1D98H.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrkdph1fj31gy04cwem.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrke6okvj31b405p3yq.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkembgfj312503yq2t.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/180611/BgimCadGk6.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkg5em5j31h50s4t9r.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkhxlrxj30wh0evgm0.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkiuhgqj30mw0jw3yj.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkl9b58j30r50i9q5p.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/180611/fgbH1da05b.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrkm9fd5j31h30rudm1.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkn3re4j30w409tjt7.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrknzdtej30un08e75k.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkrrxqpj30mm0863zp.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrks7c2uj31kw052tb6.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkta6lvj31kw0sd0wb.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrku4zd0j31kw0b0dhz.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrkyub8aj30u20wragt.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkzop6yj30g90bpdhd.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrl0nj5nj30e90bdab9.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrl1k9b5j308201q0sq.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrl30ykoj30cm08f0ta.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrl3gze0j307r06474f.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrl4wt7bj30bt05ymy1.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrl5tanyj30pw0gijuw.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrl79bd8j30n60jmjsb.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrl88bruj30t60ifadd.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrl9kxy1j30tc0iggow.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlaglrfj30to0ietdx.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlbxxq0j30tb0idn23.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrldu5nnj30bo087wet.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrle8vd3j30r20ieten.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlfolr1j31kw05otav.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlg5m77j30z301qgly.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrlh30kfj31kw04w76e.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrli0yhxj31kw013q3r.jpg">
+<meta property="article:published_time" content="2018-06-11T03:03:15.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrjy8irgj31670f974p.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/56461/"/>
+
+
+
+
+
+  <title> 金凤玉露一相逢，便胜却人间无数——在Azure部署AVE | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/56461/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                金凤玉露一相逢，便胜却人间无数——在Azure部署AVE
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-11T11:03:15+08:00">
+                2018-06-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;前边谈到了Azure原生的ASR服务，可以提供虚机、文件、数据库等的备份。但是ASR的功能有些限制，对应用的兼容性局限在MS的产品。如果用户有其他方面的备份要求，无疑ASR就不能满足需求了。</p>
+<p>&emsp;&emsp;不过作为一个开放的平台，有很多第三方的工具可以满足客户的需求。今天就谈谈EMC的Avamar。</p>
+<a id="more"></a>
+
+<h1 id="Avamar简介"><a href="#Avamar简介" class="headerlink" title="Avamar简介"></a>Avamar简介</h1><p>&emsp;&emsp;Avamar是我最爱的EMC两大产品之一（另一个是Isilon），是EMC传统备份产品线的重要支柱。与其它备份产品不一样，Avamar最早提出备份一体机的概念，即在一个硬件设备里提供了备份服务器、备份软件、备份介质等，拿到客户环境连接电源、网络即用，无需复杂的软件安装、硬件调试。后来，其他备份厂商才开始采用这种整合方式为客户提供备份解决方案。</p>
+<p>&emsp;&emsp;Avamar的另一个重要概念是源端消重。起初Avamar是作为VMWare环境下虚机镜像级备份产品。虚机镜像级备份面临的主要问题是备份数据量大、备份窗口较长，但是基于数据块的重复数据较多。Avamar通过远端数据消重的方式，在备份数据从备份客户端传出前先做比较，如果是重复数据块就只记录指针，而不真正传输数据，备份介质上也只保留不重复的数据块，通过这种方式，大大降低了备份数据量和备份窗口。所以Avamar最大的节点也只提供7.8TB的容量，并且采用Lan作为备份线路，而非Lan-Free的方式。</p>
+<p>&emsp;&emsp;随着IT的发展，Avamar也开始逐步增加各种应用的支持，并且从体系架构上转向虚拟化（AVE）部署已经和EMC DataDomain（虚拟带库）的整合，适应现代化的IT架构。</p>
+<h1 id="Avamar部署"><a href="#Avamar部署" class="headerlink" title="Avamar部署"></a>Avamar部署</h1><p>&emsp;&emsp;Global的Azure已经在market place原生提供了Avamar的环境，只需直接部署即可：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrjy8irgj31670f974p.jpg" alt="mark"></p>
+<p>&emsp;&emsp;而在China Azure目前还没提供。</p>
+<p>&emsp;&emsp;EMC网站上提供了Avamar的镜像下载和部署模板文件，但模板文件是同时部署AVE和DDVE（DataDomain的虚拟化版本）。如果需要单独部署AVE，这需要手工安装。</p>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="软件下载"><a href="#软件下载" class="headerlink" title="软件下载"></a>软件下载</h3><p>&emsp;&emsp;在EMC支持网站 support.emc.com 可以直接下载所需软件。主要有两个：</p>
+<p>​    1、Avamar的Azure版镜像：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrjys10tj30fl02ldfr.jpg" alt="mark"></p>
+<p>&emsp;&emsp;2、对应版本的Avamar客户端软件包：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrjz6ln1j30js032aa3.jpg" alt="mark"></p>
+<h3 id="控制台虚机准备"><a href="#控制台虚机准备" class="headerlink" title="控制台虚机准备"></a>控制台虚机准备</h3><p>&emsp;&emsp;由于Avamar部署不建议有公网地址，所以需要在Azure部署一台Windows虚机用作Avamar控制台：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrk1iqvmj314w01eweb.jpg" alt="mark"></p>
+<h2 id="部署过程"><a href="#部署过程" class="headerlink" title="部署过程"></a>部署过程</h2><h3 id="AVE虚机部署"><a href="#AVE虚机部署" class="headerlink" title="AVE虚机部署"></a>AVE虚机部署</h3><p>&emsp;&emsp;先将下载的Avamar镜像文件（AZURE-AVE-7.5.1.101.vhd.7z）解压缩，得到vhd文件（AZURE-AVE-7.5.1.101.vhd），并上传到一个存储账户（Page Blob）：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrk2xk2bj31ae088mxn.jpg" alt="mark"></p>
+<p>&emsp;&emsp;然后到镜像服务里创建镜像，将上传的vhd制作为镜像：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrk3dya9j30nu0kbdg2.jpg" alt="mark"></p>
+<p>&emsp;&emsp;镜像转换完成后，就可以通过该镜像去部署AVE的虚机：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrk3uqunj31at0hsdgj.jpg" alt="mark"></p>
+<p>&emsp;&emsp;AVE对虚机的Size有最小要求（但按照实际经验，A系列的虚机由于使用hdd硬盘，可能由于性能问题，导致GSAN不能成功创建，建议使用DS系列虚机及SSD磁盘）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrk58jbaj30pr0adaak.jpg" alt="mark"></p>
+<p>&emsp;&emsp;测试环境建立一个2TB的AVE：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrk68o5zj30he0jcgly.jpg" alt="mark"></p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrk6p46ij31420bsdg7.jpg" alt="mark"></p>
+<p>&emsp;&emsp;网络配置方面，无需公网IP，并且配置在与控制台虚机在同一个子网里，方便调试。如果有在其他网络的备份客户端虚机，注意在NSG做相应设置：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrk79m6nj30hj0oh3yy.jpg" alt="mark"></p>
+<p>&emsp;&emsp;虚机创建后还有两步后续工作：</p>
+<p>&emsp;&emsp;将虚机内网IP设置为固定IP：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrk844bij30gj0c3t8r.jpg" alt="mark"></p>
+<p>&emsp;&emsp;由于AVE为备份一体机，备份数据放置于虚机内部，所以虚机还需按如下规则添加数据磁盘：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrk8ktsvj30ph07dq37.jpg" alt="mark"></p>
+<p>&emsp;&emsp;此处为虚机添加3块1000GB数据盘：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkavei6j312a0enmxs.jpg" alt="mark"></p>
+<h3 id="Avamar软件安装"><a href="#Avamar软件安装" class="headerlink" title="Avamar软件安装"></a>Avamar软件安装</h3><p>&emsp;&emsp;通过远程桌面链接到控制台虚机，并在这台虚机试用SSH通过内网连接到AVE虚机（使用虚机创建时配置的用户名密码）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrkbci67j30iq0cf752.jpg" alt="mark"></p>
+<p>&emsp;&emsp;通过sudo passwd命令为AVE虚机设置root密码：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkbtko6j30iu0c4ab9.jpg" alt="mark"></p>
+<p>&emsp;&emsp;在控制台虚机的浏览器里打开：<a href="https:">https://</a><IP of AVE>:7543/avi 进入Avamar安装界面（如有安全提示直接忽略）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrkcbpu4j312x0o2n0e.jpg" alt="mark"></p>
+<p>&emsp;&emsp;使用root和刚设置的密码登陆：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkctrbdj31h805ogm5.jpg" alt="mark"></p>
+<p>&emsp;&emsp;点击Install开始配置各项必要信息。</p>
+<p>&emsp;&emsp;首先是注册信息，测试环境可以随便输入：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/180611/kD27e1D98H.png?imageslim" alt="mark"></p>
+<p>&emsp;&emsp;然后是各种用户密码，这里为了简化，勾选上统一密码，密码需要14位以上，两个大写字母，两个小写字母，两个数字，两个特殊字符（,.-_）</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrkdph1fj31gy04cwem.jpg" alt="mark"></p>
+<p>&emsp;&emsp;接着是客户联系人信息，测试环境随便填写：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrke6okvj31b405p3yq.jpg" alt="mark"></p>
+<p>&emsp;&emsp;服务器的时区信息，按实际情况填写：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkembgfj312503yq2t.jpg" alt="mark"></p>
+<p>&emsp;&emsp;检查无误保存后点击Continue继续：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/180611/BgimCadGk6.png?imageslim" alt="mark"></p>
+<p>&emsp;&emsp;自动开始创建文件系统、安装软件、执行各种配置，启动服务等，时间较长，泡杯茶慢慢等待吧。</p>
+<p>&emsp;&emsp;出现如下界面，恭喜成功：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkg5em5j31h50s4t9r.jpg" alt="mark"></p>
+<p>&emsp;&emsp;点击Go to Resource进入资源库，到Downloads页面下载对应版本Java安装：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkhxlrxj30wh0evgm0.jpg" alt="mark"></p>
+<p>&emsp;&emsp;回到安装完成界面，点击Launch MC，进入Avamar管理界面（可能会提示一个文件找不到，不用管，cancel即可）：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkiuhgqj30mw0jw3yj.jpg" alt="mark"></p>
+<p>&emsp;&emsp;用户名MCUser，密码就是再Avamar软件安装过程中设置的密码，登录进入此界面：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkl9b58j30r50i9q5p.jpg" alt="mark"></p>
+<p>&emsp;&emsp;有两个错误，点开查看，是由于email地址不对导致，不用管：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/180611/fgbH1da05b.png?imageslim" alt="mark"></p>
+<p>&emsp;&emsp;至此，AVE安装部署完毕。</p>
+<h1 id="备份测试"><a href="#备份测试" class="headerlink" title="备份测试"></a>备份测试</h1><h2 id="备份客户端准备"><a href="#备份客户端准备" class="headerlink" title="备份客户端准备"></a>备份客户端准备</h2><p>&emsp;&emsp;将之前下载的客户端软件包拷贝到控制台虚机，在浏览器(不要用IE，别问我为什么)打开https://(ip of AVE):7543/avi/:<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrkm9fd5j31h30rudm1.jpg" alt="Capto_Capture 2018-06-11_10-33-52_PM"></p>
+<p>&emsp;&emsp;使用root登录（注意：此时的root密码已变为Avamar软件安装过程中设置的密码），进入软件安装界面：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkn3re4j30w409tjt7.jpg" alt="Capto_Capture 2018-06-11_10-35-37_PM"></p>
+<p>&emsp;&emsp;选择Reposity，浏览到客户端软件包，上传到Avamar：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrknzdtej30un08e75k.jpg" alt="Capto_Capture 2018-06-11_10-36-43_PM"></p>
+<p>&emsp;&emsp;上传过程中不要关闭、刷新浏览器，也不要点击其他页面，静静地等着一直到如下界面：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrkrrxqpj30mm0863zp.jpg" alt="Capto_Capture 2018-06-11_10-45-35_PM"></p>
+<p>&emsp;&emsp;回到SW Updates界面，可以看到新的软件包了，点击Install安装：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrks7c2uj31kw052tb6.jpg" alt="Capto_Capture 2018-06-11_10-46-26_PM"></p>
+<p>&emsp;&emsp;软件校验完成，提示点击下边的Continue安装：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkta6lvj31kw0sd0wb.jpg" alt="Capto_Capture 2018-06-11_10-55-52_PM"></p>
+<p>&emsp;&emsp;安装完毕出现如下：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrku4zd0j31kw0b0dhz.jpg" alt="Capto_Capture 2018-06-11_11-04-59_PM"></p>
+<p>&emsp;&emsp;浏览器直接输入AVE IP，点击Downloads，可以看到比之前多了很多客户端软件，用做各种OS和应用的备份：<br>![Capto_Capture 2018-06-11_11-06-54_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-11_11-06-54_PM.png)</p>
+<h2 id="备份客户端软件安装"><a href="#备份客户端软件安装" class="headerlink" title="备份客户端软件安装"></a>备份客户端软件安装</h2><p>&emsp;&emsp;用控制台虚机（Windows2016）作为测试客户端，点击展开相应选项，下载对应客户端（AvamarClient-windows-x86_64.7.5.101-101.msi）:<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrkyub8aj30u20wragt.jpg" alt="Capto_Capture 2018-06-11_11-09-49_PM"></p>
+<p>&emsp;&emsp;运行安装：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrkzop6yj30g90bpdhd.jpg" alt="Capto_Capture 2018-06-11_11-10-37_PM"></p>
+<p>&emsp;&emsp;安装过程中输入AVE IP和MC Domain（测试环境保持默认即可）：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrl0nj5nj30e90bdab9.jpg" alt="Capto_Capture 2018-06-11_11-11-37_PM"></p>
+<p>&emsp;&emsp;安装完成后发现任务栏多了一个Avamar客户端图标：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrl1k9b5j308201q0sq.jpg" alt="Capto_Capture 2018-06-11_11-13-41_PM"></p>
+<p>&emsp;&emsp;右键点击图标，选择Manage-Activate Client激活客户端：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrl30ykoj30cm08f0ta.jpg" alt="Capto_Capture 2018-06-11_11-14-35_PM"></p>
+<p>&emsp;&emsp;点击Activate激活：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrl3gze0j307r06474f.jpg" alt="Capto_Capture 2018-06-11_11-15-59_PM"></p>
+<p>&emsp;&emsp;出现如下提示成功激活：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrl4wt7bj30bt05ymy1.jpg" alt="Capto_Capture 2018-06-11_11-17-15_PM"></p>
+<h2 id="文件备份测试"><a href="#文件备份测试" class="headerlink" title="文件备份测试"></a>文件备份测试</h2><h3 id="初次备份"><a href="#初次备份" class="headerlink" title="初次备份"></a>初次备份</h3><p>&emsp;&emsp;在浏览器如下页面点击Administrator：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrl5tanyj30pw0gijuw.jpg" alt="Capto_Capture 2018-06-11_11-18-34_PM"></p>
+<p>&emsp;&emsp;进入管理界面并登陆：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrl79bd8j30n60jmjsb.jpg" alt="Capto_Capture 2018-06-11_11-20-21_PM"></p>
+<p>&emsp;&emsp;点击Backup&amp;Restore：<br>![Capto_Capture 2018-06-11_11-21-08_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-11_11-21-08_PM.png)</p>
+<p>&emsp;&emsp;进入备份界面，看到clients这个Domian下已经有了console这台客户端：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrl88bruj30t60ifadd.jpg" alt="Capto_Capture 2018-06-11_11-22-10_PM"></p>
+<p>&emsp;&emsp;点击Backup，可以看到目前插件支持Windows VSS、Windows Filesystem、Windows Update备份，如果安装其他插件如数据库、邮件系统等，都将在此列出，在此选择对文件系统F盘进行备份：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrl9kxy1j30tc0iggow.jpg" alt="Capto_Capture 2018-06-11_11-24-02_PM"></p>
+<p>&emsp;&emsp;F盘的内容为AVE的Azure镜像，大小为126GB：<br>![Capto_Capture 2018-06-11_11-31-41_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-11_11-31-41_PM.png)</p>
+<p>&emsp;&emsp;右键点击F盘，选择Backup Now：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlaglrfj30to0ietdx.jpg" alt="Capto_Capture 2018-06-11_11-32-01_PM"></p>
+<p>&emsp;&emsp;点击OK：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlbxxq0j30tb0idn23.jpg" alt="Capto_Capture 2018-06-11_11-32-47_PM"></p>
+<p>&emsp;&emsp;启动备份任务：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrldu5nnj30bo087wet.jpg" alt="Capto_Capture 2018-06-11_11-33-09_PM"></p>
+<p>&emsp;&emsp;现在可以点击Activity查看备份进程：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrle8vd3j30r20ieten.jpg" alt="Capto_Capture 2018-06-11_11-33-36_PM"></p>
+<p>&emsp;&emsp;备份开始：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrlfolr1j31kw05otav.jpg" alt="Capto_Capture 2018-06-11_11-34-18_PM"></p>
+<p>&emsp;&emsp;备份完成，查看报告：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrlg5m77j30z301qgly.jpg" alt="Capto_Capture 2018-06-12_06-43-06_AM"></p>
+<p>&emsp;&emsp;126GB的原始数据，备份后只生成了约8GB新数据，消重率大约94%。<br>&emsp;&emsp;但是因为是第一次备份，所有数据块都要校验，所以备份时间较长，花了大约27分钟。</p>
+<h3 id="第二次备份"><a href="#第二次备份" class="headerlink" title="第二次备份"></a>第二次备份</h3><p>&emsp;&emsp;在F盘中添加一个约1GB的文件：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrlh30kfj31kw04w76e.jpg" alt="Capto_Capture 2018-06-12_06-48-19_AM"></p>
+<p>&emsp;&emsp;再次备份并查看结果：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrli0yhxj31kw013q3r.jpg" alt="Capto_Capture 2018-06-12_06-52-27_AM"></p>
+<p>&emsp;&emsp;可以看到，第二次备份虽然原始容量127GB，但是其中126GB是与第一次备份相同的，所以没有新数据，而新添加的文件从数据块角度来看，基本与原来相差不到，所以基本没有产生新数据，备份时间也只花了16s就完成了。<br>&emsp;&emsp;两次备份一共126+127=253GB数据，实际备份产生数据量为8GB，消重率非常可观。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;&emsp;本次测试只是简单地验证了AVE在Azure的部署，没有测试数据库备份、备份策略、复制等功能。通过此测试可以看出：</p>
+<ul>
+<li>使用AVE可以扩展备份客户端的备份系统和应用，满足客户需求</li>
+<li>通过AVE的源端消重功能大大降低了备份数据量和备份窗口，减少客户在备份数据存储的成本以及备份时对生产的影响</li>
+<li>如果客户在本地机房使用Avamar备份设备，在云端使用AVE可为用户提供熟悉的备份方式，降低学习成本</li>
+<li>通过Avamar的复制，可实现本地机房与Azure、Azure Region之间的基于备份的容灾和数据迁移<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/57318/" rel="next" title="东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之站点恢复篇">
+                <i class="fa fa-chevron-left"></i> 东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之站点恢复篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/25271/" rel="prev" title="东边不亮西边亮，条条大路通罗马——在Linux挂载Blob">
+                东边不亮西边亮，条条大路通罗马——在Linux挂载Blob <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Avamar简介"><span class="nav-number">1.</span> <span class="nav-text">Avamar简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Avamar部署"><span class="nav-number">2.</span> <span class="nav-text">Avamar部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境准备"><span class="nav-number">2.1.</span> <span class="nav-text">环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#软件下载"><span class="nav-number">2.1.1.</span> <span class="nav-text">软件下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制台虚机准备"><span class="nav-number">2.1.2.</span> <span class="nav-text">控制台虚机准备</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署过程"><span class="nav-number">2.2.</span> <span class="nav-text">部署过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AVE虚机部署"><span class="nav-number">2.2.1.</span> <span class="nav-text">AVE虚机部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Avamar软件安装"><span class="nav-number">2.2.2.</span> <span class="nav-text">Avamar软件安装</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#备份测试"><span class="nav-number">3.</span> <span class="nav-text">备份测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#备份客户端准备"><span class="nav-number">3.1.</span> <span class="nav-text">备份客户端准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#备份客户端软件安装"><span class="nav-number">3.2.</span> <span class="nav-text">备份客户端软件安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件备份测试"><span class="nav-number">3.3.</span> <span class="nav-text">文件备份测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初次备份"><span class="nav-number">3.3.1.</span> <span class="nav-text">初次备份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二次备份"><span class="nav-number">3.3.2.</span> <span class="nav-text">第二次备份</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

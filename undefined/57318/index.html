@@ -1,0 +1,828 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="ASR站点恢复&amp;emsp;&amp;emsp;业务系统的安全除了备份，往往还有业务持续性。备份虽然可以恢复业务，但是只能回退到备份点，比较粗燥，并且要通过恢复才能拉起业务，所需时间较长，用行话来讲就是RPO和RTO都比较大。这时候就需要ASR的站点恢复功能了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之站点恢复篇">
+<meta property="og:url" content="http://aubreyhan.net/undefined/57318/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="ASR站点恢复&amp;emsp;&amp;emsp;业务系统的安全除了备份，往往还有业务持续性。备份虽然可以恢复业务，但是只能回退到备份点，比较粗燥，并且要通过恢复才能拉起业务，所需时间较长，用行话来讲就是RPO和RTO都比较大。这时候就需要ASR的站点恢复功能了。">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh67gxlj31kw0usq91.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh72181j308s0g6jsd.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrh7ydbaj31gd029weo.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh8ukgmj31kw01w3z2.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrh9azz2j30iy056wgd.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrha8l18j31kw022gm6.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhb9458j31bi0dtwhp.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrhc6n6xj30ox080wfr.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhckkezj30gh0exmxw.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhd6urzj30fu0h9mxs.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhe24ctj30mj0cymz3.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrhejwkhj31kw0gy40z.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhfwqj1j30ol0k2dhc.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhk5013j31470iv77z.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhlmsg4j30p40yptaq.jpg">
+<meta property="article:published_time" content="2018-06-08T07:21:09.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh67gxlj31kw0usq91.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/57318/"/>
+
+
+
+
+
+  <title> 东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之站点恢复篇 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/57318/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之站点恢复篇
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-08T15:21:09+08:00">
+                2018-06-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="ASR站点恢复"><a href="#ASR站点恢复" class="headerlink" title="ASR站点恢复"></a>ASR站点恢复</h1><p>&emsp;&emsp;业务系统的安全除了备份，往往还有业务持续性。备份虽然可以恢复业务，但是只能回退到备份点，比较粗燥，并且要通过恢复才能拉起业务，所需时间较长，用行话来讲就是RPO和RTO都比较大。这时候就需要ASR的站点恢复功能了。</p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;ASR站点恢复通过连续数据保护将生产系统的虚机不断复制到另一个Region，当生产系统出现宕机故障时，可迅速拉起容灾站点的系统，实现业务系统恢复；生产环境恢复后，再从容灾站点恢复到生产环境。当然，容灾站点也可用作系统测试等功能。</p>
+<h2 id="ASR站点恢复搭建"><a href="#ASR站点恢复搭建" class="headerlink" title="ASR站点恢复搭建"></a>ASR站点恢复搭建</h2><p>&emsp;&emsp;ASR站点恢复的搭建如同ASR备份一样，在保管库的建立时，有region的要求，简单来说，要遵循以下两点：</p>
+<ul>
+<li>受保护的虚机与所在的资源组必须在同一个region</li>
+<li>保管库与其所在的资源组必须不在同一个region<br>&emsp;&emsp;例如，需要保护的虚机和其所在的资源组都在美国西部，那么建立保管库和保管库的资源组就必须在美西以外的region。<br>&emsp;&emsp;此外，还需要注意虚机的兼容性：<br>&emsp;&emsp;<a href="https://docs.azure.cn/zh-cn/site-recovery/azure-to-azure-support-matrix" target="_blank" rel="noopener">ASR站点恢复兼容性</a><br>&emsp;&emsp;ASR站点恢复的搭建比较简单，先按上述要求创建保管库，然后选择“+复制”即可开始：<br>![Capto_Capture 2018-06-09_09-10-54_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_09-10-54_PM.png)<br>&emsp;&emsp;然后选择源（Azure）、源位置、部署模型、源资源组（位于源位置）：<br>![Capto_Capture 2018-06-09_09-13-16_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_09-13-16_PM.png)<br>&emsp;&emsp;再选择需保护的虚机：<br>![Capto_Capture 2018-06-09_09-14-20_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_09-14-20_PM.png)<br>&emsp;&emsp;确认容灾端Region相关的复制选项：<br>![Capto_Capture 2018-06-09_09-15-38_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_09-15-38_PM.png)<br>&emsp;&emsp;Azure验证创建所需的资源。完成后启用复制，就开始相关配置并启动复制：<br>![Capto_Capture 2018-06-09_09-35-42_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_09-35-42_PM.png)</li>
+</ul>
+<p>&emsp;&emsp;与备份的简单复制数据不一样，站点恢复需要按一定规则自动启动容灾虚机，这就涉及到可用性集、网络架构等各种计算因素。下边从最简单的单机容灾开始，一步步了解ASR站点恢复的功能。</p>
+<h3 id="单机容灾"><a href="#单机容灾" class="headerlink" title="单机容灾"></a>单机容灾</h3><h4 id="自动化容灾和恢复"><a href="#自动化容灾和恢复" class="headerlink" title="自动化容灾和恢复"></a>自动化容灾和恢复</h4><p>&emsp;&emsp;如果复制选项选择默认配置，将自动生成一个后缀为asr的对应资源组和若干后缀为asr的对应资源。并且网络架构与生产环境一致。<br>&emsp;&emsp;进入复制项里可以查看容灾的整体状况和架构：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh67gxlj31kw0usq91.jpg" alt="Capto_Capture 2018-06-09_10-33-50_PM"></p>
+<p>&emsp;&emsp;其中，最近一次复制发生在2分钟前。<br>&emsp;&emsp;现在模拟客户想在容灾端将业务起来做测试，但不影响生产系统，选择测试故障切换：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh72181j308s0g6jsd.jpg" alt="Capto_Capture 2018-06-09_10-37-46_PM"></p>
+<p>&emsp;&emsp;最重要就是恢复点的选择，默认会有两个选项：最低RPO和最新的应用一致性。<br>&emsp;&emsp;点开自定义查看：<br>![Capto_Capture 2018-06-09_10-40-11_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_10-40-11_PM.png)</p>
+<p>&emsp;&emsp;可以看到，基本上每5分钟会产生一次恢复点。<br>&emsp;&emsp;ASR的站点复制连续将数据写入到容灾端，并每几分钟生成一个还原点，而为了保证应用一致性，Azure通过VSS（windows）和类似VSS（linux）的方式短暂hang住应用来落地所有数据到磁盘。如果每5分钟一次，将会导致系统频繁hang住，体现为应用性能下降。<br>&emsp;&emsp;所以在此，ASR的站点恢复引入了应用一致恢复点的概念，首次数据复制时，保证应用一致，以后按设置每过固定时间（默认4小时，可设置为最短1小时）做一次应用在一致性的恢复点，其他时间恢复点只保证磁盘块级一致性。<br>&emsp;&emsp;另一个必须选择的是vnet，这里只有一个，就选择该网络即可：<br>![Capto_Capture 2018-06-09_10-50-00_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_10-50-00_PM.png)</p>
+<p>&emsp;&emsp;在一些复杂的环境里，如生产环境和另一个环境有应用级主备设置，当切换到容灾端时，仍需保证应用级主备，这时候测试就需注意避免网络方面冲突。<br>&emsp;&emsp;启动切换测试后，将自动生成恢复点的硬盘，并按照相关设置配置计算网络资源，然后启动容灾虚机。<br>&emsp;&emsp;启动完成，可以看到在虚机列表里，有一台和受保护虚机一样的虚机，在不同region，但默认情况下，该虚机没有公网ip：<br>![Capto_Capture 2018-06-09_10-59-48_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_10-59-48_PM.png)</p>
+<p>&emsp;&emsp;回到复制项，选择清理测试故障转移，将会删除所有配置：<br>![Capto_Capture 2018-06-09_11-01-39_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_11-01-39_PM.png)</p>
+<p>&emsp;&emsp;清理结束后，可以看到，临时生成的虚机会自动被删除：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrh7ydbaj31gd029weo.jpg" alt="Capto_Capture 2018-06-09_11-06-59_PM"></p>
+<p>&emsp;&emsp;现在进行故障切换模拟。<br>&emsp;&emsp;在生产虚机的home路径里生成一个文件：<br>![Capto_Capture 2018-06-09_11-04-12_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_11-04-12_PM.png)</p>
+<p>&emsp;&emsp;5分钟后（确保生成文件后有一次复制），在ASR里启动故障转移：<br>![Capto_Capture 2018-06-09_11-10-00_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_11-10-00_PM.png)</p>
+<p>&emsp;&emsp;默认选择最近一次复制点，并关闭主机，避免干扰。切换完成后，主机停机，容灾端生产一台新的相同的主机：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrh8ukgmj31kw01w3z2.jpg" alt="Capto_Capture 2018-06-09_11-19-18_PM"></p>
+<p>&emsp;&emsp;现在给该虚机一个公网ip：<br>![Capto_Capture 2018-06-09_11-23-23_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_11-23-23_PM.png)</p>
+<p>&emsp;&emsp;由于这台虚机是从生产虚机复制生成，所以可以使用原有的登录方式登录，并且生产虚机上新生成的文件也被复制过来：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrh9azz2j30iy056wgd.jpg" alt="Capto_Capture 2018-06-09_11-26-00_PM"></p>
+<p>&emsp;&emsp;在容灾端虚机生成一个新文件：<br>![Capto_Capture 2018-06-09_11-27-02_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_11-27-02_PM.png)</p>
+<p>&emsp;&emsp;现在将容灾站点提升为生产站点，并对外提供服务。：<br>![Capto_Capture 2018-06-09_11-38-41_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_11-38-41_PM.png)</p>
+<p>&emsp;&emsp;查看复制关系，容灾站点已提升为主站点：<br>![Capto_Capture 2018-06-10_12-18-17_AM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_12-18-17_AM.png)</p>
+<p>&emsp;&emsp;主站点恢复正常，按如上步骤再次执行故障转移，切回主站点：<br>![Capto_Capture 2018-06-10_09-30-09_AM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_09-30-09_AM.png)</p>
+<p>&emsp;&emsp;现在主站点的虚机启动投入生产，备站点虚机停机：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrha8l18j31kw022gm6.jpg" alt="Capto_Capture 2018-06-10_09-32-22_AM"></p>
+<p>&emsp;&emsp;备战点产生的文件在主站点也可以看到了，切换成功：<br>![Capto_Capture 2018-06-10_09-36-25_AM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_09-36-25_AM.png)</p>
+<h4 id="复制的选项配置"><a href="#复制的选项配置" class="headerlink" title="复制的选项配置"></a>复制的选项配置</h4><p>&emsp;&emsp;在建立复制关系时，可以看到有很多选项可以配置：<br>![Capto_Capture 2018-06-09_09-15-38_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-09_09-15-38_PM.png)<br>&emsp;&emsp;这里边分为4个部分：</p>
+<h5 id="目标位置"><a href="#目标位置" class="headerlink" title="目标位置"></a>目标位置</h5><p>容灾端所在的region，不能与生产站点在同一个region</p>
+<h5 id="资源组、网络、存储和可用性集"><a href="#资源组、网络、存储和可用性集" class="headerlink" title="资源组、网络、存储和可用性集"></a>资源组、网络、存储和可用性集</h5><p>通常用自动配置的就可以了，但是如果有特殊需求，可以自定义：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhb9458j31bi0dtwhp.jpg" alt="Capto_Capture 2018-06-10_11-28-22_AM"></p>
+<p>&emsp;&emsp;这里要注意几点：</p>
+<ul>
+<li>可用性集与主站点要保持一致，即主站点有，容站站点也必须有，反之亦然</li>
+<li>在这里不能新建资源，如果要自定义，需要提前建好所有资源</li>
+<li>如果需要自定义，需要同时自定义所有资源；例如自定义资源组后，如果有可用性集，可用性集不能采用默认创建，也需要自定义</li>
+<li>目标虚拟网络需要在网络映射中配置：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrhc6n6xj30ox080wfr.jpg" alt="Capto_Capture 2018-06-10_11-28-52_AM"></li>
+</ul>
+<h5 id="复制策略"><a href="#复制策略" class="headerlink" title="复制策略"></a>复制策略</h5><p>&emsp;&emsp;复制策略主要定义了恢复点的保留时间及应用一致性快照的频率：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhckkezj30gh0exmxw.jpg" alt="Capto_Capture 2018-06-10_11-32-52_AM"></p>
+<p>&emsp;&emsp;默认恢复点保留时间为24小时，也就是可以恢复到24小时内的容灾时间点，如果设置过长，将会大量占用存储空间，所以只适合短时间的精细化保护。应用一致性快照频率默认4小时一次，最低1小时，但如果太频繁会影响系统性能。<br>&emsp;&emsp;另外，如果同时对多台虚机进行复制，可以通过多VM一致性保证VM之间的一致性。</p>
+<h5 id="扩展设置"><a href="#扩展设置" class="headerlink" title="扩展设置"></a>扩展设置</h5><p>&emsp;&emsp;扩展设置主要是对虚机扩展进行了定义：<br>![Capto_Capture 2018-06-10_11-33-45_AM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_11-33-45_AM.png)</p>
+<h4 id="复制的网络配置"><a href="#复制的网络配置" class="headerlink" title="复制的网络配置"></a>复制的网络配置</h4><p>&emsp;&emsp;在生产环境里，网络是一个非常重要的元素，如果设置不正确很有可能导致业务系统无法启动。<br>&emsp;&emsp;默认情况下，ASR将在容灾端创建一个和生产环境一样的vnet，尽可能保持网络环境一致。但是真实生产环境里，可能会出现不同的情况。</p>
+<h5 id="DHCP的ip空缺"><a href="#DHCP的ip空缺" class="headerlink" title="DHCP的ip空缺"></a>DHCP的ip空缺</h5><p>&emsp;&emsp;众所周知，一般情况下，虚机采用DHCP的方式按顺序获得ip地址。当一个subnet的所有虚机都复制到容灾端时，容灾端也将按顺序给虚机分配IP。但是当不是所有虚机都复制时，会出现什么情况？<br>&emsp;&emsp;现在建立两台虚机，通过DHCP获得地址：<br>![Capto_Capture 2018-06-10_12-06-32_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_12-06-32_PM.png)</p>
+<p>&emsp;&emsp;这次只对第二台虚机进行复制保护：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhd6urzj30fu0h9mxs.jpg" alt="Capto_Capture 2018-06-10_12-08-33_PM"></p>
+<p>&emsp;&emsp;网络配置还是保持默认的DHCP：<br>![Capto_Capture 2018-06-10_12-09-15_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_12-09-15_PM.png)</p>
+<p>&emsp;&emsp;复制完成进入复制虚机的计算和网络，通过测试故障切换启动容灾端虚机查看：<br>![Capto_Capture 2018-06-10_02-33-54_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_02-33-54_PM.png)</p>
+<p>&emsp;&emsp;新建虚机由于通过DHCP分配，所以自动获得第一个IP地址，与源虚机不一样。</p>
+<h5 id="固定IP"><a href="#固定IP" class="headerlink" title="固定IP"></a>固定IP</h5><p>&emsp;&emsp;为了避免这种IP变化导致生成故障，可以将源虚机设置为固定IP：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhe24ctj30mj0cymz3.jpg" alt="Capto_Capture 2018-06-10_02-36-55_PM"></p>
+<p>&emsp;&emsp;复制完成后查看复制项的计算和网络，可以看到容灾端网络的配置与源虚机一样，为固定IP：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrhejwkhj31kw0gy40z.jpg" alt="Capto_Capture 2018-06-10_03-22-34_PM"></p>
+<p>&emsp;&emsp;通过故障转移启动容灾端虚机，查看虚机的IP配置，确认是固定IP：<br>![Capto_Capture 2018-06-10_03-42-18_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_03-42-18_PM.png)</p>
+<p>&emsp;&emsp;由此可知，对于IP要求比较严格的环境，源虚机最好配置为固定IP</p>
+<h5 id="不同IP段"><a href="#不同IP段" class="headerlink" title="不同IP段"></a>不同IP段</h5><p>&emsp;&emsp;某些场合，为了避免冲突，需要容灾端和生产端具备不同的IP地址，这时候就需要用到网络映射。<br>&emsp;&emsp;先在容灾端的资源组（如没有，需手工建立）创建一个vnet，地址空间（10.1.0.0、16）不同于生产端（10.0.0.0、16）：<br>![Capto_Capture 2018-06-10_03-00-46_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_03-00-46_PM.png)</p>
+<p>&emsp;&emsp;在保管库的Site Recovery基础价格——针对Azure虚拟机——网络映射里添加网络映射：<br>![Capto_Capture 2018-06-10_04-54-47_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_04-54-47_PM.png)</p>
+<p>&emsp;&emsp;这里双向都需要建立：<br>![Capto_Capture 2018-06-10_04-56-27_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_04-56-27_PM.png)</p>
+<p>&emsp;&emsp;现在对VM01（DHCP）和VM02（固定IP）都启动复制：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhfwqj1j30ol0k2dhc.jpg" alt="Capto_Capture 2018-06-10_04-57-31_PM"></p>
+<p>&emsp;&emsp;现在配置设置里可以看到目标虚拟网络自动设置为网络映射的网络：<br>![Capto_Capture 2018-06-10_04-58-50_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_04-58-50_PM.png)</p>
+<p>&emsp;&emsp;由于目标IP端没有VM02的固定IP，所以配置过程中会出现一个警告：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhk5013j31470iv77z.jpg" alt="Capto_Capture 2018-06-10_05-41-44_PM"></p>
+<p>&emsp;&emsp;复制完成后通过故障转移启动容灾端虚机，并查看状态：<br>![Capto_Capture 2018-06-10_05-48-16_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_05-48-16_PM.png)</p>
+<p>&emsp;&emsp;VM01采用DHCP方式，在目标端新网段按顺序获得IP；而VM02由于固定IP不在目标端IP范围，所以被分配了IP端最后的IP。</p>
+<h3 id="多机容灾"><a href="#多机容灾" class="headerlink" title="多机容灾"></a>多机容灾</h3><p>&emsp;&emsp;对于生产环境，一般是多台业务相关虚机需要同时容灾。多机容灾和单机没有什么区别，只是在配置设置时如果续集之间有业数据关联，需要考虑虚机间是否要保证一致性。<br>&emsp;&emsp;典型的如电商做读写分离，如果虚机间没有一致性保护，可能出现商品数量错误。<br>&emsp;&emsp;如果需要做虚机间的一致性，在配置设置的复制策略做自定义：<br>![Capto_Capture 2018-06-10_06-59-13_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_06-59-13_PM.png)</p>
+<p>&emsp;&emsp;在此为需要做一致性的VM创建一致性组即可。<br>&emsp;&emsp;进入复制项可以看到，一致性组里的虚机被组合到了一起：<br>![Capto_Capture 2018-06-10_07-26-14_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_07-26-14_PM.png)</p>
+<p>&emsp;&emsp;对一致性组里的一台虚机进行测试故障切换，出现错误：</p>
+<p>&emsp;&emsp;![Capto_Capture 2018-06-10_07-46-46_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_07-46-46_PM.png)</p>
+<p>&emsp;&emsp;需要在保管库——管理——Recovery Plan（Site Recovery）里创建恢复计划：<br>![Capto_Capture 2018-06-10_07-49-50_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_07-49-50_PM.png)</p>
+<p>&emsp;&emsp;新建一个恢复任务，并选择相应一致性组：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhlmsg4j30p40yptaq.jpg" alt="Capto_Capture 2018-06-10_07-54-47_PM"></p>
+<p>&emsp;&emsp;现在就可以如同单个虚机一样执行测试或故障切换：<br>![Capto_Capture 2018-06-10_07-57-04_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-06-10_07-57-04_PM.png)</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;Azure为跨地域容灾做了很好的基础架构，用户只需要按图索骥即可，非常简单。<br>&emsp;&emsp;不过在使用时要注意如下几点：</p>
+<ul>
+<li>选择合适Region，避免无法选择虚机</li>
+<li>注意网络配置，以免业务恢复时无法正常启动</li>
+<li>合理选择虚机应用的一致性和虚机间的一致性配置</li>
+<li>注意容灾端的虚机配额，避免切换时无法启动虚机</li>
+<li>合适制定恢复演练策略，熟悉操作</li>
+<li>结合其他容灾手段（如基于应用的容灾），提供完整的业务保护方案<br>&emsp;&emsp;最后，祝大家永远都不会有用到容灾的机会。<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/41720/" rel="next" title="东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之备份篇">
+                <i class="fa fa-chevron-left"></i> 东风吹，战鼓擂，数据丢失要怪谁——使用ASR对虚机行进保护之备份篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/56461/" rel="prev" title="金凤玉露一相逢，便胜却人间无数——在Azure部署AVE">
+                金凤玉露一相逢，便胜却人间无数——在Azure部署AVE <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ASR站点恢复"><span class="nav-number">1.</span> <span class="nav-text">ASR站点恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ASR站点恢复搭建"><span class="nav-number">1.1.</span> <span class="nav-text">ASR站点恢复搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#单机容灾"><span class="nav-number">1.1.1.</span> <span class="nav-text">单机容灾</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#自动化容灾和恢复"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">自动化容灾和恢复</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#复制的选项配置"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">复制的选项配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#目标位置"><span class="nav-number">1.1.1.2.1.</span> <span class="nav-text">目标位置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#资源组、网络、存储和可用性集"><span class="nav-number">1.1.1.2.2.</span> <span class="nav-text">资源组、网络、存储和可用性集</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#复制策略"><span class="nav-number">1.1.1.2.3.</span> <span class="nav-text">复制策略</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#扩展设置"><span class="nav-number">1.1.1.2.4.</span> <span class="nav-text">扩展设置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#复制的网络配置"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">复制的网络配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#DHCP的ip空缺"><span class="nav-number">1.1.1.3.1.</span> <span class="nav-text">DHCP的ip空缺</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#固定IP"><span class="nav-number">1.1.1.3.2.</span> <span class="nav-text">固定IP</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#不同IP段"><span class="nav-number">1.1.1.3.3.</span> <span class="nav-text">不同IP段</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多机容灾"><span class="nav-number">1.1.2.</span> <span class="nav-text">多机容灾</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.2.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,915 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="最近见到一个客户，主要使用Azure的存储服务，保存海量归档数据，每年主要cloud的花费都在存储上，并且客户的数据量还在迅猛增长。客户对Azure存储服务的安全性非常满意，避免了本地保存的高成本以及数据管理、安全方面的资金及人力投入。但是随着存储量增加，成本也急剧上升（客户数据不能删除）。 为客户合理规划存储服务，可大大降低客户的使用成本。下边，就谈谈通过冷热存储分层的方式来降低客户开销。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="合理使用冷热存储，节约IT成本">
+<meta property="og:url" content="http://aubreyhan.net/undefined/36737/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="最近见到一个客户，主要使用Azure的存储服务，保存海量归档数据，每年主要cloud的花费都在存储上，并且客户的数据量还在迅猛增长。客户对Azure存储服务的安全性非常满意，避免了本地保存的高成本以及数据管理、安全方面的资金及人力投入。但是随着存储量增加，成本也急剧上升（客户数据不能删除）。 为客户合理规划存储服务，可大大降低客户的使用成本。下边，就谈谈通过冷热存储分层的方式来降低客户开销。">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/071522617.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/071709784.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/072224885.png?imageslim">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhs0uwrj308t0q30t6.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/083847453.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/093255682.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/093607650.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/144034542.png?imageslim">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhu3nhzj308s0sj74u.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/140851419.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/141506933.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrhvvyzdj31ft0n075k.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/141956369.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhwczpaj31ft0nsmyd.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrhyckvgj30t801m3yd.jpg">
+<meta property="article:published_time" content="2017-06-04T09:03:16.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170606/071522617.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/36737/"/>
+
+
+
+
+
+  <title> 合理使用冷热存储，节约IT成本 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/36737/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                合理使用冷热存储，节约IT成本
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-04T17:03:16+08:00">
+                2017-06-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近见到一个客户，主要使用Azure的存储服务，保存海量归档数据，每年主要cloud的花费都在存储上，并且客户的数据量还在迅猛增长。客户对Azure存储服务的安全性非常满意，避免了本地保存的高成本以及数据管理、安全方面的资金及人力投入。但是随着存储量增加，成本也急剧上升（客户数据不能删除）。</p>
+<p>为客户合理规划存储服务，可大大降低客户的使用成本。下边，就谈谈通过冷热存储分层的方式来降低客户开销。</p>
+<a id="more"></a>
+
+<h1 id="Blob存储账户"><a href="#Blob存储账户" class="headerlink" title="Blob存储账户"></a>Blob存储账户</h1><h2 id="Blob存储账户概念"><a href="#Blob存储账户概念" class="headerlink" title="Blob存储账户概念"></a>Blob存储账户概念</h2><p>细心的客户可以看到，在创建存储账户时，账户类型会有两个选项：常规用途和Blob存储：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/071522617.png?imageslim" alt="mark"></p>
+<p>而在常规用途里，也含有Blob：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/071709784.png?imageslim" alt="mark"></p>
+<p>那么，这两个不同地方的Blob有什么区别？</p>
+<p>在Azure网站上对Blob存储账户有说明：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/072224885.png?imageslim" alt="mark"></p>
+<p>不同于通用存储账户的Blob，Blob存储账户只支持Block及Append。</p>
+<p>创建一个Blob存储账户：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhs0uwrj308t0q30t6.jpg" alt="mark"></p>
+<p>可见，Blob存储账户分为了冷热两个访问层。</p>
+<h2 id="冷热访问层"><a href="#冷热访问层" class="headerlink" title="冷热访问层"></a>冷热访问层</h2><p>在Azure里，对冷热访问层的描述如下：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/083847453.png?imageslim" alt="mark"></p>
+<p>从使用上来看，冷热并没有区别，和常规存储中的Block和Append没区别。这三者之间主要是定价策略不一样。理论上，使用传统存储账户Blob的（不含Page Blob、下同）的数据都可以使用Blob存储账户，我们需要根据需求选择合理的存放方式来为客户解决成本。</p>
+<h1 id="Blob存储价格"><a href="#Blob存储价格" class="headerlink" title="Blob存储价格"></a>Blob存储价格</h1><p>Azure存储的价格预估是一件很头疼的事情，大体来说，需要考虑实际容量、IO操作数量、写入写出数据量等因素。下边对三种Blob存储的计价方式分别说明和比较：</p>
+<h2 id="定价策略"><a href="#定价策略" class="headerlink" title="定价策略"></a>定价策略</h2><h3 id="常规存储账户中的Blob"><a href="#常规存储账户中的Blob" class="headerlink" title="常规存储账户中的Blob"></a>常规存储账户中的Blob</h3><p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/093255682.png?imageslim" alt="mark"></p>
+<h3 id="Blob存储账户-1"><a href="#Blob存储账户-1" class="headerlink" title="Blob存储账户"></a>Blob存储账户</h3><p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/093607650.png?imageslim" alt="mark"></p>
+<p>可见，从存储价格来看，由高到低为：块Blob&gt;热存储&gt;冷存储；从访问价格来看，由高到低为：冷存储&gt;热存储=块Blob。</p>
+<p>综合来说，应该尽可能考虑使用Blob账户，并根据数据访问的频繁程度来决定使用热访问层还是冷访问层。</p>
+<h2 id="实际价格比较"><a href="#实际价格比较" class="headerlink" title="实际价格比较"></a>实际价格比较</h2><p>下边，以客户案例来说明如何选择存储类型。</p>
+<h3 id="客户需求"><a href="#客户需求" class="headerlink" title="客户需求"></a>客户需求</h3><p>某客户有1PiB数据需要长期存放，平均文件大小为约100MiB，冗余要求LRS。此数据为客户归档数据，大约每半年每个文件需要访问一次。计算一年的Azure使用成本（不考虑）。</p>
+<h3 id="客户需求分析"><a href="#客户需求分析" class="headerlink" title="客户需求分析"></a>客户需求分析</h3><ul>
+<li><p>容量：1PiB，转化为GB为1*1024=1,048,576GB（Azure按GB计算价格），影响价格因素：</p>
+<ul>
+<li>存储价格：按照单月1,048,576GB计算，全年为12,582,912</li>
+<li>数据写入：数据导入时一起性写入的容量，按照1,048,576GB计算</li>
+<li>数据检索：每半年访问一次，全年访问两次，检索容量为1,048,576*2=2,097,152GB</li>
+</ul>
+</li>
+<li><p>文件数量：1,048,576*1024/100=10,737,418个，以4MB的块放入Azure，每个文件的Blob/块比例为：100/4=25，所有文件合计25*10,737,418=268,435,450,影响价格因素：</p>
+<ul>
+<li>放置 Blob/块（按10,000计）：268,435,450/10,000=26,844</li>
+<li>除删除（此操作免费）之外的其他操作（按10,000计）：每个文件全年读取两次，合计26,844*2=53,688</li>
+</ul>
+</li>
+<li><p>容器数量：由于每个存储账户的最大容量为500TB，单个容器只能放入一个存储账号，所以1PiB数据需放入多个容器，经与客户讨论，计划使用100个容器，这部分数量较少，按10,000计基本忽略不计</p>
+<p><strong>对客户需求进行按价格计算工具量化如下：</strong></p>
+<table>
+<thead>
+<tr>
+<th>存储容量（GB）</th>
+<th>放置 Blob/块（按10,000计）</th>
+<th>除删除（此操作免费）之外的其他操作（按 10,000 计）</th>
+<th>数据检索 (GB)</th>
+<th>数据写入 (GB)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1,048,576</td>
+<td>26,844</td>
+<td>53,688</td>
+<td>2,097,152</td>
+<td>1,048,576</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h3 id="冷访问层价格计算"><a href="#冷访问层价格计算" class="headerlink" title="冷访问层价格计算"></a>冷访问层价格计算</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>存储容量（GB）</th>
+<th>放置 Blob/块（按10,000计）</th>
+<th>除删除（此操作免费）之外的其他操作（按 10,000 计）</th>
+<th>数据检索 (GB)</th>
+<th>数据写入 (GB)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数量</td>
+<td>12,582,912</td>
+<td>26,844</td>
+<td>53,688</td>
+<td>2,097,152</td>
+<td>1,048,576</td>
+</tr>
+<tr>
+<td>单价（元）</td>
+<td>0.11</td>
+<td>0.09</td>
+<td>0.03</td>
+<td>0.0657</td>
+<td>0.0164</td>
+</tr>
+<tr>
+<td>总价（元）</td>
+<td>1,384,120.32</td>
+<td>2,415.96</td>
+<td>1,610.64</td>
+<td>137,782.89</td>
+<td>17,196.65</td>
+</tr>
+</tbody></table>
+<p>合计总金额：1,543,126.46</p>
+<h3 id="热访问层价格计算"><a href="#热访问层价格计算" class="headerlink" title="热访问层价格计算"></a>热访问层价格计算</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>存储容量（GB）</th>
+<th>放置 Blob/块（按10,000计）</th>
+<th>除删除（此操作免费）之外的其他操作（按 10,000 计）</th>
+<th>数据检索 (GB)</th>
+<th>数据写入 (GB)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数量</td>
+<td>12,582,912</td>
+<td>26,844</td>
+<td>53,688</td>
+<td>2,097,152</td>
+<td>1,048,576</td>
+</tr>
+<tr>
+<td>单价（元）</td>
+<td>0.1436</td>
+<td>0.045</td>
+<td>0.015</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>总价（元）</td>
+<td>1,806,906.16</td>
+<td>1,207.98</td>
+<td>805.32</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p>合计总金额：1,808,919.46</p>
+<p>对比两个价格方案，可以看到，客户虽然数据量大，但是访问很少，综合比较下来，虽然热访问层存储的访问价格只有不到冷访问层价格的一般，但是由于冷访问层的存储价格大大低于热访问层，所以还是采用冷访问层存储的成本较低。</p>
+<p>如果客户访问较频繁，例如每月访问一次，全年12次，大家可以计算，采用什么方式存储成本更低。</p>
+<h2 id="存储评估工具"><a href="#存储评估工具" class="headerlink" title="存储评估工具"></a>存储评估工具</h2><p>如何针对现有使用状况评估存储的使用成本？Azure提供了一系列工具来监视存储使用指标，以web界面为例：</p>
+<ol>
+<li><p>登录Azure门户预览，选择需要评估的存储账户并选择诊断，将状态设置为开，选择需要惊恐的指标，诊断数据保留的天数并保存：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/144034542.png?imageslim" alt="mark"></p>
+</li>
+<li><p>在指标和使用状况可以看到相关的存储使用情况</p>
+</li>
+</ol>
+<h1 id="Blob存储操作"><a href="#Blob存储操作" class="headerlink" title="Blob存储操作"></a>Blob存储操作</h1><h2 id="Blob存储账户建立"><a href="#Blob存储账户建立" class="headerlink" title="Blob存储账户建立"></a>Blob存储账户建立</h2><p>Blob存储账户建立如同常规存储账户，只是在账户类型选择Blob存储（注：Blob存储的性能只能选择标准），如下建立两个Blob存储账号，分别为热访问层和冷访问层：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrhu3nhzj308s0sj74u.jpg" alt="mark">  <img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/140851419.png?imageslim" alt="mark"></p>
+<h2 id="建立容器并添加Blob"><a href="#建立容器并添加Blob" class="headerlink" title="建立容器并添加Blob"></a>建立容器并添加Blob</h2><p>进入存储账户，可以看到如同常规存储的Blob，可以在其中创建容器并上传下载删除文件，可以在web界面，也可以在Azure Storage Explorer或者PowerShell、CLI等操作，没有区别：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/141506933.png?imageslim" alt="mark"></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrhvvyzdj31ft0n075k.jpg" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170606/141956369.png?imageslim" alt="mark"></p>
+<h2 id="冷热间数据迁移"><a href="#冷热间数据迁移" class="headerlink" title="冷热间数据迁移"></a>冷热间数据迁移</h2><p>客户可能常有类似的需求，例如一个视频网站，新视频在第一个月会经常访问，需要放到热访问层降低访问成本，而一个月以上的视频基本算作归档，需要放到冷访问层降低存储成本。如何实现数据迁移？</p>
+<p>目前，Blob存储不提供冷热访问层之间的按策略自动化迁移（例如1周没有使用的数据自动迁入冷访问层），而是需要通过手工操作。在Azure门户，可以很方便的实现冷热访问层的转化。</p>
+<p>进入存储账户，选择配置，即可改变冷热访问层，并可在此改变存储账户的冗余策略：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrhwczpaj31ft0nsmyd.jpg" alt="mark"></p>
+<p>请注意，冷热间的迁移会产生费用，参见如下：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrhyckvgj30t801m3yd.jpg" alt="mark"></p>
+<h2 id="常规账户到Blob存储账户的数据迁移"><a href="#常规账户到Blob存储账户的数据迁移" class="headerlink" title="常规账户到Blob存储账户的数据迁移"></a>常规账户到Blob存储账户的数据迁移</h2><p>常规账户和Blob存储账户之间的数据迁移无法通过Azure门户直接进行，但是可以通过Azure Storage Exploer进行拷贝粘贴。</p>
+<p>还可以通过azcopy软件进行，具体可参考的azcopy部分：</p>
+<p> <a href="http://aubreyhan.net/undefined/44759/">Blob简单文件操作</a> </p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文简单总结了Blob存储相关的概念、用途、价格比较、常规操作等，希望能对大家在日常的存储使用规划有帮助。</p>
+<p>本文参考了@王嵩 Azure存储概述的相关内容，感谢@Stan、@沙涛、@Yatao的帮助与支持。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/8542/" rel="next" title="利用Azure搭建自己的私有云盘">
+                <i class="fa fa-chevron-left"></i> 利用Azure搭建自己的私有云盘
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/27781/" rel="prev" title="北京联通光猫改造">
+                北京联通光猫改造 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Blob存储账户"><span class="nav-number">1.</span> <span class="nav-text">Blob存储账户</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Blob存储账户概念"><span class="nav-number">1.1.</span> <span class="nav-text">Blob存储账户概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#冷热访问层"><span class="nav-number">1.2.</span> <span class="nav-text">冷热访问层</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Blob存储价格"><span class="nav-number">2.</span> <span class="nav-text">Blob存储价格</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定价策略"><span class="nav-number">2.1.</span> <span class="nav-text">定价策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#常规存储账户中的Blob"><span class="nav-number">2.1.1.</span> <span class="nav-text">常规存储账户中的Blob</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Blob存储账户-1"><span class="nav-number">2.1.2.</span> <span class="nav-text">Blob存储账户</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实际价格比较"><span class="nav-number">2.2.</span> <span class="nav-text">实际价格比较</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#客户需求"><span class="nav-number">2.2.1.</span> <span class="nav-text">客户需求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户需求分析"><span class="nav-number">2.2.2.</span> <span class="nav-text">客户需求分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#冷访问层价格计算"><span class="nav-number">2.2.3.</span> <span class="nav-text">冷访问层价格计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#热访问层价格计算"><span class="nav-number">2.2.4.</span> <span class="nav-text">热访问层价格计算</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#存储评估工具"><span class="nav-number">2.3.</span> <span class="nav-text">存储评估工具</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Blob存储操作"><span class="nav-number">3.</span> <span class="nav-text">Blob存储操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Blob存储账户建立"><span class="nav-number">3.1.</span> <span class="nav-text">Blob存储账户建立</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#建立容器并添加Blob"><span class="nav-number">3.2.</span> <span class="nav-text">建立容器并添加Blob</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#冷热间数据迁移"><span class="nav-number">3.3.</span> <span class="nav-text">冷热间数据迁移</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常规账户到Blob存储账户的数据迁移"><span class="nav-number">3.4.</span> <span class="nav-text">常规账户到Blob存储账户的数据迁移</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,954 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,综合," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="话说投身公有云也半年有余了，陆陆续续接触用户，帮助解决了一些问题。过程中发现固然有少部分平台故障，或者是软件bug，但更多问题的产生原因却在于云平台的特殊性，如果只是简单的按照本地机房的方式去使用公有云，势必会引起后续的故障；也就是说，很多问题是娘胎里带出来的。 下边就以一个简单的三层架构网站（web+中间件+DB）为例来初步聊聊公有云部署需要注意的地方，希望对大家有所启发。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="今天，咱们来聊聊形而上">
+<meta property="og:url" content="http://aubreyhan.net/undefined/30528/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="话说投身公有云也半年有余了，陆陆续续接触用户，帮助解决了一些问题。过程中发现固然有少部分平台故障，或者是软件bug，但更多问题的产生原因却在于云平台的特殊性，如果只是简单的按照本地机房的方式去使用公有云，势必会引起后续的故障；也就是说，很多问题是娘胎里带出来的。 下边就以一个简单的三层架构网站（web+中间件+DB）为例来初步聊聊公有云部署需要注意的地方，希望对大家有所启发。">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrroh67w6j30p6113gnl.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171022/mEDBe95jAk.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrroi5ezhj311t0hewfg.jpg">
+<meta property="article:published_time" content="2017-10-21T16:36:05.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="综合">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrroh67w6j30p6113gnl.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/30528/"/>
+
+
+
+
+
+  <title> 今天，咱们来聊聊形而上 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/30528/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                今天，咱们来聊聊形而上
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-22T00:36:05+08:00">
+                2017-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E7%BB%BC%E5%90%88/" itemprop="url" rel="index">
+                    <span itemprop="name">综合</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>话说投身公有云也半年有余了，陆陆续续接触用户，帮助解决了一些问题。过程中发现固然有少部分平台故障，或者是软件bug，但更多问题的产生原因却在于云平台的特殊性，如果只是简单的按照本地机房的方式去使用公有云，势必会引起后续的故障；也就是说，很多问题是娘胎里带出来的。</p>
+<p>下边就以一个简单的三层架构网站（web+中间件+DB）为例来初步聊聊公有云部署需要注意的地方，希望对大家有所启发。</p>
+<a id="more"></a>
+
+<h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><p>通常，在计划一个业务系统的IT架构时，会考虑如下几个方面要求：</p>
+<ol>
+<li>业务持续：如同物理设备一样，公有云的虚机等也会由于各种原因出现不能访问的情况，如何避免单一续集故障导致的业务中断时系统架构设计首要注意之处</li>
+<li>数据安全：数据安全是个大框，包括如何防篡改、防丢失、防泄密等</li>
+<li>网络安全：防止未经允许的网络访问，以及来自网络的攻击</li>
+<li>可扩展性：随着业务发展，可随时灵活的调整资源，弹性扩张或收缩，以满足业务需求</li>
+</ol>
+<p>所以，在公有云部署时，应围绕这些因素设计。</p>
+<h1 id="公有云的限制"><a href="#公有云的限制" class="headerlink" title="公有云的限制"></a>公有云的限制</h1><p>公有云是一个多租户系统，所以在设计时首先要考虑避免用户之间的干扰，包括用户网络、数据隔离，以及性能方面的限制。而这一点恰好是最容易忽略之处。</p>
+<p>​    <em>案例：某客户新业务上线，为新业务添加外部固定ip不成功，开case发现，目前使用的外部ip已达到每订阅20个外部ip上限，需要申请提升，导致业务上线推后</em></p>
+<p>在Azure官网，有一篇专门文档说明Azure订阅的限制：</p>
+<p><a href="https://docs.azure.cn/zh-cn/azure-subscription-service-limits" target="_blank" rel="noopener">Azure 订阅和服务限制、配额和约束</a></p>
+<p>所以在架构设计之初，首先要考虑使用到的各种资源的限制，做好规划，如果有超过限制的需求，提前做申请。并且在日常运维过程中及时记录变更情况，当发现资源快达到限制时，提前准备应对计划（例如新开订阅、提前申请提升限制、清理不再使用的资源等）。</p>
+<h1 id="规划先行"><a href="#规划先行" class="headerlink" title="规划先行"></a>规划先行</h1><p>俗话说，磨刀不误砍柴工。同样在公有云上部署项目，也需要提前做好规划和准备：</p>
+<h2 id="系统拓扑图"><a href="#系统拓扑图" class="headerlink" title="系统拓扑图"></a>系统拓扑图</h2><p>首先，对于要实施的系统，要有一个清晰的拓扑图，以便于了解整个系统的架构，并以此为蓝本设计实施。例如本文举例的三层网络架构，设计拓扑图如下：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrroh67w6j30p6113gnl.jpg" alt="mark"></p>
+<p>在此拓扑图中可以看到部署的资源和相互间的关系。</p>
+<h2 id="命名规则"><a href="#命名规则" class="headerlink" title="命名规则"></a>命名规则</h2><p>这一点往往容易忽略，但是如果没有一个好的命名规则，日后维护就成一锅粥，需要反复查找核对。命名规则主要指定：</p>
+<ul>
+<li>每种类型资源的命名前缀：例如资源组同意rg开头、虚机统一vm开头等</li>
+<li>每个资源的名字规范：例如数据库服务器按vmDBServer01、vmDBServer02等依次命名，需要注意在Azure上具体每个资源的命名规范，例如是否允许大写字母，是否允许特殊字符等。</li>
+</ul>
+<h2 id="文档记录"><a href="#文档记录" class="headerlink" title="文档记录"></a>文档记录</h2><p>制定表格，详细记录每种资源具体细节，例如对虚机：</p>
+<table>
+<thead>
+<tr>
+<th>虚机名</th>
+<th>操作系统及版本</th>
+<th>机型</th>
+<th>用途</th>
+<th>配置</th>
+<th>IP</th>
+<th>用户名</th>
+<th>密码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vmDBServer01</td>
+<td>CentOS7.3</td>
+<td>D4</td>
+<td>数据库服务器</td>
+<td>8Core/28GB/30GB OS disk/4*100GB Data Disk</td>
+<td>10.0.0.132</td>
+<td>webadmin</td>
+<td>WebAdmin@12345</td>
+</tr>
+</tbody></table>
+<p>可根据具体情况制定文档管理的规范。</p>
+<p>——————分割一下——————</p>
+<p>但是规划并不是做好就万事大吉了，还需注意：</p>
+<ul>
+<li>有系统变更时随时更新相应文档</li>
+<li>注意文档的保密，避免被泄露出现安全问题</li>
+</ul>
+<h1 id="网络的设计"><a href="#网络的设计" class="headerlink" title="网络的设计"></a>网络的设计</h1><h2 id="IP规划"><a href="#IP规划" class="headerlink" title="IP规划"></a>IP规划</h2><p>Azure下，大部分情况虚机的ip地址都是动态分配，所以一般先对网络进行规划和配置，而不是在建立虚机时再来建立。</p>
+<p>如果没有特殊需求的情况下，建议把一个业务放到一个vnet里，然后再将业务的各模块分类放在不同的subnet里，一般统一管理和制定安全策略。需要注意的地方是ip段的选择，尽量做到范围适中，既能满足未来业务发展需求，又避免占用过多ip地址，导致需要将不同业务放到同一个vnet里。</p>
+<p>还是以本文的网站架构为例，目前规划有2台web server，3台中间件服务器，3台数据库服务器，未来每种服务器的数量不会超过20台，即使算上负载均衡设备等，合计用到的ip地址不超过100个，所以vnet用一个c类段足够，然后在往下分配subnet，所以可以做如下网络划分：</p>
+<p>vnet划分：</p>
+<table>
+<thead>
+<tr>
+<th>vnet名</th>
+<th>IP段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vnetWeb</td>
+<td>10.0.0.0/24</td>
+</tr>
+</tbody></table>
+<p>subnet划分：</p>
+<table>
+<thead>
+<tr>
+<th>subnet名</th>
+<th>用途</th>
+<th>ip段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>subnetWeb</td>
+<td>web服务器</td>
+<td>10.0.0.0/26</td>
+</tr>
+<tr>
+<td>subnetMiddleware</td>
+<td>中间件服务器</td>
+<td>10.0.0.64/26</td>
+</tr>
+<tr>
+<td>subnetDB</td>
+<td>数据库服务器</td>
+<td>10.0.0.128/26</td>
+</tr>
+</tbody></table>
+<p>这样在建立虚机时，只需选择对应的subnet，就会自动获得该网段的ip地址。</p>
+<h2 id="网络安全组"><a href="#网络安全组" class="headerlink" title="网络安全组"></a>网络安全组</h2><p>网络设计的另一重要因素是安全，应遵循最小化原则，只允许必须的访问请求通过网络。Azure最常用的网络安全组件是NSG（网络安全组）。对NSG的配置应遵循如下最佳实践：</p>
+<ol>
+<li>Azure可以将NSG部署在subnet，也可以部署在虚机，一般情况下，对功能模块的安全规则的NSG部署在subnet，这样可以统一对同一个subnet里的vm进行安全管理，避免NSG调整都需要在每个虚机上进行容易有人为误操作。</li>
+<li>NSG的执行原则是优先配置，执行到第一条满足条件的规则后就不会再往下执行，所以高优先级的规则需要排在前边。</li>
+<li>每个规则的编号之间应留出一定空余，便于插入新规则。</li>
+<li>制定一条优先级最低的规则禁止所有访问，以防止不安全的入侵。</li>
+</ol>
+<p>以本例中的数据库服务器为例，需要允许中间件服务器访问所有数据库服务器的3306端口（MySql端口），允许堡垒机（10.0.1.4）访问22端口（ssh端口），其他网络访问均被拒绝。根据此要求，我们可以为subnetDB制定如下NSG规则：</p>
+<p>规则名：nsgDB</p>
+<p>规则条目：</p>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>名称</th>
+<th>端口</th>
+<th>协议</th>
+<th>源</th>
+<th>目标</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>105</td>
+<td>allow-DB</td>
+<td>3306</td>
+<td>TCP</td>
+<td>10.0.0.64/26</td>
+<td>10.0.0.128/26</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>150</td>
+<td>allow-ssh</td>
+<td>22</td>
+<td>TCP</td>
+<td>10.0.1.4</td>
+<td>10.0.0.128/26</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>4050</td>
+<td>deny-all</td>
+<td>*</td>
+<td>any</td>
+<td>*</td>
+<td>*</td>
+<td>拒绝</td>
+</tr>
+</tbody></table>
+<h2 id="堡垒机"><a href="#堡垒机" class="headerlink" title="堡垒机"></a>堡垒机</h2><p>除了对外提供业务访问的虚机，其他虚机不应分配外部IP，提高安全性并解决成本；即使提供外部业务访问的虚机，也不应将管理端口暴露在外网。对所有虚机的管理均应该通过堡垒机进行。</p>
+<p>如果不同的虚机如果有不同的管理人员，应通过多台堡垒机等方式做隔离，最小化每个人的管理权限。</p>
+<p>——————再分割一下——————</p>
+<p>网络还有很多其他内容，例如WAF、DDos防护、UDR等，在此就不一一赘述，可根据实际需要按相应最佳实践规划部署。</p>
+<h1 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h1><p>在Azure里，存储不同于通常所说的DAS、NAS、SAN，而是作为一种服务：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171022/mEDBe95jAk.png?imageslim" alt="mark"></p>
+<h2 id="Disk"><a href="#Disk" class="headerlink" title="Disk"></a>Disk</h2><p>Disk即虚机的硬盘镜像文件，需要关注容量和性能。配置和使用Disk时，请注意：</p>
+<ol>
+<li><p>避免在同一个存储账户里放置太多磁盘，避免超过20,000IOPS限制，导致虚机宕机；建议使用托管磁盘避免此问题。非托管磁盘转化为托管磁盘的方式如下：</p>
+<p><a href="https://docs.azure.cn/zh-cn/virtual-machines/windows/migrate-to-managed-disks" target="_blank" rel="noopener">非托管磁盘转化为托管磁盘</a></p>
+</li>
+<li><p>不要再D盘或sdb存放重要的、需要持久化的数据！不要再D盘或sdb存放重要的、需要持久化的数据！不要再D盘或sdb存放重要的、需要持久化的数据！重要的事情说三遍。D盘或sdb是Azure赠送给用户的一块高速临时磁盘，但是重新分配资源时，其中数据可能丢失，所以只能用来存放临时文件（如页面文件、临时表等）。</p>
+</li>
+<li><p>选择高级磁盘提升性能，而不是通过使用cache的方式，避免出现数据落盘不一致的情况。</p>
+</li>
+<li><p>通过多块磁盘做软raid方式解决单块磁盘性能和容量不足的问题，raid0就可以，Azure从底层保证了单块磁盘的安全性。</p>
+</li>
+<li><p>注意选择虚机的型号，避免虚机的最大磁盘数量和IOPS成为瓶颈。</p>
+</li>
+<li><p>Azure目前不支持Share Disk。</p>
+</li>
+</ol>
+<h2 id="Files"><a href="#Files" class="headerlink" title="Files"></a>Files</h2><p>Files提供了smb2.1和3.0的文件共享服务。</p>
+<p>很多功能都需要使用相同的文件，例如web服务的静态页面、配置文件、图片等。如果这些文件存放在虚机内部，更新的时候需要每台虚机操作，容易出现故障。这时候就可以通过Files服务来解决，所有的文件放置在Files，再共享给虚机即可。</p>
+<p>但是由于版本限制，Files对Linux支持有OS版本要求，具体可参见：</p>
+<p><a href="https://docs.azure.cn/zh-cn/storage/files/storage-how-to-use-files-linux" target="_blank" rel="noopener">在 Linux 中使用 Azure 文件存储</a></p>
+<p>另外，Files还有一个小彩蛋，在Windows平台，Files支持跨Region访问，甚至是跨azure.cn和azure.com，这样就可以实现一些很难实现的功能。</p>
+<p>——————分割线又来了——————</p>
+<p>存储还有很多其他例如安全、备份等方面的要求，在此不一一列举，根据实际要求配置。</p>
+<h1 id="虚机"><a href="#虚机" class="headerlink" title="虚机"></a>虚机</h1><p>作为Iaas服务的核心，虚机是日常打交道最多的Azure资源。网络和存储等都会对虚机的使用造成影响，而虚机本身在规划部署时，也应该遵循一定规则：</p>
+<h2 id="可用性集"><a href="#可用性集" class="headerlink" title="可用性集"></a>可用性集</h2><p>本地部署时，为了保证业务持续性，通常会采用HA等方式做保障，并且将HA的成员从物理上分散到不同主机，避免单一主机故障导致业务中断。</p>
+<p>而在Azure云平台，虚机是逻辑层的资源，和底层物理平台完全隔离，用户不能决定虚机在物理平台上的分布。所以，Azure引入了可用性集的概念。</p>
+<p>简单来说，Azure把出现故障或底层软件更新影响到的范围定义为域（故障域和更新域），可用性集里包含了若干故障域和更新域，同一可用性集里的虚机会最大限度均匀分布在不同故障域和更新域。这样，当一个故障域或更新域停机时，业务续集不至于被一锅端。</p>
+<p>这么好的东西居然是免费的，当然要想用好也需要遵守一些规则：</p>
+<ol>
+<li>虚机的可用性集属性不能修改，换句话说，如果建立虚机时没有配置可用性集，创建好后无法也加入。已加入可用性集的虚机不能退出也不能修改加入其他可用性集。所以，创建虚机时，无论是否必须，都创建一个可用性集，避免以后的修改。</li>
+<li>不要将多个不同用途的虚机加入同一个可用性集，应该为每种用途创建单独的可用性集。例如：一个可用性集有2个故障域（FD0和FD1），当两个DB Server和两个Web Server同时放入该可用性集时，Azure并不知道这些虚机的用途，有可能两个DB Server都放到FD0，两个Web Server都放到FD1，这时，当某一个故障域出现问题，DB或Web的全部主机都失去响应，导致业务中断。</li>
+<li>可用性集与负载均衡最配哦。负载均衡后端主机只能添加同一个可用性集里的虚机，如果没有设置可用性集，无法使用负债均衡。</li>
+<li>托管磁盘和可用性集也是最配哦。如下图：</li>
+</ol>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrroi5ezhj311t0hewfg.jpg" alt="mark"></p>
+<p>​    可用性集里的虚机如果使用托管磁盘，Azure会自动将磁盘分到不同的Storage Unit，以提高安全性。</p>
+<h2 id="虚机设计"><a href="#虚机设计" class="headerlink" title="虚机设计"></a>虚机设计</h2><p>云上的虚机最大的特点就是需要适应动态的伸缩，故此，云转型不是简单的P2V，或者将其他虚机格式转化为Azure的虚机。所以松耦合是最适合云的架构。松耦合对虚机的设计提出要求：</p>
+<ol>
+<li><p>尽可能将虚机无状态化，虚机内部无需持久化数据，所用的数据由服务（如Files文件共享）提供。</p>
+</li>
+<li><p>虚机镜像文件模板化，可快速从镜像文件批量生成多台虚机。需要注意之处，建立同样多台虚机一定要通过模板来创建虚机，而不是简单的复制，否则多台虚机的UUID冲突，会导致不可预期的故障。</p>
+<p><em>案例：某客户的多台Web Server不定期的无法访问Files服务提供共享文件，检查发现这几台Server的UUID相同，与客户沟通，多台虚机是直接通过复制方式创建，后来将原始虚机通用化后制作成模板，然后通过模板创建虚机解决此问题。</em></p>
+</li>
+<li><p>合理选择虚机型号，满足性能需求同时最大化性价比，并注意不同续集的磁盘即网络性能限制，避免成为瓶颈。</p>
+</li>
+<li><p>如果有长期使用固定型号的虚机，使用CPP方式节约成本。</p>
+</li>
+<li><p>启用诊断日志便于在虚机故障时进行排错。</p>
+</li>
+<li><p>自定义虚机注意兼容性。</p>
+</li>
+<li><p>配置虚机的软件和服务自启动，保证续集切换时业务自动持续。</p>
+<p><em>案例：某客户配置好MySQL的主从复制及可用性集，但是当主库宕机时，从库未自动接管业务，后经检查发现，从库的MySQL服务未设置自动启动</em></p>
+</li>
+</ol>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p>除此之外，云架构还有许多最佳实践建议，例如生产和开发放到不同的资源组，slb的银色数量限制，vpn连接的参数设定等。</p>
+<p>本文只是从Iaas层面最常用的几个功能对云架构的设计做简单探讨，希望能对广大上云的读者有所帮助和启发。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E7%BB%BC%E5%90%88/" rel="tag"># 综合</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/13539/" rel="next" title="SQL，到容器里来">
+                <i class="fa fa-chevron-left"></i> SQL，到容器里来
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/18617/" rel="prev" title="安得世上无双法，数据丢失回复来——浅析Azure备份服务（一）">
+                安得世上无双法，数据丢失回复来——浅析Azure备份服务（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#需求分析"><span class="nav-number">1.</span> <span class="nav-text">需求分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#公有云的限制"><span class="nav-number">2.</span> <span class="nav-text">公有云的限制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#规划先行"><span class="nav-number">3.</span> <span class="nav-text">规划先行</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#系统拓扑图"><span class="nav-number">3.1.</span> <span class="nav-text">系统拓扑图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#命名规则"><span class="nav-number">3.2.</span> <span class="nav-text">命名规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文档记录"><span class="nav-number">3.3.</span> <span class="nav-text">文档记录</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#网络的设计"><span class="nav-number">4.</span> <span class="nav-text">网络的设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IP规划"><span class="nav-number">4.1.</span> <span class="nav-text">IP规划</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络安全组"><span class="nav-number">4.2.</span> <span class="nav-text">网络安全组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#堡垒机"><span class="nav-number">4.3.</span> <span class="nav-text">堡垒机</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储"><span class="nav-number">5.</span> <span class="nav-text">存储</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Disk"><span class="nav-number">5.1.</span> <span class="nav-text">Disk</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Files"><span class="nav-number">5.2.</span> <span class="nav-text">Files</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#虚机"><span class="nav-number">6.</span> <span class="nav-text">虚机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#可用性集"><span class="nav-number">6.1.</span> <span class="nav-text">可用性集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#虚机设计"><span class="nav-number">6.2.</span> <span class="nav-text">虚机设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他"><span class="nav-number">7.</span> <span class="nav-text">其他</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

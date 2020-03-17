@@ -1,0 +1,809 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,PowerBI," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;上一篇成功的创建了第一个账单分析图表，在制作第二个图表前下班了，怎么能在第二天接上工作？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不要让数字限制了你的想象力——用PowerBI分析Azure账单续一">
+<meta property="og:url" content="http://aubreyhan.net/undefined/49116/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;上一篇成功的创建了第一个账单分析图表，在制作第二个图表前下班了，怎么能在第二天接上工作？">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7ia6y341j30ur0ie403.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7ic5rfp6j30jq0doaav.jpg">
+<meta property="og:image" content="c:%5CUsers%5Cyuaha%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5C1542173432333.png">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7j7e9kiqj308z05omx0.jpg">
+<meta property="og:image" content="c:%5CUsers%5Cyuaha%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5C1542173869449.png">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7jkttnkxj315z0pawf4.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7jmq71agj30a40egwg6.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7jt5m0iij31at0cqdh8.jpg">
+<meta property="og:image" content="c:%5CUsers%5Cyuaha%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5C1542175137930.png">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7k0aqunqj30no0dggni.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7k8clkhyj30dv07z74l.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7ka1ajpwj30ds0a9t91.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kcjrs7dj315j0netbf.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kh1mknjj315z0nyjtv.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kjerdlcj31610q0goa.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7koqtw9nj30550k4mxo.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kua3ib6j30550ixaaj.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kvetogjj31660oz410.jpg">
+<meta property="article:published_time" content="2018-11-14T14:05:58.000Z">
+<meta property="article:modified_time" content="2018-11-14T14:12:08.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="PowerBI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/large/007qOk41gy1fx7ia6y341j30ur0ie403.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/49116/"/>
+
+
+
+
+
+  <title> 不要让数字限制了你的想象力——用PowerBI分析Azure账单续一 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/49116/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                不要让数字限制了你的想象力——用PowerBI分析Azure账单续一
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-14T22:05:58+08:00">
+                2018-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PowerBI/" itemprop="url" rel="index">
+                    <span itemprop="name">PowerBI</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PowerBI/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;上一篇成功的创建了第一个账单分析图表，在制作第二个图表前下班了，怎么能在第二天接上工作？</p>
+<a id="more"></a>
+
+<h1 id="PBI文件的保存"><a href="#PBI文件的保存" class="headerlink" title="PBI文件的保存"></a>PBI文件的保存</h1><p>&emsp;&emsp;点击右上角关闭PBI，会弹出一个保存窗口：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7ia6y341j30ur0ie403.jpg" alt=""></p>
+<p>&emsp;&emsp;如同使用office，点击保存，选择路径，并娶个文件名（后缀.pbix）即可：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7ic5rfp6j30jq0doaav.jpg" alt=""></p>
+<p>&emsp;&emsp;再次打开PBI时，选择File-打开，定位到之前保存的pbix文件即可。</p>
+<h1 id="添加一个分析图表"><a href="#添加一个分析图表" class="headerlink" title="添加一个分析图表"></a>添加一个分析图表</h1><p>&emsp;&emsp;账单分析还有一个常用的方式是查看一段时间内总费用或某项服务每天的使用情况，一般用折线图表示。为了美观，可以新建一个页面来展示。</p>
+<h2 id="页面创建及命名"><a href="#页面创建及命名" class="headerlink" title="页面创建及命名"></a>页面创建及命名</h2><p>&emsp;&emsp;PBI界面下方是页面管理的地方：</p>
+<p><img src="C:%5CUsers%5Cyuaha%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5C1542173432333.png" alt="1542173432333"></p>
+<p>&emsp;&emsp;若要便于区分，可以重命名页面，方法是右键点击——重命名页：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7j7e9kiqj308z05omx0.jpg" alt=""></p>
+<p>&emsp;&emsp;将该页面重命名为“产品-费用”，点击旁边加号创建一个新页面，命名为“费用趋势”：</p>
+<p><img src="C:%5CUsers%5Cyuaha%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5C1542173869449.png" alt="1542173869449"></p>
+<h2 id="总费用趋势"><a href="#总费用趋势" class="headerlink" title="总费用趋势"></a>总费用趋势</h2><p>&emsp;&emsp;新页面里选择折线图创建一个空白折线图：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7jkttnkxj315z0pawf4.jpg" alt=""></p>
+<p>&emsp;&emsp;将日期字段区域的日期拖到可视化区域的轴，PBI会自动展开日期的层次：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7jmq71agj30a40egwg6.jpg" alt=""></p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;将字段区域的扩展成本拖到可视化区域的值，折线图将自动显示总费用按日期的趋势：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7jt5m0iij31at0cqdh8.jpg" alt=""></p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;调整折线图到合适大小，并如同上一篇添加一个切片器用作时间选择，结果如下：</p>
+<p><img src="C:%5CUsers%5Cyuaha%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5C1542175137930.png" alt="1542175137930"></p>
+<p>&emsp;&emsp;</p>
+<h2 id="分类费用趋势"><a href="#分类费用趋势" class="headerlink" title="分类费用趋势"></a>分类费用趋势</h2><p>&emsp;&emsp;现在还需要在折线图里显示每个服务的费用趋势，并且可以选择单个服务查看。</p>
+<p>​    再创建一个切片器，字段为服务：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7k0aqunqj30no0dggni.jpg" alt=""></p>
+<p>&emsp;&emsp;可以看到新的切片器为一个列表，内容为各项Azure服务。点击该切片器右上角的，可以选择切片器类型：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7k8clkhyj30dv07z74l.jpg" alt=""></p>
+<p>&emsp;&emsp;将切片器类型改为下拉：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7ka1ajpwj30ds0a9t91.jpg" alt=""></p>
+<p>&emsp;&emsp;选择一个服务类型，例如Virtual Machine，折线图将自动更新为Virtual Machine的费用趋势图：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kcjrs7dj315j0netbf.jpg" alt=""></p>
+<p>&emsp;&emsp;如果希望能看到细化的产品趋势，可以再以依次建切片器，分别为服务类型、服务资源、产品：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kh1mknjj315z0nyjtv.jpg" alt=""></p>
+<p>&emsp;&emsp;当可以依次每级选择细化的服务：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kjerdlcj31610q0goa.jpg" alt=""></p>
+<h1 id="美化图表"><a href="#美化图表" class="headerlink" title="美化图表"></a>美化图表</h1><p>&emsp;&emsp;为了美观，图表的颜色、标识等都可以调整。简单介绍一下对标识的调整。</p>
+<p>&emsp;&emsp;默认情况下，图表使用原始数据源的字段名来作为标识，但是这个标识不一定很方便。例如扩展的成本指的花费的费用，如果不了解的人就看不懂了。</p>
+<p>&emsp;&emsp;选择做好的折线图，在可视化区域选择格式：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7koqtw9nj30550k4mxo.jpg" alt=""></p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;点击X轴左边的展开，将标题设置为开，轴标题设置为日期。同样，将Y轴的轴标题设置为费用。</p>
+<p>&emsp;&emsp;再点击展开绘图区下的标题，将标题文本设置为费用趋势：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kua3ib6j30550ixaaj.jpg" alt=""></p>
+<p>&emsp;&emsp;检查折线图，X、Y轴及图表标题已按设置生效：</p>
+<p><img src="http://ww1.sinaimg.cn/large/007qOk41gy1fx7kvetogjj31660oz410.jpg" alt=""></p>
+<p>&emsp;&emsp;通过这些格式化操作，能让图表的可读性更强。</p>
+<p>–</p>
+<p>&emsp;&emsp;通过以上例子可以看出，使用PBI可以根据需要制作出个性化的Azure账单分析报告。限制你的只有想象力和审美观。</p>
+<p>&emsp;&emsp;但是账单是实施更新，如何才能在PBI也能随之更新？且听下回分解。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/PowerBI/" rel="tag"># PowerBI</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/60335/" rel="next" title="不要让数字限制了你的想象力——用PowerBI分析Azure账单">
+                <i class="fa fa-chevron-left"></i> 不要让数字限制了你的想象力——用PowerBI分析Azure账单
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/29270/" rel="prev" title="看我七十二变——虚机型号更改规则">
+                看我七十二变——虚机型号更改规则 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PBI文件的保存"><span class="nav-number">1.</span> <span class="nav-text">PBI文件的保存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加一个分析图表"><span class="nav-number">2.</span> <span class="nav-text">添加一个分析图表</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#页面创建及命名"><span class="nav-number">2.1.</span> <span class="nav-text">页面创建及命名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总费用趋势"><span class="nav-number">2.2.</span> <span class="nav-text">总费用趋势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分类费用趋势"><span class="nav-number">2.3.</span> <span class="nav-text">分类费用趋势</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#美化图表"><span class="nav-number">3.</span> <span class="nav-text">美化图表</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,934 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="这几天遇到几个客户都有在Azure上存取文件的需求。当然，可以通过在Azure里建立虚机并配置虚机相关的文件访问服务如ftp、nfs、http等来解决，但是配置复杂，还需要考虑网络、HA等因素。而Azure本身提供了较为丰富的存储服务，可以满足大部分用户一般的文件存储访问需求。 通常，Azure提供了两种文件存储服务：File和Blob。File提供smb2.1和smb3访问，对于基于intern">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Blob简单文件操作">
+<meta property="og:url" content="http://aubreyhan.net/undefined/44759/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="这几天遇到几个客户都有在Azure上存取文件的需求。当然，可以通过在Azure里建立虚机并配置虚机相关的文件访问服务如ftp、nfs、http等来解决，但是配置复杂，还需要考虑网络、HA等因素。而Azure本身提供了较为丰富的存储服务，可以满足大部分用户一般的文件存储访问需求。 通常，Azure提供了两种文件存储服务：File和Blob。File提供smb2.1和smb3访问，对于基于intern">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrf82mmmj31530ry0v8.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrf8tq9kj31530rymzn.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrf9qw31j31540s1whc.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfa9qz2j30rb0jrgmz.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfb75fej30rb0jrdha.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfc2csrj30d808paar.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfcj25mj30r70e8myj.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrfd0mi0j30r70h4gm6.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrffalljj30zk0k0tfe.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170524/203318244.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfgagpdj31hc0quwhf.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfhn5oaj31hc0qugnz.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfi6cifj31hc0qujux.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170524/205629558.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170524/205813045.png?imageslim">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfimnd1j31hc0qugn1.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170524/211620181.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrfjjxmfj31hc0quabw.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfk0e4lj31hc0qu0u5.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfkfv6zj31hc0qugnh.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfkzc7aj30rd0izad2.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170525/134142303.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrflwo72j30rd0izdh8.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170526/065804527.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfmdw3uj30rd0iz40f.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrfn98bpj30rd0iz41b.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170526/071647268.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfnr49mj30rd0izta9.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170526/072345761.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfoxcctj30rd0izmzc.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrfqxfx6j30rd0ieacy.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfshzmpj31hc0stadi.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfsw2ffj30eg0egt92.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrftvm7kj30eh0ept92.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfubt5vj31hc0st0v5.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfvqphpj30r70e8mxo.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfwob8qj30r70e874s.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfyyfj1j30r70e8gnc.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170526/082405917.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170526/082637534.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrg0egdtj30r70e80ty.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrg29ozmj30r70e8wf6.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrg3ozr7j30r70e8q3n.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrg5jw61j31hc0pu3zu.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170526/083851084.png?imageslim">
+<meta property="article:published_time" content="2017-05-24T10:01:22.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrf82mmmj31530ry0v8.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/44759/"/>
+
+
+
+
+
+  <title> Blob简单文件操作 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/44759/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Blob简单文件操作
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-24T18:01:22+08:00">
+                2017-05-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这几天遇到几个客户都有在Azure上存取文件的需求。当然，可以通过在Azure里建立虚机并配置虚机相关的文件访问服务如ftp、nfs、http等来解决，但是配置复杂，还需要考虑网络、HA等因素。而Azure本身提供了较为丰富的存储服务，可以满足大部分用户一般的文件存储访问需求。</p>
+<p>通常，Azure提供了两种文件存储服务：File和Blob。File提供smb2.1和smb3访问，对于基于internet的文件访问，我们就要使用Blob了。</p>
+<p>下边，简单探讨一下Blob的文件访问操作。</p>
+<a id="more"></a>
+
+<h1 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h1><p>对Azure的存储进行操作常用两个工具：Azure Storage Explorer（Windows&amp;Mac&amp;Linux）及Azcopy（Windows&amp;Linux）。今天的介绍主要针对Windows平台。</p>
+<p>所有相关工具均可从如下网页下载：</p>
+<p> <a href="https://www.azure.cn/downloads/" target="_blank" rel="noopener">工具下载</a></p>
+<h2 id="Azure-Storage-Explorer的安装配置"><a href="#Azure-Storage-Explorer的安装配置" class="headerlink" title="Azure Storage Explorer的安装配置"></a>Azure Storage Explorer的安装配置</h2><p>Azure Storage Explorer下载地址如下：</p>
+<p><a href="http://storageexplorer.com/" target="_blank" rel="noopener">Azure Storage Explorer</a></p>
+<p>Azure Storage Explorer的安装比较简单，下载下来的安装程序一路Next即可。</p>
+<p>安装完成后，进入如下界面：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrf82mmmj31530ry0v8.jpg" alt="mark"></p>
+<p>可以看到，登录Azure Storage Explorer有三种方式：</p>
+<ul>
+<li>Azure Accout</li>
+<li>SAS URI</li>
+<li>storage account name and key</li>
+</ul>
+<p>下边，先用Azure Accout的方式登录，下拉Azure environment，选择合适登录环境，使用21v运营的Azure当然是Azure China，然后点击Sign in：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrf8tq9kj31530rymzn.jpg" alt="mark"></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrf9qw31j31540s1whc.jpg" alt="mark"></p>
+<p>输入Azure的账号密码登录，即可看到当前账户下的Storage情况：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfa9qz2j30rb0jrgmz.jpg" alt="mark"></p>
+<p>如果想管理多个账号的存储，可以点击左边栏上部的人像，然后添加更多Azure Account或者删除账号：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfb75fej30rb0jrdha.jpg" alt="mark"></p>
+<h2 id="Azcopy的安装配置"><a href="#Azcopy的安装配置" class="headerlink" title="Azcopy的安装配置"></a>Azcopy的安装配置</h2><p>Azcopy下载地址如下：</p>
+<p><a href="http://aka.ms/downloadazcopy" target="_blank" rel="noopener">Azcopy</a></p>
+<p>同样傻瓜式的安装方式，一路Next即可。</p>
+<p>安装完成后，菜单里多出一项Microsoft Azure Storage command line：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfc2csrj30d808paar.jpg" alt="mark"></p>
+<p>运行后出来cmd窗口，可运行azcopy命令：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfcj25mj30r70e8myj.jpg" alt="mark"></p>
+<p>其实直接在windows下的cmd窗口也可执行azcopy，但是由于环境变量没有配置对应路径，所以找不到azcopy命令，可进入对应目录执行，或将路径添加到环境变量里：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrfd0mi0j30r70h4gm6.jpg" alt="mark"></p>
+<h1 id="Azure-Blob-Storage配置"><a href="#Azure-Blob-Storage配置" class="headerlink" title="Azure Blob Storage配置"></a>Azure Blob Storage配置</h1><p>Blob存储的具体介绍可以参见azure.cn的相关文档，简单描述如下：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrffalljj30zk0k0tfe.jpg" alt="mark"></p>
+<ul>
+<li>accountname 表示 Azure 存储账号下的资源即Storage Account ，全局唯一。</li>
+<li>blob.core.chinacloudapi.cn 表示 azure china blob 存储资源，是固定的。</li>
+<li>containername 表示容器的名字，可以认为是访问某一文件夹下的资源。</li>
+<li>blobname 表示要访问的资源名称，可以认为是一个 mp3 文件，或者是一个 jpg 文件。</li>
+</ul>
+<p>可以看到，配置的基本过程就是创建Storage Account—添加Container。下边以ARM方式演示：</p>
+<p>通过web浏览器打开portal.azure.cn登录Azure，通过左侧菜单栏选择存储账户（Storage Accout）：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170524/203318244.png?imageslim" alt="mark"></p>
+<p>点击添加创建一个新的Storage Account：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfgagpdj31hc0quwhf.jpg" alt="mark"></p>
+<p>红色部分为必填项，其中：</p>
+<ul>
+<li>名称： 在Azure.cn需要全局唯一，所以不能重复（全部小写字母和数字）</li>
+<li>部署模型：保持默认的Resource Manager</li>
+<li>账户类型：保持默认的常规用途</li>
+<li>性能：保持默认的标准</li>
+<li>复制：这是对数据安全的选项，测试时选择LRS即可</li>
+<li>订阅：保持默认即可</li>
+<li>资源组：根据实际情况可新建也可使用现有项</li>
+<li>位置：随便选择东部和北部都可</li>
+</ul>
+<p>点击每项右上角的！可以看到该项的介绍。</p>
+<p>实际配置如下：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfhn5oaj31hc0qugnz.jpg" alt="mark"></p>
+<p>点击创建，创建新的Storage Account，创建完成后在Storage Account刷新，可以看到新的Storage Account，点击进入：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfi6cifj31hc0qujux.jpg" alt="mark"></p>
+<p>可以看到，在一个Storage Account下，可以有4种类型的存储。点击Blob，进入Blob存储可以添加容器：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170524/205629558.png?imageslim" alt="mark"></p>
+<p>进入添加容器的界面，比较简单，只需要给容器一个名字，并选择访问类型即可：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170524/205813045.png?imageslim" alt="mark"></p>
+<p>访问类型有三种：</p>
+<ul>
+<li>专用：只有Storage Account的所有者有权限访问容器及其Blob</li>
+<li>Blob：匿名用户可以读取Blob，但无法枚举容器里的Blob（可以访问指定的Blob，但无法列出所有的Blob）</li>
+<li>容器：匿名用户可以读取Blob，并枚举容器里的Blob</li>
+</ul>
+<p>依次创建容器condemo01，并设置访问类型为专用；condemo02，访问类型Blob；condemo03，访问类型容器：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfimnd1j31hc0qugn1.jpg" alt="mark"></p>
+<p>进入condmo01，看到此界面里可以上传文件、删除该容器、查看属性，修改访问属性（专用、Blob、容器间相互转换）。点击上传，出现文件上传界面：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170524/211620181.png?imageslim" alt="mark"></p>
+<p>在此可以选择一个文件上传，上传类型保持块blob，块大小保持默认即可：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrfjjxmfj31hc0quabw.jpg" alt="mark"></p>
+<p>此处上传几个图片文件做测试：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfk0e4lj31hc0qu0u5.jpg" alt="mark"></p>
+<p>点击一个文件，可以看到相关属性，其中有该文件的URL：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfkfv6zj31hc0qugnh.jpg" alt="mark"></p>
+<p>但是在浏览器输入该URL却无法打开，原因就是condmo01的访问策略是专用，里边的Blob无法被匿名访问。</p>
+<p>而放入condmo02和condmo03的文件，其URL可以通过浏览器打开，因为Blob和容器的访问策略都允许用户打开Blob。</p>
+<p>在属性界面里还可以下下载该文件。</p>
+<p>所以如果只是简单的文件上传下载操作，通过web在ARM里即可完成了。</p>
+<h1 id="Azure-Storage-Explorer"><a href="#Azure-Storage-Explorer" class="headerlink" title="Azure Storage Explorer"></a>Azure Storage Explorer</h1><p>Azure Storage Explorer是MS提供的一个很好的图形化客户界面，通过树状结构可以很好的对Azure Storage进行管理，包括创建目录，基本文件操作（上传下载删除）、重命名、快照、获取文件URL等：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfkzc7aj30rd0izad2.jpg" alt="mark"></p>
+<p>前边介绍了通过Azure Account登录Azure Storage Explorer，但有时候并不希望Azure Storage用户知道账号，这时候就需要Storage Account Name &amp; Key和SAS的登录方式了。</p>
+<h2 id="Storage-Account-Name-amp-Key"><a href="#Storage-Account-Name-amp-Key" class="headerlink" title="Storage Account Name &amp; Key"></a>Storage Account Name &amp; Key</h2><p>在ARM-存储账号里选择需要操作的存储账号，选择访问密码就可以看到该Storage Account的名称和密钥（key有两个，随便复制一个）：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170525/134142303.png?imageslim" alt="mark"></p>
+<p>打开Storage Account Explorer，点击左边栏上部的插头图标（Add Account），选择最后一项：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrflwo72j30rd0izdh8.jpg" alt="mark"></p>
+<p>将Storage Account的name和key填入并选择合适的EndPoint：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170526/065804527.png?imageslim" alt="mark"></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfmdw3uj30rd0iz40f.jpg" alt="mark"></p>
+<p>连接后即可看到在Storage Account里多出了需要访问的Storage Account，可实现无需Azure Account的访问：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrfn98bpj30rd0iz41b.jpg" alt="mark"></p>
+<h2 id="SAS（Shared-Access-Signature）"><a href="#SAS（Shared-Access-Signature）" class="headerlink" title="SAS（Shared Access Signature）"></a>SAS（Shared Access Signature）</h2><p>Srorage Account Name&amp;Key的方式客户会获得该Storage Account的所有权限，存在一定的管理风险，如果想做比较细化的管理，例如可访问什么样的资源、读写等权限分配、允许哪些IP访问、访问的时效性等，就需要使用SAS的方式了。</p>
+<p>还是进入需要访问的Storage Account，点击访问共享签名，这里就可以根据需求详细定制各种权限，然后生成SAS，可根据需要复制整个Storage Account的SAS 标记或某种服务的URL（起始时间的需要要注意时区）：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170526/071647268.png?imageslim" alt="mark"></p>
+<p>还是在Azure Storage Explorer的Add Account界面，选择第二项：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfnr49mj30rd0izta9.jpg" alt="mark"></p>
+<p>将URL填入：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170526/072345761.png?imageslim" alt="mark"></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfoxcctj30rd0izmzc.jpg" alt="mark"></p>
+<p>连接后即可看到添加的资源（注意：和Storage Account Name&amp;Key的方式相比，Storage Account后边多出了一个SAS，表示是通过SAS方式添加的账号）：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrfqxfx6j30rd0ieacy.jpg" alt="mark"></p>
+<p>再进一步细化，如果客户不希望把整个Storage服务暴露给使用者，而是制定某一个容器，例如User01只能看到condemo01，而不知道还有其他容器，怎么办？这时候就要用到基于容器的SAS了。</p>
+<p>以Azure Acount的方式登录到Azure Storage Explorer，进入相应的Storage Account-Blob，右键点击需要管理的容器，选择Get Shared Access Signature：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrfshzmpj31hc0stadi.jpg" alt="mark"></p>
+<p>在弹出窗口中可以为该容器配置访问权限并生成SAS：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfsw2ffj30eg0egt92.jpg" alt="mark"></p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrftvm7kj30eh0ept92.jpg" alt="mark"></p>
+<p>同样方式将SAS添加到Azure Storage Explorer，即可看到该资源，而其他容器无法看到也无法访问：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfubt5vj31hc0st0v5.jpg" alt="mark"></p>
+<h1 id="Azcopy"><a href="#Azcopy" class="headerlink" title="Azcopy"></a>Azcopy</h1><p>Web ARM和Azure Storage Explorer提供了直观的图形化方式进行文件管理，但很多场景客户需要自动化操作，例如定期将数据库或文件的备份到Azure，收集的文档资料自动上传等。这时候，Azcopy为我们提供了一个很好的方案。</p>
+<p>是一个 Windows 命令行实用程序，专用于使用具有优化性能的简单命令将数据复制到 Azure Blob、文件和表存储以及从这些位置复制数据。可在存储帐户中将数据从一个对象复制到另一个对象，或者在存储帐户之间复制。</p>
+<p>Azcopy的语法很简单：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AzCopy &#x2F;Source:&lt;source&gt; &#x2F;Dest:&lt;destination&gt; [Options]</span><br></pre></td></tr></table></figure>
+
+<p>例如需要把之前所建容器condemo03的文件1.jpg下载到本地C:\Temp下，如下执行即可：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfvqphpj30r70e8mxo.jpg" alt="mark"></p>
+<p>注意：文件名不是跟在source的路径里，而是要用参数Pattern列出。</p>
+<p>如果要下载condemo03的所有文件，如下：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrfwob8qj30r70e874s.jpg" alt="mark"></p>
+<p>其中/S参数表示递归方式遍历所有文件（包含目录），/Y表示取消确认提示（否则此处会提示是否覆盖文件）</p>
+<p>同样的操作在condemo02上执行：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrfyyfj1j30r70e8gnc.jpg" alt="mark"></p>
+<p>可以看到对指定文件执行成功，但是对整个容器却失败了。原因很简单，condemo的访问策略是Blob，匿名访问可以访问容器内单个Blob，而不能遍历容器，所以无法查找该容器下所有文件导致下载失败；而condemo的访问策略是容器，匿名访问不仅可访问单个Blob，而且可以遍历容器。</p>
+<p>再对condemo01同样操作：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170526/082405917.png?imageslim" alt="mark"></p>
+<p>即使单个文件也不成功，因为其访问策略是专用，无法匿名访问。</p>
+<p>对于有访问策略的容器如何处理？同样可以使用key或SAS的方式：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170526/082637534.png?imageslim" alt="mark"></p>
+<p>使用condemo01测试：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrg0egdtj30r70e80ty.jpg" alt="mark"></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrg29ozmj30r70e8wf6.jpg" alt="mark"></p>
+<p>可以看到无论用key还是sas均可正常下载。</p>
+<p>如果是上传，只需将source和dest交换，不过要注意sourcekey和destkey需要换成destkey和destsas：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrg3ozr7j30r70e8q3n.jpg" alt="mark"></p>
+<p>可以看到condemo01多出了一个文件2.jpg：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrg5jw61j31hc0pu3zu.jpg" alt="mark"></p>
+<p>Azcopy功能非常强大，详细介绍可以参见：</p>
+<p><a href="https://www.azure.cn/documentation/articles/storage-use-azcopy" target="_blank" rel="noopener">Azcopy介绍</a></p>
+<p>合理的配置Azcopy，结合windows下的计划任务或者Linux下的Crontab，可实现工作的自动化，大大减轻运维工作</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Azure的文件操作有很多方式，例如AzureCli、PowerShell、RestAPI等，也有很多三方工具：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170526/083851084.png?imageslim" alt="mark"></p>
+<p>本文简单介绍了一些基本操作，希望对各位工作有帮助。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/57770/" rel="next" title="NSG简介">
+                <i class="fa fa-chevron-left"></i> NSG简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/25493/" rel="prev" title="虚拟机存储性能-磁盘篇">
+                虚拟机存储性能-磁盘篇 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#准备工作"><span class="nav-number">1.</span> <span class="nav-text">准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Azure-Storage-Explorer的安装配置"><span class="nav-number">1.1.</span> <span class="nav-text">Azure Storage Explorer的安装配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Azcopy的安装配置"><span class="nav-number">1.2.</span> <span class="nav-text">Azcopy的安装配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure-Blob-Storage配置"><span class="nav-number">2.</span> <span class="nav-text">Azure Blob Storage配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure-Storage-Explorer"><span class="nav-number">3.</span> <span class="nav-text">Azure Storage Explorer</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Storage-Account-Name-amp-Key"><span class="nav-number">3.1.</span> <span class="nav-text">Storage Account Name &amp; Key</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SAS（Shared-Access-Signature）"><span class="nav-number">3.2.</span> <span class="nav-text">SAS（Shared Access Signature）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azcopy"><span class="nav-number">4.</span> <span class="nav-text">Azcopy</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

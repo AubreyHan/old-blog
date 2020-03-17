@@ -1,0 +1,905 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,PowerBI," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;使用Azure的小伙伴经常需要查看账单并分析，以便在节约成本的基础上更好地使用Azure。Global Azure现在已经开始提供基于PowerBI的账单分析；而China Azure由于Billing API等原因，目前还只能提供CSV格式的账单下载。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不要让数字限制了你的想象力——用PowerBI分析Azure账单">
+<meta property="og:url" content="http://aubreyhan.net/undefined/60335/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;使用Azure的小伙伴经常需要查看账单并分析，以便在节约成本的基础上更好地使用Azure。Global Azure现在已经开始提供基于PowerBI的账单分析；而China Azure由于Billing API等原因，目前还只能提供CSV格式的账单下载。">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6psdksbnj30vl0hk77x.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6pxbiq37j31hb0sw0xf.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6q4odevbj30gd0fl40a.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6q710hcoj30ju0erabr.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fx6qmwgcx3j31kw16nti4.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6qpqri6sj318n0q27jq.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6qre5yesj30ld0980vd.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fx6qsw4bcoj31du0df466.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fx6qwqqc44j311j06l3zi.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6qyjik02j316507ltdb.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6r336jaej30e40pvdkb.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6ri4bndhj30aq0je42e.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fx6rjvggazj307w05bwf2.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6rlxpd4sj309s03674o.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6rn88m95j309k05djrx.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6rqohqjhj30at0hpadi.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6rsyox15j31gt0qkwm7.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6rulyoptj31eu0nh7b1.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6rwtmiuhj30pg0kbjtb.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fx6rysn4ywj30xf0iw0vb.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fx6s166bt7j30pi0k8gnm.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fx6s292b43j30nu0jhjsp.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fx6s3r9qpwj30qf0kc40d.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6sahmg0uj306k05ymx9.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6seaakrtj31420i840o.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fx6sfqbf3ej30pu0n676e.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fx6shmyzy8j30ph0n1q52.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fx6sjd8eidj30o90n1q5h.jpg">
+<meta property="article:published_time" content="2018-11-13T10:32:21.000Z">
+<meta property="article:modified_time" content="2018-11-13T14:21:14.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="PowerBI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fx6psdksbnj30vl0hk77x.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/60335/"/>
+
+
+
+
+
+  <title> 不要让数字限制了你的想象力——用PowerBI分析Azure账单 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/60335/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                不要让数字限制了你的想象力——用PowerBI分析Azure账单
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-13T18:32:21+08:00">
+                2018-11-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PowerBI/" itemprop="url" rel="index">
+                    <span itemprop="name">PowerBI</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PowerBI/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;使用Azure的小伙伴经常需要查看账单并分析，以便在节约成本的基础上更好地使用Azure。Global Azure现在已经开始提供基于PowerBI的账单分析；而China Azure由于Billing API等原因，目前还只能提供CSV格式的账单下载。</p>
+<a id="more"></a>
+<p>&emsp;&emsp;不过作为强有力的数据分析展现工具，文件类型的数据源是PowerBI（以下简称PBI）最基础的功能，既然如此，为什么不直接用PBI分析CSV格式的账单呢？</p>
+<h1 id="读懂Azure账单"><a href="#读懂Azure账单" class="headerlink" title="读懂Azure账单"></a>读懂Azure账单</h1><p>&emsp;&emsp;分析Azure账单的基础首先要读懂Azure账单每列数据的含义，通常从Azure下载的账单含有如下字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>账户所有者</td>
+<td>账户所有者的OrgID</td>
+</tr>
+<tr>
+<td>账户名称</td>
+<td>账户所有者的名称</td>
+</tr>
+<tr>
+<td>服务管理员</td>
+<td>服务管理员，没有指定为空</td>
+</tr>
+<tr>
+<td>订阅ID</td>
+<td>订阅的ID，唯一且不可修改</td>
+</tr>
+<tr>
+<td>订阅GUID</td>
+<td>在Portal等地方显示的订阅的字符串，唯一且不可修改</td>
+</tr>
+<tr>
+<td>订阅名称</td>
+<td>订阅的名称，可以修改为自己便于辨别的名称</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>服务发生的日期</td>
+</tr>
+<tr>
+<td>月、日、年</td>
+<td>服务发生的月、日、年，单独列出便于筛选</td>
+</tr>
+<tr>
+<td>产品</td>
+<td>具体发生的服务，包含名称和Region</td>
+</tr>
+<tr>
+<td>资源GUID</td>
+<td>具体发生的服务在Azure的代表ID</td>
+</tr>
+<tr>
+<td>服务</td>
+<td>服务的大类，如虚机、网络、存储等，在Azure Portal的服务列表可以看到</td>
+</tr>
+<tr>
+<td>服务类型</td>
+<td>服务的小类，例如D、F等虚机的类型</td>
+</tr>
+<tr>
+<td>服务区域</td>
+<td>服务发生的Region</td>
+</tr>
+<tr>
+<td>服务资源</td>
+<td>服务的具体型号，例如F2虚机</td>
+</tr>
+<tr>
+<td>已消耗的资源数</td>
+<td>服务发生的数量</td>
+</tr>
+<tr>
+<td>资源费率</td>
+<td>服务的单价</td>
+</tr>
+<tr>
+<td>扩展成本</td>
+<td>服务发生的总价</td>
+</tr>
+<tr>
+<td>服务子区域</td>
+<td>服务发生的Region</td>
+</tr>
+<tr>
+<td>服务信息</td>
+<td>服务发生的内容</td>
+</tr>
+<tr>
+<td>组件</td>
+<td>服务发生的具体ID，例如某台具体的虚机</td>
+</tr>
+<tr>
+<td>服务信息1、2</td>
+<td>默认为空</td>
+</tr>
+<tr>
+<td>附件信息</td>
+<td>服务的信息，如虚机模板、IP地址等</td>
+</tr>
+<tr>
+<td>Tags</td>
+<td>标签信息，没有标签时为空</td>
+</tr>
+<tr>
+<td>Store Service Identifier</td>
+<td>默认为空</td>
+</tr>
+<tr>
+<td>Department Name</td>
+<td>部门名称，便于管理，可以为空</td>
+</tr>
+<tr>
+<td>Cost Center</td>
+<td>成本中心，管理使用，可以为空</td>
+</tr>
+<tr>
+<td>Unit of Measure</td>
+<td>服务的衡量单位</td>
+</tr>
+<tr>
+<td>Resource Group</td>
+<td>资源组名称</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;通常，在对账单进行成本分析时可能会从几个维度：</p>
+<ul>
+<li>日期：某段日期内服务的使用情况</li>
+<li>订阅：订阅是Azure在做成本隔离的最大颗粒度，很多时候会把不同的业务或不同部门的Azure使用分到不同订阅，以便计费管理</li>
+<li>服务：某个服务的划分，并且有不同层次的统计，例如服务大类，或者具体某个类型的虚机等</li>
+<li>成本中心或部门：对某个成本中心或本门使用情况的统计</li>
+<li>Tags：对于含有某个标签的服务的使用情况统计</li>
+<li>。。。。。。<br>&emsp;&emsp;具体到不同业务场景，会有不同需求，但是从数据分析的操作层面都是类似的。</li>
+</ul>
+<h1 id="PBI的安装配置"><a href="#PBI的安装配置" class="headerlink" title="PBI的安装配置"></a>PBI的安装配置</h1><p>&emsp;&emsp;使用PBI最简单的方式是安装PBI Desktop版，不过很遗憾，PBI Desktop目前只提供Windows版本。<br>&emsp;&emsp;PBI Desktop安装方式有两种：传统的下载安装包安装和通过Microsoft Store安装<br>&emsp;&emsp;<a href="https://www.microsoft.com/en-us/download/details.aspx?id=45331" target="_blank" rel="noopener">安装包下载网址</a><br>&emsp;&emsp;<a href="https://aka.ms/pbidesktopstore" target="_blank" rel="noopener">Microsoft Store下载网址</a><br>&emsp;&emsp;两者从使用角度没区别。<br>&emsp;&emsp;初次运行会出来注册、登录界面：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6psdksbnj30vl0hk77x.jpg" alt=""><br>&emsp;&emsp;如果已有账户可以直接登录；如果没有，点击免费试用，可以注册一个免费账号（需要使用工作邮箱）。<br>&emsp;&emsp;登录后即可进入PBI Desktop的使用界面：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6pxbiq37j31hb0sw0xf.jpg" alt=""></p>
+<h1 id="导入并处理账单"><a href="#导入并处理账单" class="headerlink" title="导入并处理账单"></a>导入并处理账单</h1><p>&emsp;&emsp;本文中，分析一份下载的账单，为了便于管理，将该账单文件改名为Price.csv。<br>&emsp;&emsp;然后在PBI（以下如无特指情况，PBI代表PBI Desktop）使用界面点击获取数据：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6q4odevbj30gd0fl40a.jpg" alt=""><br>&emsp;&emsp;可以看到PBI可以使用多种数据源。点击文本/CSV，在浏览窗口中定位到账单文件：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6q710hcoj30ju0erabr.jpg" alt=""><br>&emsp;&emsp;选择该文件，很快就被导入到PBI里：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fx6qmwgcx3j31kw16nti4.jpg" alt=""><br>&emsp;&emsp;该文件被成功导入。但是导入的内容不规范，例如前两行没有意义，每列的名字不是我们希望的字段名，需要进行编辑。点击编辑按钮，进入编辑界面：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6qpqri6sj318n0q27jq.jpg" alt=""><br>&emsp;&emsp;点击删除行——删除最前面几行：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6qre5yesj30ld0980vd.jpg" alt=""><br>&emsp;&emsp;输入2并确定，最上边没有意义的两行被删除了：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fx6qsw4bcoj31du0df466.jpg" alt=""><br>&emsp;&emsp;再点击将第一行用做标题：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fx6qwqqc44j311j06l3zi.jpg" alt=""><br>&emsp;&emsp;现在第一行已经变为标题：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6qyjik02j316507ltdb.jpg" alt=""><br>&emsp;&emsp;导入数据处理完毕，点击编辑器界面左上角的关闭并应用，将整理好的数据导入PBI。此操作在PBI内部进行，不会影响到原始文件。</p>
+<h1 id="Azure账单初步分析"><a href="#Azure账单初步分析" class="headerlink" title="Azure账单初步分析"></a>Azure账单初步分析</h1><p>&emsp;&emsp;现在PBI左侧的字段里可以看到导入的数据：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6r336jaej30e40pvdkb.jpg" alt=""><br>&emsp;&emsp;可以开始进行账单分析。</p>
+<h2 id="按产品分析费用"><a href="#按产品分析费用" class="headerlink" title="按产品分析费用"></a>按产品分析费用</h2><p>&emsp;&emsp;第一个需求，希望可以按服务分类做出不同服务的总费用饼图，并且点击某一个服务，可以进入查看该服务下属的服务子类的费用，一层一层下探到具体的产品（例如F2虚机）。<br>&emsp;&emsp;为了实现此目的，需要先建立产品类型的层次关系，依次为：服务——服务类型——服务资源——产品。<br>&emsp;&emsp;首先在字段的服务点击右键：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6ri4bndhj30aq0je42e.jpg" alt=""><br>&emsp;&emsp;选择新的层次结构，建立一个名为服务的层次结构，下属的一级层次是服务：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fx6rjvggazj307w05bwf2.jpg" alt=""><br>&emsp;&emsp;鼠标左键点击服务类型并拽到服务层次结构上，可看到层次结构的服务下多出一个二级层次服务类别：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6rlxpd4sj309s03674o.jpg" alt=""><br>&emsp;&emsp;按此依次把服务资源、产品拽到层次结构里，最终结果如下：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6rn88m95j309k05djrx.jpg" alt=""><br>&emsp;&emsp;勾选该层次结构和扩展成本，PBI会智能判断扩展的成本需要汇总，前边出现有汇总符号Σ，并填充到数据区域里：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6rqohqjhj30at0hpadi.jpg" alt=""><br>&emsp;&emsp;现在点击可视化区域里的饼状图，PBI将自动以服务为类别，扩展的成本为值生成饼状图：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6rsyox15j31gt0qkwm7.jpg" alt=""><br>&emsp;&emsp;拖拽饼状图的四角可以调整到合适大小：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6rulyoptj31eu0nh7b1.jpg" alt=""><br>&emsp;&emsp;该账单中，可以看出虚机的费用占据绝大部分，到底数值是多少？鼠标在对应区域停留可以显示：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6rwtmiuhj30pg0kbjtb.jpg" alt=""><br>&emsp;&emsp;也可以鼠标右键点击图形并选择显示数据，会在下部列表显示：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fx6rysn4ywj30xf0iw0vb.jpg" alt=""><br>&emsp;&emsp;现在需要看看哪种类型的虚机花费最多，可以在饼状图虚机部分点击右键并选择向下转取：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fx6s166bt7j30pi0k8gnm.jpg" alt=""><br>&emsp;&emsp;可以看到不同类别虚机的消费情况：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fx6s292b43j30nu0jhjsp.jpg" alt=""><br>&emsp;&emsp;一直转取，可以到产品这一层，清晰的分析费用情况：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fx6s3r9qpwj30qf0kc40d.jpg" alt=""></p>
+<h2 id="加上时间"><a href="#加上时间" class="headerlink" title="加上时间"></a>加上时间</h2><p>&emsp;&emsp;以上分析是对整个账单的分析，很多时候我们还希望能够看到一段时间内的划分情况，而且最好是这个时间是可以由查看者自己调整，这时候就需要用到PBI的切片器了。<br>&emsp;&emsp;可视化区域这个带漏斗的图标就是切片器：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fx6sahmg0uj306k05ymx9.jpg" alt=""><br>&emsp;&emsp;点击切片器，并在字段区域选择日期，界面上多出一个名为日期的可调整的对象：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6seaakrtj31420i840o.jpg" alt=""><br>&emsp;&emsp;当然也可以通过拖拽改变其大小和位置：<br><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fx6sfqbf3ej30pu0n676e.jpg" alt=""><br>&emsp;&emsp;改变日期的方式有两种。<br>&emsp;&emsp;最简单直接的方式是拖动日期轴两端来调整：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fx6shmyzy8j30ph0n1q52.jpg" alt=""><br>&emsp;&emsp;可以看到图中的比例根据时间变化自动调整。<br>&emsp;&emsp;第二种方法是在起止日期上点击鼠标，自动弹出日期控件选择：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fx6sjd8eidj30o90n1q5h.jpg" alt=""><br>–<br>&emsp;&emsp;通过以上例子可以看出，PBI简单的拖拖拉拉即可把复杂的Azure账单转化为直观的动态的图形化展示方式，不用在Excel里复杂的统计、分析、图标制作，方便了账单的查看和分析。</p>
+<p>（未完待续，后边更精彩）<br>&emsp;&emsp;<br>&emsp;&emsp;</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/PowerBI/" rel="tag"># PowerBI</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/46107/" rel="next" title="一桥飞架南北，天堑变通途——通过File Sync实现分布式NAS">
+                <i class="fa fa-chevron-left"></i> 一桥飞架南北，天堑变通途——通过File Sync实现分布式NAS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/49116/" rel="prev" title="不要让数字限制了你的想象力——用PowerBI分析Azure账单续一">
+                不要让数字限制了你的想象力——用PowerBI分析Azure账单续一 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#读懂Azure账单"><span class="nav-number">1.</span> <span class="nav-text">读懂Azure账单</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PBI的安装配置"><span class="nav-number">2.</span> <span class="nav-text">PBI的安装配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#导入并处理账单"><span class="nav-number">3.</span> <span class="nav-text">导入并处理账单</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure账单初步分析"><span class="nav-number">4.</span> <span class="nav-text">Azure账单初步分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#按产品分析费用"><span class="nav-number">4.1.</span> <span class="nav-text">按产品分析费用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加上时间"><span class="nav-number">4.2.</span> <span class="nav-text">加上时间</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

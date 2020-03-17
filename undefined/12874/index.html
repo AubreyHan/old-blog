@@ -1,0 +1,780 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="最近经常被问到一些和数据保护相关的问题，有的是针对业务连续方面的，有的是针对数据安全方面的。数据保护的方法多种多样，不同场景需要使用不同的方法或者多种方法的组合方案。而众多的数据保护方法往往给不熟悉的人带来疑惑，不知道如何选择。本文就针对常见的数据保护方法做简单探讨。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络诚可贵，计算价更高；若是数据没，二者皆垮掉——浅谈数据保护的类型和差异">
+<meta property="og:url" content="http://aubreyhan.net/undefined/12874/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="最近经常被问到一些和数据保护相关的问题，有的是针对业务连续方面的，有的是针对数据安全方面的。数据保护的方法多种多样，不同场景需要使用不同的方法或者多种方法的组合方案。而众多的数据保护方法往往给不熟悉的人带来疑惑，不知道如何选择。本文就针对常见的数据保护方法做简单探讨。">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15162595822515.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15162600659776.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15162613473547.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15162709856529.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15162713834559.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15162737370905.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15162748907942.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15162752664684.png">
+<meta property="article:published_time" content="2017-12-16T14:11:41.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://oorpx53f8.bkt.clouddn.com/15162595822515.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/12874/"/>
+
+
+
+
+
+  <title> 网络诚可贵，计算价更高；若是数据没，二者皆垮掉——浅谈数据保护的类型和差异 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/12874/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                网络诚可贵，计算价更高；若是数据没，二者皆垮掉——浅谈数据保护的类型和差异
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-16T22:11:41+08:00">
+                2017-12-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近经常被问到一些和数据保护相关的问题，有的是针对业务连续方面的，有的是针对数据安全方面的。数据保护的方法多种多样，不同场景需要使用不同的方法或者多种方法的组合方案。而众多的数据保护方法往往给不熟悉的人带来疑惑，不知道如何选择。本文就针对常见的数据保护方法做简单探讨。</p>
+<a id="more"></a>
+
+<p>先放一张老东家的数据保护全景图镇楼：<br><img src="http://oorpx53f8.bkt.clouddn.com/15162595822515.png" alt=""><br>从上图可以看出，数据保护有多种方式：高可靠、复制、快照、备份、归档，以及最近方兴未艾的连续数据保护等。<br>每种保护方式对应了不同的数据保护要求：<br><img src="http://oorpx53f8.bkt.clouddn.com/15162600659776.png" alt=""><br>总体来说，IT系统对数据的保护分为两类：</p>
+<ul>
+<li>业务可持续性：当出现故障时，系统会受到多大影响？包含两个维度：RPO（丢失多少数据）及RTO（多长时间可以恢复）</li>
+<li>基于时间点的数据保护：当出现数据逻辑错误时，可以将数据会退到一个时间点，对历史数据的长时间保护。<br>当然，这两点并不是绝对隔离的，例如，当数据出现灾害性损失，会用历史数据来恢复业务，实现业务可持续性。而企业里，应该根据实际需求选择多种方案来实现立体的保护。</li>
+</ul>
+<p>下边，具体看看不同数据保护手段实现的功能。</p>
+<h1 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h1><p>作为最常见的数据保护方式，备份通过定期或者实时发起的操作，将当前时间点业务数据复制到另一个地方，实现数据保护：<br><img src="http://oorpx53f8.bkt.clouddn.com/15162613473547.png" alt=""><br>备份是一种典型的历史数据保护手段，复制出来的数据（备份数据）是一种离线数据，和主存储无关，还可以异地保存。只要备份数据存在，业务就可以恢复到备份时间点，所以备份经常用作历史数据核查（例如审计）、应对灾难性损失（如火灾地震）等场景。甚至在很多行业里，备份是合规性审查的必备因素。<br>备份经过多年的发展，不是简单的复制数据，而是和应用做了很好的整合，通过调用应用自身的保护机制（如Oracle RMAN）实现备份管理，所以备份可以很好的保持应用一致性。<br>在Azure，提供了很好的备份手段。在Azure上，可以使用如下的备份方式：</p>
+<ol>
+<li>ASR：Azure原生的备份系统，可以备份文件、Azure虚机、SQL数据库、Exchange服务器等，而且不只限于Azure，可以备份本地机房甚至其他云上的数据</li>
+<li>第三方镜像：如果觉得ASR功能不够，例如还有Linux文件、MySQL等备份需求，可以使用MarketPlace里的第三方镜像，例如Comvault、Avamar等，相当于在云端部署一套备份环境实现更多功能</li>
+<li>本地备份系统的延伸：传统本地备份系统使用磁带、虚拟带库、磁盘等作为备份介质，而公有云则有效扩展备份介质的容量，降低成本，并且不用担心数据安全。例如NetApp AltaVault、EMC DD Tier等应用装置，将Azure整合到内部，对备份软件提供接口，备份数据透明转移到云端，实现“无限大”的备份容量。</li>
+</ol>
+<h1 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h1><p>快照是一个很容易和备份混淆的概念，相同之处是都是对历史时间点的保护，不同之处是快照并不真正把所以数据复制到其他地方。<br>快照是一个“瞬时”操作，记录的是数据指针而不是数据本身。当某个或者某些数据块发生变化时，原有的数据块并不会被覆盖，而是被转移到新的位置，或者将新数据写入新位置，然后修改指针，实现数据的更新。但需要回退时，只要根据快照时记录的原始指针就可以将数据恢复到快照时间点。<br><img src="http://oorpx53f8.bkt.clouddn.com/15162709856529.png" alt=""><br>与备份比较，快照非常迅速就可以完成，不用复杂的策略管理。但快照也有其不足之处：</p>
+<ul>
+<li>占用主存储空间，单独快照无法离线保存实现数据容灾</li>
+<li>基于磁盘操作，没有应用感知，无法 保证应用数据一致性（脏数据问题）<br>现在也有一些方案解决上述问题，如对快照的备份、黄金时间点快照等，但总体来说，快照更适合短时间临时的数据保护。例如系统升级，但不知道是否会造成业务异常，就可以先做个快照，如果出现异常，可快速回退到快照时间点；如果业务正常，经过一段时间试运行后直接删除快照即可。<br>Azure为虚机提供了快照功能，并且可以将快照用作直接生成磁盘，实现快速业务恢复或历史数据检查。</li>
+</ul>
+<h1 id="连续数据保护"><a href="#连续数据保护" class="headerlink" title="连续数据保护"></a>连续数据保护</h1><p>备份可以长时间保护数据，但恢复时间长，颗粒度比较粗糙（一般以天为单位）；快照可以迅速完成保护或者快速回退，但是无法长期保留历史数据。所以一种新的数据保护方式CDP——连续数据保护这几年成为了一颗新星。<br>如果说备份和快照是数据的历史“照片”，那么CDP可理解为数据的历史“录像”。CDP通过写拆分或者连续快照的方式记录下数据的每一个变化，存放在本地或者转储到其他地方：<br><img src="http://oorpx53f8.bkt.clouddn.com/15162713834559.png" alt=""><br>可以看到，CDP整合了备份和快照的长处，即实现长时间数据保护，又可以迅速恢复到任意时间点（相对于照片，录像是连续的），可以做到秒级RPO，分钟级RTO。<br>CDP也有其不足之处，例如较长时间前的数据恢复比较慢，对应用的整合不是很好等，但不妨碍其逐步成为一种主流的数据保护方式。<br>Azure的ASR提供的站点恢复功能其实就是你用了CDP，将源端数据不停拉到Azure，然后根据需要选择合适的恢复点恢复虚机。</p>
+<h1 id="归档"><a href="#归档" class="headerlink" title="归档"></a>归档</h1><p>不同于以上几种数据保护手段不影响源数据，归档是一种“有损”的操作。<br>归档的基本操作是按策略实时或定期将旧数据从生产系统删除，保留在归档系统里，但在生产系统保留索引，实现生产数据的轻量化：<br><img src="http://oorpx53f8.bkt.clouddn.com/15162737370905.png" alt=""><br>通常用到归档的环境有：</p>
+<ul>
+<li>邮件系统：用户可随时删除邮件，保证邮箱的容量不超过设计，而后台归档系统里保留了所有收到发出的邮件，以共合规检查（如塞班斯法案）。</li>
+<li>业务数据库：按日期将旧数据复制到归档库，同时从主库中删除，或者通过分库分表的方式，减少主库的容量，提升数据库性能。<br>最新的Azure Blob存储在热、冷两层之外，也开始提供归档层给用户，实现大容量低成本的长期数据保存。</li>
+</ul>
+<h1 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h1><p>复制不是为了保护历史数据，而是保护业务持续性。<br>通常业务数据我们放到具备raid保护的磁盘阵列，但是盘阵本身会成为单点故障，这时候就需要通过复制的方式来实现数据保护。数据复制可以在应用层（如Oracle ASR）、OS层（如LVM），或者是在盘阵。<br>盘阵的复制有两种方式：</p>
+<h2 id="主备"><a href="#主备" class="headerlink" title="主备"></a>主备</h2><p>主备式复制的盘阵分为一主一备，数据写入主盘阵后再由主盘阵发起指令同步或异步的方式写入备盘阵：<br><img src="http://oorpx53f8.bkt.clouddn.com/15162748907942.png" alt=""><br>这是传统的数据复制方式，但是在盘阵出现故障时，需要将背盘阵提升为主盘阵并挂载到服务器实现业务恢复，无法做到RTO=0，并且盘阵修复后需要重新切换主备。</p>
+<h2 id="双活"><a href="#双活" class="headerlink" title="双活"></a>双活</h2><p>双活的数据复制是通过存储网关或者软件方式，将两台甚至多台盘阵虚拟为一台盘阵提供给服务器，服务器同时写入多个盘阵：<br><img src="http://oorpx53f8.bkt.clouddn.com/15162752664684.png" alt=""><br>这样，底层盘阵的故障后更换对服务器是透明的，无需在服务器端做任何操作，可实现RTO=0。<br>但是双活对距离有限制，通常要求数据延迟低于一定值，所以无法实现远距离双活。</p>
+<p>如果有严格的业务持续性保护要求，可以设计为两地三中心，同一地区两数据中心双活，再异步复制到异地第三中心，实现远程容灾：</p>
+<p>数据复制还有一种使用场景：<br>某些环境下有海量小图片（如论坛头像），或者大文件（例如视频）。如果每天备份，需要消耗大量时间和资源。而这些数据不同于数据库，一般不会有改变，所以没有必要重复备份，可以通过同步复制方式做两份副本，保证数据不丢失即可。</p>
+<p>需要注意的是，复制方式的多副本数据是保持一致的，修改和删除的动作会作用到所有副本，所以复制不能保护数据被修改或被删除。</p>
+<p>Azure为所有写入的数据提供了3副本的本地保护机制（LRS），客户不同担心数据安全，所以在vm使用lvm或软raid时，使用raid0即可，不用考虑冗余机制做数据保护。同时也提供异步的跨Rdgion保护共客户选择（GRS）。</p>
+<p>——————万恶分界线——————<br>以上简单介绍了对于数据保护的各种方式，大家可根据实际情况选择使用，有具体需求欢迎讨论。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/49750/" rel="next" title="天下武功，唯快不破——Linux虚机的磁盘调优初探">
+                <i class="fa fa-chevron-left"></i> 天下武功，唯快不破——Linux虚机的磁盘调优初探
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/40135/" rel="prev" title="谈谈Azure Linux的无密码登录">
+                谈谈Azure Linux的无密码登录 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#备份"><span class="nav-number">1.</span> <span class="nav-text">备份</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#快照"><span class="nav-number">2.</span> <span class="nav-text">快照</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#连续数据保护"><span class="nav-number">3.</span> <span class="nav-text">连续数据保护</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#归档"><span class="nav-number">4.</span> <span class="nav-text">归档</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#复制"><span class="nav-number">5.</span> <span class="nav-text">复制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主备"><span class="nav-number">5.1.</span> <span class="nav-text">主备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#双活"><span class="nav-number">5.2.</span> <span class="nav-text">双活</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

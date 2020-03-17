@@ -1,0 +1,796 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="一年一度的维密，不好意思，说错了，是Microsoft Ignite（微软年度IT技术大会）又双叒叕如期在奥兰多举行。不出所料，Ignite照例公布了一系列产品即将到来的新功能（俗话说的话，最好的功能永远在roadmap上）。作为Azure存储基础的Blob，这次有不小的更新，下边就把几个重点的新功能拉出来遛遛。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="看看他们做了些什么---Blob存储新功能预览">
+<meta property="og:url" content="http://aubreyhan.net/undefined/13004/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="一年一度的维密，不好意思，说错了，是Microsoft Ignite（微软年度IT技术大会）又双叒叕如期在奥兰多举行。不出所料，Ignite照例公布了一系列产品即将到来的新功能（俗话说的话，最好的功能永远在roadmap上）。作为Azure存储基础的Blob，这次有不小的更新，下边就把几个重点的新功能拉出来遛遛。">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171002/0lIfd2Dj4i.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrjw0zafj307y0dxwek.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171002/DJA4EC93AA.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171003/i5c2iF434K.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171003/Jba1Gc01b6.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171003/Dag59E681g.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171003/liFBb9HiaE.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171003/7bkdJ4FbjE.png?imageslim">
+<meta property="article:published_time" content="2017-10-02T10:55:02.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171002/0lIfd2Dj4i.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/13004/"/>
+
+
+
+
+
+  <title> 看看他们做了些什么---Blob存储新功能预览 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/13004/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                看看他们做了些什么---Blob存储新功能预览
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-02T18:55:02+08:00">
+                2017-10-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一年一度的维密，不好意思，说错了，是Microsoft Ignite（微软年度IT技术大会）又双叒叕如期在奥兰多举行。不出所料，Ignite照例公布了一系列产品即将到来的新功能（俗话说的话，最好的功能永远在roadmap上）。作为Azure存储基础的Blob，这次有不小的更新，下边就把几个重点的新功能拉出来遛遛。</p>
+<a id="more"></a>
+
+<h1 id="ZRS"><a href="#ZRS" class="headerlink" title="ZRS#"></a>ZRS#</h1><p>众所周知，传统Azure的数据中心颗粒度是region即区域。在中国，目前有两个区域，华北和华东。基于这种设计，存储的安全性级别有LRS（同region三副本）、GRS（跨region六副本）、RA-GRS（跨region六副本，异地副本可读）。</p>
+<p>随着业务发展，Azure开始细化颗粒度，在同一个region里根据物理设施（机房、供电、散热等）和cluster划分不同zone，为客户提供更好的服务。ZRS即将同一个region的数据3副本放到3个不同access zone，以提高同一个region内数据的安全性。</p>
+<p>如下图说明了几种不同安全级别的副本存放方式：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171002/0lIfd2Dj4i.png?imageslim" alt="mark"></p>
+<p>ZRS功能已正式上线，在创建storage account时可以看到该选项：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrjw0zafj307y0dxwek.jpg" alt="mark"></p>
+<p>但是ZRS有一定限制，例如不能和其它安全级别相互转换，一些Paas服务（如Meida Service）所用到的storage account不能使用ZRS。所以配置storage account时一定要注意相应的规则。</p>
+<h1 id="基于网络的存储访问限制"><a href="#基于网络的存储访问限制" class="headerlink" title="基于网络的存储访问限制#"></a>基于网络的存储访问限制#</h1><p>啦啦啦，这是重头戏。前段时间还有客户问过，对Blob的访问能否进行网络限制，这个功能就出现了。只是目前只在WW的部分账号提供Preview。</p>
+<p>进入创建的storage account，可以看到在settings里多出一项Firewalls and virtual networks，点击进入：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171002/DJA4EC93AA.png?imageslim" alt="mark"></p>
+<p>如图所示，在此选项里，我们可以通过启用selected networks选择哪些网络可以访问此storage account。</p>
+<p>对于Azure内部的vnet，可以通过添加现有的vnet或新建vnet来选择，甚至可以跨订阅：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171003/i5c2iF434K.png?imageslim" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171003/Jba1Gc01b6.png?imageslim" alt="mark"></p>
+<p>对于外部网络（internet或客户机房vpn、er接入等），则可以通过添加地址段（ip或CIDR）方式：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171003/Dag59E681g.png?imageslim" alt="mark"></p>
+<p>另外，还有三个默认规则，可以根据实际需求决定是否启用：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171003/liFBb9HiaE.png?imageslim" alt="mark"></p>
+<h1 id="WORM保护"><a href="#WORM保护" class="headerlink" title="WORM保护#"></a>WORM保护#</h1><p>自从安然事件以来，数据防篡改已经成为数据审计的重要检查内容。前些年开始，符合法规遵从的WORM保护（write once read multi）已逐渐成为传统存储的标配功能。在Ignote看到Azure引入此功能还真有些出乎预料。</p>
+<p>从介绍来看，重点是：</p>
+<ul>
+<li>符合SEC 17a-4(f)法规要求，意味着只要启用该功能，即可满足IT审计合规要求</li>
+<li>对hot、cold以及即将GA的archive的blob数据都可使用（低成本的归档worm可大大降低存储成本）</li>
+<li>提供审计日志功能</li>
+<li>基于保留时间的策略</li>
+</ul>
+<p>不清楚的地方：</p>
+<ul>
+<li>保护的颗粒度？</li>
+<li>是否允许hot、clod转化？</li>
+<li>最短和最长的保留时间？</li>
+</ul>
+<h1 id="Soft-Delete"><a href="#Soft-Delete" class="headerlink" title="Soft Delete#"></a>Soft Delete#</h1><p>遇到过几次客户在Azure上的数据误删除，对此提出疑问，既然在Azure的数据至少是三副本，为什么删除不能找回？其实这是混淆了数据副本和数据备份的区别。在Azure上，数据副本保持强一致，任何数据操作（写改删）都要得到得到所有副本commit才认为操作成功，所以数据删除后在所有副本上都丢失了，无法找回。</p>
+<p>预计在2018年上半年，Azure将为Blob引入Soft Delete的功能，客户可启用此功能并设置时间期限（最长365天），删除blob后，只要没超过时间期限，就可以找回。领导再也不用担心小王不小心删掉数据了。</p>
+<p>当然，如果处于数据安全考虑，客户也可以关掉此功能。</p>
+<h1 id="改进的分层存储"><a href="#改进的分层存储" class="headerlink" title="改进的分层存储#"></a>改进的分层存储#</h1><p>Azure引入hot、cold的Blob分层后，越来越多的用户开始利用分层存储节约成本。但是现有的分层还比较粗造，存在很多不足之处，例如只有两层、必须以storage account为单位等。</p>
+<p>新的分层存储将有较大改变：</p>
+<ul>
+<li><p>引入archive归档层，单位存储价格更低，适用于长期低频访问的数据，例如医院PACS影像系统，病人看完病后基本无需再使用，但是监管要求需要保留7年，archive将非常适合此类数据的长期保存。与hot、cold不一样，archive属于离线数据，只有metadate在线，所以archive访问时需要数据恢复，以小时为单位。</p>
+</li>
+<li><p>新的数据分层颗粒度细化到单个blob，而不再以整个storage account为单位设置，同时引入新的api：SetBlobTier来为每个blob设置存储层，GetBlobProperties和ListBlobs显示blob的分层属性。在portal里，单个blob的属性已经可看但access tier的preview，只是目前还无法使用：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171003/7bkdJ4FbjE.png?imageslim" alt="mark"></p>
+</li>
+<li><p>通过数据生命周期管理实现自动化分层，根据数据最后访问时间来自动调整数据的存放层级，降低人工管理的复杂度。</p>
+</li>
+</ul>
+<p>当然，新的功能不止这几项，例如还有AAD整合、加密、Metric等，就不逐一描述了，让我们期待这些功能尽快上线吧。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/60718/" rel="next" title="那些年，我们掉过的坑">
+                <i class="fa fa-chevron-left"></i> 那些年，我们掉过的坑
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/13539/" rel="prev" title="SQL，到容器里来">
+                SQL，到容器里来 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ZRS"><span class="nav-number">1.</span> <span class="nav-text">ZRS#</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于网络的存储访问限制"><span class="nav-number">2.</span> <span class="nav-text">基于网络的存储访问限制#</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#WORM保护"><span class="nav-number">3.</span> <span class="nav-text">WORM保护#</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Soft-Delete"><span class="nav-number">4.</span> <span class="nav-text">Soft Delete#</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#改进的分层存储"><span class="nav-number">5.</span> <span class="nav-text">改进的分层存储#</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

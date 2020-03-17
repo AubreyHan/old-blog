@@ -1,0 +1,1161 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="话说天下武功、唯富不破，不对，是唯快不破，对于IT系统，这句话也同样适用。虽然现在的IT系统发展方向逐步弱化单机性能和安全性，但对单机的性能优化永远是解决问题的根本之道。 而磁盘系统作为IT系统中最慢的一个环节，在用户DC里，可以通过对RAID配置修改、调整缓存、增大并发等各种方式来优化磁盘性能，但在公有云环境里，每种磁盘的性能是固定的：  对于磁盘本身，没有什么可调优的空间；而对主机系统来说，我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="天下武功，唯快不破——Linux虚机的磁盘调优初探">
+<meta property="og:url" content="http://aubreyhan.net/undefined/49750/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="话说天下武功、唯富不破，不对，是唯快不破，对于IT系统，这句话也同样适用。虽然现在的IT系统发展方向逐步弱化单机性能和安全性，但对单机的性能优化永远是解决问题的根本之道。 而磁盘系统作为IT系统中最慢的一个环节，在用户DC里，可以通过对RAID配置修改、调整缓存、增大并发等各种方式来优化磁盘性能，但在公有云环境里，每种磁盘的性能是固定的：  对于磁盘本身，没有什么可调优的空间；而对主机系统来说，我">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrroiokzgj30nl0fu74i.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrojkw4sj30q30eyaj4.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrolwy90j30mi0e0dgp.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrromdn13j30m90p60t0.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrromtxk1j30mb0ef0tp.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrop69i1j30m60ebt9z.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrroqjlbhj30l70fvt94.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrror1hj9j30mg0ea3zt.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrorjjeej30m10efab6.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrorx2mtj30m10dvaav.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrorjjeej30m10efab6.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrotvv7cj30z70in0tw.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrousy8ij30pb0ihgmk.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrov8lbej30mq0nzwef.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrovqjscj30gi0di74c.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrow81cqj30n90op74n.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrowu02dj30ds02ja9t.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrox64auj30ma0e6q3w.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrroxnczgj30mu0egmyg.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrp0dzwoj31820c23yr.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrp291iwj30sk0avjrg.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrp2rmd2j30m50e6jso.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp36m16j317o0byweg.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrp3obmnj30h20lzaac.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp43wboj30ix0h9t8t.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp4le7ej30ge030we9.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrp53fvaj30o70cdgll.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp5jj9tj30h702dmwz.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrp6hcsij30ft0d73yh.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrp7ddr0j30j30ceq2z.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrp7w226j30m40e2gmp.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrp8e28oj30lo0djdgl.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrp8ups4j30o70feglq.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrp9b642j30w80k141w.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp9rja4j311w04sdgf.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrpa9evbj30lx0ijt8t.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrpguz5pj30lo0dl40f.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrphqeicj30ld0fe3yl.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrpi8mrgj30iz0f6mx8.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpinterj30i90c10ss.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrpj3v9yj30lz0dsdh0.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpjm99uj30fm012mwx.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrpk0g45j30ob01x3ye.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrpkhi96j30jk0k8q33.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrpkyx8ij30mx035wec.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpmdpphj316601t0sm.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpp6o0zj30kc0h1glp.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrppn3wwj30g40gwaa4.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrpq4c5sj30n402zmx0.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrpqm1w4j30ns0enac6.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpr2r1cj30lr0drwg1.jpg">
+<meta property="article:published_time" content="2017-11-24T06:43:23.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrroiokzgj30nl0fu74i.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/49750/"/>
+
+
+
+
+
+  <title> 天下武功，唯快不破——Linux虚机的磁盘调优初探 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/49750/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                天下武功，唯快不破——Linux虚机的磁盘调优初探
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-24T14:43:23+08:00">
+                2017-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>话说天下武功、唯富不破，不对，是唯快不破，对于IT系统，这句话也同样适用。虽然现在的IT系统发展方向逐步弱化单机性能和安全性，但对单机的性能优化永远是解决问题的根本之道。</p>
+<p>而磁盘系统作为IT系统中最慢的一个环节，在用户DC里，可以通过对RAID配置修改、调整缓存、增大并发等各种方式来优化磁盘性能，但在公有云环境里，每种磁盘的性能是固定的：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrroiokzgj30nl0fu74i.jpg" alt="mark"></p>
+<p>对于磁盘本身，没有什么可调优的空间；而对主机系统来说，我们还是可以有些手段来优化磁盘。下边就看看Linux具体的测试结果。</p>
+<a id="more"></a>
+
+<h1 id="测试环境准备"><a href="#测试环境准备" class="headerlink" title="测试环境准备"></a>测试环境准备</h1><h2 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h2><p>本次测试，还是采用老牌的IOPS测试工具IOmeter。</p>
+<p>测试主机：</p>
+<ul>
+<li>OS：Centos7.4</li>
+<li>机型：DS3v2（4core、14GB RAM），避免主机性能影响测试结果，采用支持SSD磁盘的机型</li>
+<li>IP：172.17.0.4</li>
+</ul>
+<p>控制台主机（IOmeter在Linux下不提供管理和结果显示，所以需要一台windows主机作为控制台）：</p>
+<ul>
+<li>OS：Windows 2016 Datacenter</li>
+<li>机型：A4m_v2（4core、32GB RAM）</li>
+<li>IP：172.17.0.5</li>
+</ul>
+<h2 id="测试软件安装"><a href="#测试软件安装" class="headerlink" title="测试软件安装"></a>测试软件安装</h2><h3 id="Windows控制台"><a href="#Windows控制台" class="headerlink" title="Windows控制台"></a>Windows控制台</h3><p>windows下安装比较简单，只需要到<a href="http://www.iometer.org/" target="_blank" rel="noopener">IOmeter</a>下载windows版本的软件（一般为x64版本，注意不要选择ia64），然后解压缩即可：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrojkw4sj30q30eyaj4.jpg" alt="mark"></p>
+<p>解压缩后有两个可执行文件：</p>
+<ul>
+<li>Dynamo：磁盘测试的守护进程，附着对磁盘进行读写</li>
+<li>IOmeter：控制台程序，负责配置管理所有测试，并输出结果</li>
+</ul>
+<p>运行IOmeter，进入管理界面：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrolwy90j30mi0e0dgp.jpg" alt="mark"></p>
+<p>IOmeter将自动启动本机的Dynamo，并显示在All Managers。也可单独运行Dynamo，注册到同一网络里其他的IOmeter控制台，做集中管理。</p>
+<p>建议关掉Windows的防火墙，避免影响与测试客户端的通讯。</p>
+<h3 id="Linux客户端"><a href="#Linux客户端" class="headerlink" title="Linux客户端"></a>Linux客户端</h3><p>Linux环境下载IOmeter，如果没有GUI桌面，可通过命令行下载（一般也是x64版本）：</p>
+<p><code>wget https://downloads.sourceforge.net/project/iometer/iometer-stable/1.1.0/iometer-1.1.0-linux.x86_64-bin.tar.bz2?r=http%3A%2F%2Fwww.iometer.org%2Fdoc%2Fdownloads.html&amp;ts=1511539548&amp;use_mirror=nchc</code></p>
+<p>如果下载的文件名为：</p>
+<p>iometer-1.1.0-linux.x86_64-bin.tar.bz2?r=http:%2F%2F<a href="http://www.iometer.org%2Fdoc%2Fdownloads.html.1">www.iometer.org%2Fdoc%2Fdownloads.html.1</a></p>
+<p>请重命名为：</p>
+<p>iometer-1.1.0-linux.x86_64-bin.tar.bz2</p>
+<p>然后解压缩：</p>
+<p><code>tar -xvf iometer-1.1.0-linux.x86_64-bin.tar.bz2</code></p>
+<p>得到Linux下的磁盘测试文件Dynamo。请检查该文件权限，如果没有可执行权限，请用chmod 755赋予可执行权限。</p>
+<p>运行dynamo并注册到控制台：</p>
+<p><code>sudo ./dynamo -i 172.17.0.5 -m 172.17.0.4</code></p>
+<p>其中，-i后是控制台的ip，-m是需要测试的机器的ip（一般为本机）：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrromdn13j30m90p60t0.jpg" alt="mark"></p>
+<p>在向控制台注册过程中会有些报错，先不用管。</p>
+<p>回到Windows主机的控制台，可看到Linux的客户端已注册：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrromtxk1j30mb0ef0tp.jpg" alt="mark"></p>
+<h3 id="IOmeter使用测试"><a href="#IOmeter使用测试" class="headerlink" title="IOmeter使用测试"></a>IOmeter使用测试</h3><p>IOmeter测试的主要参数：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrop69i1j30m60ebt9z.jpg" alt="mark"></p>
+<p>IOmeter测试的IO模型，因为Azure磁盘的公布IOPS以8K为基准，所以点击New创建一个8K，随机50%，写50%的模型：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrroqjlbhj30l70fvt94.jpg" alt="mark"></p>
+<p>并加入左侧的测试栏：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrror1hj9j30mg0ea3zt.jpg" alt="mark"></p>
+<p>选择测试热身时间30秒，测试10分钟：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrorjjeej30m10efab6.jpg" alt="mark"></p>
+<p>现在对临时盘（sdb）进行测试，数据量为10GB（20971520），outstanding IOs并发保持1（注意磁盘选择要到每个worker里去做）：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrorx2mtj30m10dvaav.jpg" alt="mark"></p>
+<p>点击上部绿色小旗开始测试，指定结果保存的文件目录及文件名，并转到Results Display检查运行状况（update Frequency指定结果显示的刷新间隔时间）：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrorjjeej30m10efab6.jpg" alt="mark"></p>
+<p>测试完成，打开结果文件，可以看到测试情况：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrotvv7cj30z70in0tw.jpg" alt="mark"></p>
+<h1 id="单盘测试"><a href="#单盘测试" class="headerlink" title="单盘测试"></a>单盘测试</h1><p>DS系列vm同时支持HDD和SDD两种磁盘，分别对这两种磁盘做测试：</p>
+<h2 id="HDD磁盘"><a href="#HDD磁盘" class="headerlink" title="HDD磁盘"></a>HDD磁盘</h2><p>在VM的设置-磁盘添加数据磁盘，并选择创建磁盘：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrousy8ij30pb0ihgmk.jpg" alt="mark"></p>
+<p>创建一块S30磁盘：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrov8lbej30mq0nzwef.jpg" alt="mark"></p>
+<p>由于Linux不会自动扫描硬件更新，所以重启系统识别新加硬盘：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrovqjscj30gi0di74c.jpg" alt="mark"></p>
+<p>分区并格式化为ext4的文件系统：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrow81cqj30n90op74n.jpg" alt="mark"></p>
+<p>挂载到/mnt目录：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrowu02dj30ds02ja9t.jpg" alt="mark"></p>
+<p>再次执行Dynamo命令运行测试工具，在控制台可以看到多出一个/mnt目录做测试：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrox64auj30ma0e6q3w.jpg" alt="mark"></p>
+<p>选择/mnt作为目标进行测试，测试参数仍参照对sdb的参数：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrroxnczgj30mu0egmyg.jpg" alt="mark"></p>
+<p>在VM的设置-磁盘选项里点击编辑，可以为磁盘配置缓存：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrp0dzwoj31820c23yr.jpg" alt="mark"></p>
+<p>分别为HDD01配置只读和读写缓存，做同样测试（配置后重启Linux，确保配置生效），最后结果：</p>
+<table>
+<thead>
+<tr>
+<th>缓存配置</th>
+<th>无缓存</th>
+<th>启用读缓存</th>
+<th>启用读写缓存</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IOPS</td>
+<td>493</td>
+<td>512</td>
+<td>463</td>
+</tr>
+<tr>
+<td>读IOPS</td>
+<td>246</td>
+<td>256</td>
+<td>231</td>
+</tr>
+<tr>
+<td>写IOPS</td>
+<td>247</td>
+<td>256</td>
+<td>232</td>
+</tr>
+</tbody></table>
+<p>从测试结果可见，缓存对磁盘的加速不一定有作用，有时候反而会降低性能。</p>
+<p>如何能发挥缓存的作用？在启用读写缓存情况下，对outstanding IOs进行配置测试：</p>
+<table>
+<thead>
+<tr>
+<th>Outstanding IOs</th>
+<th>1</th>
+<th>2</th>
+<th>4</th>
+<th>8</th>
+<th>16</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IOPS</td>
+<td>463</td>
+<td>633</td>
+<td>749</td>
+<td>789</td>
+<td>833</td>
+</tr>
+<tr>
+<td>读IOPS</td>
+<td>318</td>
+<td>318</td>
+<td>373</td>
+<td>394</td>
+<td>416</td>
+</tr>
+<tr>
+<td>写IOPS</td>
+<td>315</td>
+<td>315</td>
+<td>376</td>
+<td>395</td>
+<td>417</td>
+</tr>
+<tr>
+<td>延时（ms）</td>
+<td>8.61</td>
+<td>12.63</td>
+<td>21.20</td>
+<td>40.27</td>
+<td>76.80</td>
+</tr>
+<tr>
+<td>读延时（ms）</td>
+<td>14.49</td>
+<td>18.07</td>
+<td>28.12</td>
+<td>51.84</td>
+<td>95.01</td>
+</tr>
+<tr>
+<td>写延时（ms）</td>
+<td>2.75</td>
+<td>7.15</td>
+<td>14.26</td>
+<td>28.72</td>
+<td>58.62</td>
+</tr>
+</tbody></table>
+<p>可以看出，增加并行的IO，可以提升IOPS，但是延时也会增加。</p>
+<p>通过以上测试，可以得到如下结果：</p>
+<ul>
+<li><em>Azure的hdd磁盘性能和容量无关，IOPS都是500，实测情况满足</em></li>
+<li><em>单块磁盘可以通过启用缓存的方式来提升性能，但是要提高并发数量，客户的应用设计需要考虑到这个因素</em></li>
+<li><em>写缓存可能会在异常停机时导致数据丢失，需慎用</em></li>
+<li><em>提高并发虽然增加了IOPS，但是导致延时上升，所以要根据客户的实际需求决定是否使用此方法</em></li>
+<li><em>使用缓存可降低cpu的使用率，优化系统性能</em></li>
+<li><em>配置缓存后重启系统生效</em></li>
+</ul>
+<h2 id="SSD磁盘测试"><a href="#SSD磁盘测试" class="headerlink" title="SSD磁盘测试"></a>SSD磁盘测试</h2><p>再给VM添加一块SSD磁盘P30：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrp291iwj30sk0avjrg.jpg" alt="mark"></p>
+<p>测试IOPS，结果未达到标称5000</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrp2rmd2j30m50e6jso.jpg" alt="mark"></p>
+<p>这是因为SSD和传统HDD结构不一样，HDD只有一个磁头，并发IO不能同时处理，而SSD没有这个问题，需要通过提高并发（队列深度）来提升性能。</p>
+<p>针对不同Outstanding IOs测试结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>Outstanding IOs</th>
+<th>1</th>
+<th>2</th>
+<th>4</th>
+<th>8</th>
+<th>16</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IOPS</td>
+<td>1683</td>
+<td>3327</td>
+<td>5095</td>
+<td>5101</td>
+<td>5099</td>
+</tr>
+<tr>
+<td>读IOPS</td>
+<td>842</td>
+<td>1661</td>
+<td>2545</td>
+<td>2554</td>
+<td>2541</td>
+</tr>
+<tr>
+<td>写IOPS</td>
+<td>841</td>
+<td>1666</td>
+<td>2550</td>
+<td>2547</td>
+<td>2559</td>
+</tr>
+<tr>
+<td>延时（ms）</td>
+<td>2.38</td>
+<td>2.40</td>
+<td>3.14</td>
+<td>6.27</td>
+<td>12.55</td>
+</tr>
+<tr>
+<td>读延时（ms）</td>
+<td>2.56</td>
+<td>2.62</td>
+<td>3.36</td>
+<td>6.47</td>
+<td>12.71</td>
+</tr>
+<tr>
+<td>写延时（ms）</td>
+<td>2.19</td>
+<td>2.18</td>
+<td>2.92</td>
+<td>6.08</td>
+<td>12.38</td>
+</tr>
+</tbody></table>
+<p>可以看出对单块SSD盘，当Outstanding IOs=4时，可以达到性能的标称值（5000），再提升并发，对性能提升无影响，但是IO的堆积反而导致延时上升。</p>
+<p>测试缓存对SSD磁盘的影响（Outstanding IOs=4）：</p>
+<table>
+<thead>
+<tr>
+<th>缓存配置</th>
+<th>启用读缓存</th>
+<th>启用读写缓存</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IOPS</td>
+<td>6143</td>
+<td>6372</td>
+</tr>
+<tr>
+<td>读IOPS</td>
+<td>3072</td>
+<td>3182</td>
+</tr>
+<tr>
+<td>写IOPS</td>
+<td>3071</td>
+<td>3190</td>
+</tr>
+<tr>
+<td>延时（ms）</td>
+<td>2.60</td>
+<td>2.51</td>
+</tr>
+<tr>
+<td>读延时（ms）</td>
+<td>2.30</td>
+<td>3.41</td>
+</tr>
+<tr>
+<td>写（ms）</td>
+<td>2.91</td>
+<td>1.62</td>
+</tr>
+</tbody></table>
+<p>可以看出，启用缓存后，IOPS有显著提高，特别在启用读写缓存后，在IOPS提高的同时，写延时明显下降。</p>
+<p>通过以上测试可以看出：</p>
+<ul>
+<li>对<em>SSD磁盘，通过提高并发可以明显提升性能，但是有极限，超过极限后，性能基本不上升，而延时会增加</em></li>
+<li><em>启用缓存可以有效提升性能，但是如果数据安全比较重要，不建议启用读写缓存，而只启用读缓存（Azure默认配置）</em></li>
+</ul>
+<h1 id="多盘测试"><a href="#多盘测试" class="headerlink" title="多盘测试"></a>多盘测试</h1><p>对于Azure提供的磁盘服务，无论怎么优化，单盘有性能极限。如果客户有超过极限的性能需求，如何处理？这时候就需要通过多盘组合的方式来实现了。</p>
+<p>在Linux环境下，多盘组合的方式有两种：LVM和软Raid。下边就看看这两种方式的区别。</p>
+<h2 id="LVM"><a href="#LVM" class="headerlink" title="LVM"></a>LVM</h2><p>LVM是Linux系统从Unix继承的一种磁盘管理方式。LVM抛弃了在单盘创建分区文件系统的方式，而是将多块磁盘组合形成一块逻辑大磁盘，并在上分区创建文件系统。LVM突破了单盘容量限制，并可以灵活调整文件系统大小，非常方便用户使用。</p>
+<p>LVM支持三种方式的lv映射到pv：Linear、Strip、Mirror。为了提升磁盘性能，希望多块磁盘可以并发，所以要使用Strip方式。</p>
+<p>下边测试LVM方式的性能。</p>
+<p>为了方便测试，给测试机添加4块ssd硬盘，不启用缓存：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp36m16j317o0byweg.jpg" alt="mark"></p>
+<p>启动测试机，检查已经多出4块硬盘：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrp3obmnj30h20lzaac.jpg" alt="mark"></p>
+<p>如下将sdc和sdd划分分区，指定为LVM格式（8e），并创建pv</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp43wboj30ix0h9t8t.jpg" alt="mark"></p>
+<p>将sdc1和sdd1创建为vg：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp4le7ej30ge030we9.jpg" alt="mark"></p>
+<p>通过lvcreate –h可以查看创建不同类型lv的方法：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrp53fvaj30o70cdgll.jpg" alt="mark"></p>
+<p>在Azure底层，所有存储都做了本地强一致的三副本，无用担心数据安全，所以直接创建strip的lv即可（通过-i参数指定分布的pv宽度，本例中只有两个pv，所以设定为2）：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp5jj9tj30h702dmwz.jpg" alt="mark"></p>
+<p>检查该lv的stripe情况可以看到已经stripe到2个pv：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrp6hcsij30ft0d73yh.jpg" alt="mark"></p>
+<p>格式化此lv并挂载：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrp7ddr0j30j30ceq2z.jpg" alt="mark"></p>
+<p>再次进行IOPS测试，由于俩块ssd硬盘并发，所以Outstanding IOs设置为8：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrp7w226j30m40e2gmp.jpg" alt="mark"></p>
+<p>可以看到，IOPS可达到单盘的两倍：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrp8e28oj30lo0djdgl.jpg" alt="mark"></p>
+<p>将第三块硬盘加入vg，检查可以看到之前创建的lv的stripe仍然为2，并没自动balance到3块硬盘：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrp8ups4j30o70feglq.jpg" alt="mark"></p>
+<p>实测结果也是如此：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrp9b642j30w80k141w.jpg" alt="mark"></p>
+<p>按照lvm的规范，stripe的lv扩展时必须以原有的lv的pv数量为倍数。例如原有lv分布在2个pv，那么扩展时必须以2个pv为倍数。并且原有的pv写满后才会写入新的pv。所以需要加入2个pv，再将lv扩展到所有pv容量之和，才能实现strip到所有pv。</p>
+<p>现将sdf也加入vg，并扩展lv到所有pv容量之和：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrp9rja4j311w04sdgf.jpg" alt="mark"></p>
+<p>检查stripe的情况：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrpa9evbj30lx0ijt8t.jpg" alt="mark"></p>
+<p>可以看到扩展成功，但是实际上之前的lv和扩展的空间是串联的方式，实际IOmeter测试结果也如此：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrpguz5pj30lo0dl40f.jpg" alt="mark"></p>
+<p>总结一下：</p>
+<ul>
+<li>lvm如果使用stripe方式创建lv，可以线性提升IO性能</li>
+<li>创建好的lv无法通过各种方式提升性能，需要预先固定好性能需求</li>
+<li>vg最好为单一lv使用，以保证性能</li>
+</ul>
+<h2 id="软Raid"><a href="#软Raid" class="headerlink" title="软Raid"></a>软Raid</h2><p>Linux系统也可以用软Raid方式组合磁盘，同样因为Azure底层已经有数据保护，所以可以直接使用Raid0方式避免写惩罚。</p>
+<p>首先将磁盘创建为raid类型的分区：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrphqeicj30ld0fe3yl.jpg" alt="mark"></p>
+<p>还是先用2块磁盘创建Raid0：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrpi8mrgj30iz0f6mx8.jpg" alt="mark"></p>
+<p>格式化Raid并挂载：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpinterj30i90c10ss.jpg" alt="mark"></p>
+<p>可以看到，IOPS可以达到单盘的2倍：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrpj3v9yj30lz0dsdh0.jpg" alt="mark"></p>
+<p>向raid增加硬盘：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpjm99uj30fm012mwx.jpg" alt="mark"></p>
+<p>出现错误，查阅文档说明raid0不支持扩容。</p>
+<p>查询文档可知，Linux（CentOS7）支持的Raid类型如下：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrpk0g45j30ob01x3ye.jpg" alt="mark"></p>
+<p>现在以Raid5做测试：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrpkhi96j30jk0k8q33.jpg" alt="mark"></p>
+<p>raid初始化需要一定时间：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrpkyx8ij30mx035wec.jpg" alt="mark"></p>
+<p>测试结果：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpmdpphj316601t0sm.jpg" alt="mark"></p>
+<p>由于Raid5有4倍写延时，所以总体IO是：3468+3475*4=17368，充分发挥出3块sdd硬盘的性能。</p>
+<p>现在给Raid添加一块新硬盘：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpp6o0zj30kc0h1glp.jpg" alt="mark"></p>
+<p>将这块硬盘online：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrppn3wwj30g40gwaa4.jpg" alt="mark"></p>
+<p>开始reblance：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrpq4c5sj30n402zmx0.jpg" alt="mark"></p>
+<p>由于已经有数据（IOmeter测试时生成的文件），所以时长较长，此时可正常使用，但是性能很差：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrpqm1w4j30ns0enac6.jpg" alt="mark"></p>
+<p>等到Rebanlance完成，重新测试：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrpr2r1cj30lr0drwg1.jpg" alt="mark"></p>
+<p>可以看到整体IOPS反而下降，分析原因应该是cpu在做软raid时的瓶颈。</p>
+<hr>
+<h1 id="测试总结"><a href="#测试总结" class="headerlink" title="测试总结"></a>测试总结</h1><p>总结一下本次的测试：</p>
+<p>1、ssd与hdd相比可显著提升IO性能，但是要想充分发挥ssd性能，应用必须多线程并发读写。</p>
+<p>2、ssd延时表现较好，即使在与hdd同样甚至更低iops情况下（P10以下硬盘），对延时敏感的业务（如数据库日志等），使用ssd能获得较好的感受</p>
+<p>3、对于ssd，缓存可显著提升性能，但是写缓存有数据风险，谨慎使用</p>
+<p>4、条带化的lvm和raid0都可以实现IO性能的线性增长，但是做完后无法扩充，所以要提前预估业务所需性能；如果业务确实面临性能增长超过预期的情况，只能新建lvm或raid0，然后做数据迁移</p>
+<p>5、Azure有底层的数据保护哦，带容错机制的软raid会带来性能损失，不建议使用。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/18947/" rel="next" title="安能摧眉折腰删数据，使我不得开心颜——Onedrive使用小技巧">
+                <i class="fa fa-chevron-left"></i> 安能摧眉折腰删数据，使我不得开心颜——Onedrive使用小技巧
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/12874/" rel="prev" title="网络诚可贵，计算价更高；若是数据没，二者皆垮掉——浅谈数据保护的类型和差异">
+                网络诚可贵，计算价更高；若是数据没，二者皆垮掉——浅谈数据保护的类型和差异 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#测试环境准备"><span class="nav-number">1.</span> <span class="nav-text">测试环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#测试环境"><span class="nav-number">1.1.</span> <span class="nav-text">测试环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试软件安装"><span class="nav-number">1.2.</span> <span class="nav-text">测试软件安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows控制台"><span class="nav-number">1.2.1.</span> <span class="nav-text">Windows控制台</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux客户端"><span class="nav-number">1.2.2.</span> <span class="nav-text">Linux客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IOmeter使用测试"><span class="nav-number">1.2.3.</span> <span class="nav-text">IOmeter使用测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#单盘测试"><span class="nav-number">2.</span> <span class="nav-text">单盘测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#HDD磁盘"><span class="nav-number">2.1.</span> <span class="nav-text">HDD磁盘</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSD磁盘测试"><span class="nav-number">2.2.</span> <span class="nav-text">SSD磁盘测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多盘测试"><span class="nav-number">3.</span> <span class="nav-text">多盘测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LVM"><span class="nav-number">3.1.</span> <span class="nav-text">LVM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软Raid"><span class="nav-number">3.2.</span> <span class="nav-text">软Raid</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试总结"><span class="nav-number">4.</span> <span class="nav-text">测试总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,895 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="数据丢失几乎是每个人都遇到过的痛，无论是个人的照片、视频等资料还是工作中的数据（如数据库、邮件等），无论是误删除还是错误修改，一旦丢失就会造成不可挽回的损失。而备份，则是防止数据丢失的最常见方案。虽然备份的RPO和RTO都不是非常好，但是在长期数据保存中，却是一个最合适的方法。 为了协助客户保护数据，Azure也推出了备份服务，而且不只是针对在Azure云端的数据，包括客户机房的物理机、虚机、文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安得世上无双法，数据丢失回复来——浅析Azure备份服务（一）">
+<meta property="og:url" content="http://aubreyhan.net/undefined/18617/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="数据丢失几乎是每个人都遇到过的痛，无论是个人的照片、视频等资料还是工作中的数据（如数据库、邮件等），无论是误删除还是错误修改，一旦丢失就会造成不可挽回的损失。而备份，则是防止数据丢失的最常见方案。虽然备份的RPO和RTO都不是非常好，但是在长期数据保存中，却是一个最合适的方法。 为了协助客户保护数据，Azure也推出了备份服务，而且不只是针对在Azure云端的数据，包括客户机房的物理机、虚机、文件">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/iB0el4mgBb.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/H68hKg3IB4.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/Jkl2bh4eiD.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/cIEhIgJmFe.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/mDhH7jDdcb.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/hChDg6CHC7.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/bI93l95dAc.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/JghJiKI3ji.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/8H3bkh94fh.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/H6GgFLfbdA.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/9LbJ788aLl.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/088lBkC2H1.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/0hJGC7mjh8.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/2b06Am055i.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/F3cm6h3l8l.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/6L9B3bAgJE.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/4m9LC8la88.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/2Hdf5L999D.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/A4Cc51GdB1.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/LlJBdJD2Gk.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/684lCiKaG2.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/7a1j3mGD4L.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm50y21j30tm0goaaa.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/kG8jl8iLbK.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/eg1Gc32aL7.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/8d5fhBDa7j.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/K56fe66602.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/8b5BL7Ek06.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/24df7clFhH.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/57GfiIjaDi.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/21H88LB4EJ.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrm6ecgoj30nz0iq0t3.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/emd5I877IC.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/6iKeE07GHL.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/DEE0ak74mD.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/djI8dC1L34.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/ACllKIddm7.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm7drrmj30xn0pgtb9.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/f0eCjb67Je.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/HgbAJG6ddA.png?imageslim">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171107/AELd1Jm5l0.png?imageslim">
+<meta property="article:published_time" content="2017-11-06T12:55:59.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://oorpx53f8.bkt.clouddn.com/blog/171106/iB0el4mgBb.png?imageslim">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/18617/"/>
+
+
+
+
+
+  <title> 安得世上无双法，数据丢失回复来——浅析Azure备份服务（一） | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/18617/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                安得世上无双法，数据丢失回复来——浅析Azure备份服务（一）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-06T20:55:59+08:00">
+                2017-11-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>数据丢失几乎是每个人都遇到过的痛，无论是个人的照片、视频等资料还是工作中的数据（如数据库、邮件等），无论是误删除还是错误修改，一旦丢失就会造成不可挽回的损失。而备份，则是防止数据丢失的最常见方案。虽然备份的RPO和RTO都不是非常好，但是在长期数据保存中，却是一个最合适的方法。</p>
+<p>为了协助客户保护数据，Azure也推出了备份服务，而且不只是针对在Azure云端的数据，包括客户机房的物理机、虚机、文件、应用等，提供了一揽子解决方案（此处应有掌声）。下边，就来看看Azure的备份服务。</p>
+<a id="more"></a>
+
+<h1 id="备份体系架构"><a href="#备份体系架构" class="headerlink" title="备份体系架构"></a>备份体系架构</h1><h2 id="备份架构"><a href="#备份架构" class="headerlink" title="备份架构"></a>备份架构</h2><p>在传统备份方案中，一般会采用如下架构：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/iB0el4mgBb.png?imageslim" alt="mark"></p>
+<p>可以看到，传统备份系统的架构组成要素为：</p>
+<ul>
+<li>备份服务器：安装备份管理软件，负责整个备份系统的运维，制定备份计划、发起备份指令、选择备份集、备份数据生命周期管理、备份介质调度等</li>
+<li>备份客户端：名字是客户端，但实际一般是服务器，指需要备份数据的电脑，通常装有备份软件的客户端</li>
+<li>链路：早期一般采用Lan作为备份链路，随着FC网络的发展，逐步改为LAN-Free即FC网络的链路越来越广泛应用，但是目前源端消重技术大大降低了数据传输量，所以Lan链路又重新开始走入备份环境</li>
+<li>备份介质：备份数据的存放地，通常要求大容量（一份数据可能有多分备份）、低成本（没有数据实时访问要求）、高安全（最后一根救命稻草）；以往磁带作为最广泛的备份介质，后来基于Disk的虚拟带库逐步走入主流，现在云也慢慢成为很多备份软件可使用的备份介质。作为备份介质，云有着先天优势：价格低（按需付费、选择冷存储）、容量大（可认为无限扩容）、高安全（底层有数据保护）、天然容灾性质（与用户环境隔离）</li>
+</ul>
+<h2 id="备份设计"><a href="#备份设计" class="headerlink" title="备份设计"></a>备份设计</h2><p>除了架构，备份设计通常还会考虑：</p>
+<ul>
+<li>备份方式：文件级备份、物理机裸机备份、虚拟机镜像备份、应用级备份（如数据库等）；例如虚机的整体备份虽然可以把虚机完整备份下来，但是对应用的一致性兼容并不好，所以在备份环境里，通常需要针对不同需求制定不同的备份方式</li>
+<li>备份级别：全备、增量、差异等不同备份级</li>
+<li>备份策略：为了避免对生产系统影响，一般会把备份放置在业务低谷期；以及备份的频率</li>
+<li>数据生命周期：备份的数据多长时间作废，可以丢弃</li>
+<li>备份窗口：完成一次备份所需时间，过长的备份窗口失去备份意义，所以要通过指定备份方式、策略等来降低备份窗口</li>
+<li>恢复演练：制定合理的恢复演练是对备份的验证，确保故障时可以找回数据</li>
+</ul>
+<p>————————————————————————————————————————</p>
+<p>备份在IT架构中不可或缺，但结构复杂。所以近来备份架构的发展出现几个趋势：整合化（将备份服务器、备份介质等整合成一个黑盒子，简化部署、降低运维难度）、云端化（将备份数据放到云端、降低成本和风险）、虚拟化（为虚拟数据中心和云数据中心提供备份服务）。最终的走向是实现Baas（Backup as a Service），即备份即服务。</p>
+<h1 id="Azure备份服务综述"><a href="#Azure备份服务综述" class="headerlink" title="Azure备份服务综述"></a>Azure备份服务综述</h1><p>作为公有云提供商，Azure天生具备实现BaaS的优势。</p>
+<p>有不少合作伙伴例如Veritas等已在Azure的镜像市场提供了备份服务。但是最近，Azure也在ARM Portal提供了原生的备份服务。</p>
+<p>在ARM，备份（Backup）和站点级容灾（Site Recovery）被整合在一起，放到服务Recovery Service Vault里：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/H68hKg3IB4.png?imageslim" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/Jkl2bh4eiD.png?imageslim" alt="mark"></p>
+<p>在这里，我们无需关注备份软件、拓扑等复杂环境，只需专注在需要保护的数据即可。</p>
+<p>点击Backup，可以看到Azure的备份服务不仅可以对Azure云端数据备份，也可以对On-Premises的本地数据进行备份：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/cIEhIgJmFe.png?imageslim" alt="mark"></p>
+<p>分别选择Azure和On-Premises，可以看到Azure支持vm备份，而On-Premises则可以支持大量的备份类型，特别是对应用和裸机的备份，不仅可以用作本地数据，还可以用作对其它云数据的备份：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/mDhH7jDdcb.png?imageslim" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/hChDg6CHC7.png?imageslim" alt="mark"></p>
+<p>下边，就从最简单也是最常见的文件备份开始介绍Azure备份服务。</p>
+<h1 id="Azure文件备份"><a href="#Azure文件备份" class="headerlink" title="Azure文件备份"></a>Azure文件备份</h1><p>整理一下Azure备份服务：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/bI93l95dAc.png?imageslim" alt="mark"></p>
+<p>文件备份（Files and folders）虽然是针对On-Premises，但云上（包括Azure）的VM都可以看作广义的On-Premises，所以本测试就以Azure VM作为需要备份文件的机器（备份客户端）。</p>
+<h2 id="新建Site-Recovery-Vault"><a href="#新建Site-Recovery-Vault" class="headerlink" title="新建Site Recovery Vault"></a>新建Site Recovery Vault</h2><p>在portal界面的左边栏选择Recovery Service Vault，点解add，创建一个新的y Vault：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/JghJiKI3ji.png?imageslim" alt="mark"></p>
+<p>Vault可以看作一个备份一体机引用设备，里边包含了备份所有的组件。</p>
+<p>进入新建好的Vault，选择Backup——On-Premises——Files and folders：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/8H3bkh94fh.png?imageslim" alt="mark"></p>
+<p>准备好文件备份。</p>
+<h2 id="备份客户端安装"><a href="#备份客户端安装" class="headerlink" title="备份客户端安装"></a>备份客户端安装</h2><p>点击上一步出来的Prepare Infrastructure，可以看到文件备份需要做的准备工作及步骤：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171106/H6GgFLfbdA.png?imageslim" alt="mark"></p>
+<p>可以看到，通过Azure去备份文件很简单，下载对应的客户端软件，以及Vault的认证文件在需要备份的电脑上安装即可。</p>
+<p>目前在Azure文件备份服务中只有Windows的客户端，所以现阶段只支持Windows的文件备份。</p>
+<p>下载客户端软件及vault认证文件上传到需要备份的虚机：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/9LbJ788aLl.png?imageslim" alt="mark"></p>
+<p>运行客户端安装，如果没有特殊设置（如目录、上网代理等）就一路next，并选择用microsoft update去更新客户端，即可完成安装：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/088lBkC2H1.png?imageslim" alt="mark"></p>
+<p>下一步在Vault注册客户端，选择下载好的证书文件即可：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/0hJGC7mjh8.png?imageslim" alt="mark"></p>
+<p>为备份创建密码，可以自己选择也可以生成一个密码，并选择目录保存密码文件，这个一定不要弄丢，否则无法恢复：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/2b06Am055i.png?imageslim" alt="mark"></p>
+<p>可以看到在所选目录生成了一个文本文件，记录了备份密码：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/F3cm6h3l8l.png?imageslim" alt="mark"></p>
+<p>客户端注册完成即可运行Microsoft Azure Backup软件开始备份：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/6L9B3bAgJE.png?imageslim" alt="mark"></p>
+<h2 id="文件备份"><a href="#文件备份" class="headerlink" title="文件备份"></a>文件备份</h2><p>现在就可以开始备份文件了，以D:\temp\目录为例：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/4m9LC8la88.png?imageslim" alt="mark"></p>
+<p>点击Schedule Backup Wizard启动备份设置向导：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/2Hdf5L999D.png?imageslim" alt="mark"></p>
+<p>点击Add Items添加需要备份的目录：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/A4Cc51GdB1.png?imageslim" alt="mark"></p>
+<p>制定备份策略，可以看到以天为周期或者周为周期，但是有限制，每天的备份不能超过3次，这里我们选择上班、中午、下班三个时间点做备份：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/LlJBdJD2Gk.png?imageslim" alt="mark"></p>
+<p><em>Tips：备份的时间以客户端时间为标准</em></p>
+<p>选择备份数据保留的周期：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/684lCiKaG2.png?imageslim" alt="mark"></p>
+<p>选择备份链路（直接通过网络备份到Azure还是备份到本地）：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/7a1j3mGD4L.png?imageslim" alt="mark"></p>
+<p><em>Tips：备份到本地不是做本地备份，而是在数据量比较大时例如期初备份可以先备份到本地然后将磁盘快递到Azure，通过Azure的数据导入服务导入备份数据</em></p>
+<p>最后一步，确认无误，完成备份配置：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm50y21j30tm0goaaa.jpg" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/kG8jl8iLbK.png?imageslim" alt="mark"></p>
+<p>这样，我们就配置完成了一个文件备份，等到备份时间点，会自动备份。</p>
+<p>如果希望马上发起备份验证设置是否正确，可以点击右边栏的Backup Now，然后在弹出界面里点击Backup：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/eg1Gc32aL7.png?imageslim" alt="mark"></p>
+<p>可以看到备份开始：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/8d5fhBDa7j.png?imageslim" alt="mark"></p>
+<p>整个过程是先创建一个SnapShot，然后提取创建元数据，最后将备份文件传递到Azure，备份很快完成：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/K56fe66602.png?imageslim" alt="mark"></p>
+<p>在Activity里可以看到备份执行情况：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/8b5BL7Ek06.png?imageslim" alt="mark"></p>
+<p>整个过程轻松愉快，很方便就完成了。</p>
+<h2 id="文件恢复"><a href="#文件恢复" class="headerlink" title="文件恢复"></a>文件恢复</h2><p>备份不是目的，恢复才是根本。见到并且听到过很多备份不能恢复例子，例如磁带损坏、设备故障、备份不完整等。所以，定期的恢复演练是整个备份架构中不可或缺的一个环节。</p>
+<p>下边，就对Azure文件备份进行恢复测试。</p>
+<h3 id="本机恢复"><a href="#本机恢复" class="headerlink" title="本机恢复"></a>本机恢复</h3><p>还是进入Microsoft Azure Backup，点击右边栏的Recover Data：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/24df7clFhH.png?imageslim" alt="mark"></p>
+<p>可以看到，即支持本机恢复，也可以做异机恢复。这样，当整个电脑出现故障时，可以从另一台电脑恢复数据。这里，先选择This Server，点击下一步：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/57GfiIjaDi.png?imageslim" alt="mark"></p>
+<p>选择独立文件和文件夹，点击下一步，这里要选择恢复哪个驱动器的数据：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/21H88LB4EJ.png?imageslim" alt="mark"></p>
+<p>选择后会出来一个日历和时间，在此可以选择恢复哪一个备份，如果文件被误删改，可以恢复不同时间的版本来比较：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrm6ecgoj30nz0iq0t3.jpg" alt="mark"></p>
+<p>可以看到，恢复时并不是简单的覆盖文件，而是通过mount的方式挂载到一个没有使用的临时驱动器，避免覆盖正确数据（可能一个文件夹里只有部分文件需要恢复），此处挂载到了F盘：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/emd5I877IC.png?imageslim" alt="mark"></p>
+<p>打开F盘，可以看到备份的目录及文件，可以将需要恢复的文件直接拷贝即可：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/6iKeE07GHL.png?imageslim" alt="mark"></p>
+<h3 id="异机恢复"><a href="#异机恢复" class="headerlink" title="异机恢复"></a>异机恢复</h3><p>新建一台windows vm，同样安装Microsoft Azure Backup 并注册到Vault：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/DEE0ak74mD.png?imageslim" alt="mark"></p>
+<p>点击Recover Data，选择Another Server，需要连接到一个备份数据的服务器备份到的Vault，测试环境中只有一个Vault，所以还是选择原有的证书文件：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/djI8dC1L34.png?imageslim" alt="mark"></p>
+<p>由于是异机恢复，所以需要选择原来备份的服务器，这里需要原来备份服务器的密码：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/ACllKIddm7.png?imageslim" alt="mark"></p>
+<p>后续的过程就和本机恢复一样，选择恢复的时间点，mount到一个临时盘符，根据需要恢复相应的文件：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrm7drrmj30xn0pgtb9.jpg" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/f0eCjb67Je.png?imageslim" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/HgbAJG6ddA.png?imageslim" alt="mark"></p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/171107/AELd1Jm5l0.png?imageslim" alt="mark"></p>
+<p>——————————————————————————————————————————————————</p>
+<p>以上简单描述了通过Azure备份服务进行文件备份和恢复。后续将逐一介绍其他备份方式及相应的恢复。</p>
+<p>未完待续。。。。。。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/30528/" rel="next" title="今天，咱们来聊聊形而上">
+                <i class="fa fa-chevron-left"></i> 今天，咱们来聊聊形而上
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/18947/" rel="prev" title="安能摧眉折腰删数据，使我不得开心颜——Onedrive使用小技巧">
+                安能摧眉折腰删数据，使我不得开心颜——Onedrive使用小技巧 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#备份体系架构"><span class="nav-number">1.</span> <span class="nav-text">备份体系架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#备份架构"><span class="nav-number">1.1.</span> <span class="nav-text">备份架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#备份设计"><span class="nav-number">1.2.</span> <span class="nav-text">备份设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure备份服务综述"><span class="nav-number">2.</span> <span class="nav-text">Azure备份服务综述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure文件备份"><span class="nav-number">3.</span> <span class="nav-text">Azure文件备份</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#新建Site-Recovery-Vault"><span class="nav-number">3.1.</span> <span class="nav-text">新建Site Recovery Vault</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#备份客户端安装"><span class="nav-number">3.2.</span> <span class="nav-text">备份客户端安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件备份"><span class="nav-number">3.3.</span> <span class="nav-text">文件备份</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件恢复"><span class="nav-number">3.4.</span> <span class="nav-text">文件恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本机恢复"><span class="nav-number">3.4.1.</span> <span class="nav-text">本机恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异机恢复"><span class="nav-number">3.4.2.</span> <span class="nav-text">异机恢复</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

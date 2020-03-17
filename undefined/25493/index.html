@@ -1,0 +1,1055 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言存储系统是整个IT系统中性能最薄弱的一个环节，很多时候在做系统调优时会发现大多数情况下短板都在存储。 对存储系统的性能评估一般会从三个方面着手：IOPS（每秒能处理多少IO）、延时（每个IO发出请求后多长时间能完成）、带宽（每秒能处理多大量的数据）。这三个指标相互影响（带宽&#x3D;IO尺寸*IOPS）有时候甚至相互矛盾，不同应用场景的要求也不一样。例如在数据库环境中，要求IOPS尽量高，延时尽量低，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虚拟机存储性能-磁盘篇">
+<meta property="og:url" content="http://aubreyhan.net/undefined/25493/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="前言存储系统是整个IT系统中性能最薄弱的一个环节，很多时候在做系统调优时会发现大多数情况下短板都在存储。 对存储系统的性能评估一般会从三个方面着手：IOPS（每秒能处理多少IO）、延时（每个IO发出请求后多长时间能完成）、带宽（每秒能处理多大量的数据）。这三个指标相互影响（带宽&#x3D;IO尺寸*IOPS）有时候甚至相互矛盾，不同应用场景的要求也不一样。例如在数据库环境中，要求IOPS尽量高，延时尽量低，">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmo77q3j30yk0ef419.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmp697xj31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrmq50rgj31hc0u04qf.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrmr0u3fj31hc0u07ud.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmswfo0j31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrmtshgwj31hc0u0u02.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmvn52cj31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrmx32t4j31hc0u01kx.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170529/220802582.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmyyao4j31hc0u01kx.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170529/220907720.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrn028p0j31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrn62o60j31hc0u0hcz.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrna61mgj31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrnbnbyvj31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrndigrmj31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnefl18j31hc0u01kx.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170529/224109319.png?imageslim">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrnfqtvnj31hc0qujtm.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrng9vypj31hc0u0goe.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrnh6yofj31hc0u0jwd.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrnj6qp8j31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrnl0gspj31hc0u01kx.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnm6scuj31hc0u01kx.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170529/233448571.png?imageslim">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrnnf0w9j31hc0qu76z.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170531/102321727.png?imageslim">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnoq7cgj31hc0xcb29.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnpzrlaj31hc0xce81.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnqyfpfj31hc0u6mzg.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170531/133503145.png?imageslim">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrnryo84j31hc0u6jtd.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnsccptj31hc0u640l.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrnsxw28j31hc0u6q5p.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrntzatgj31hc0xc1kx.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrnuyhzkj31hc0u01kx.jpg">
+<meta property="article:published_time" content="2017-05-29T08:06:02.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmo77q3j30yk0ef419.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/25493/"/>
+
+
+
+
+
+  <title> 虚拟机存储性能-磁盘篇 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/25493/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                虚拟机存储性能-磁盘篇
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-29T16:06:02+08:00">
+                2017-05-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>存储系统是整个IT系统中性能最薄弱的一个环节，很多时候在做系统调优时会发现大多数情况下短板都在存储。</p>
+<p>对存储系统的性能评估一般会从三个方面着手：IOPS（每秒能处理多少IO）、延时（每个IO发出请求后多长时间能完成）、带宽（每秒能处理多大量的数据）。这三个指标相互影响（带宽=IO尺寸*IOPS）有时候甚至相互矛盾，不同应用场景的要求也不一样。例如在数据库环境中，要求IOPS尽量高，延时尽量低，而数据库一般IO尺寸大约在4KB、8KB，所以即使很高的IOPS例如5万，带宽也就约400MB/s，还不到一个SFP的接口带宽；而在大文件处理时，由于IO尺寸很大，所以IOPS并不高，而且这种情况下延时并不敏感，存储系统在处理这种大尺寸IO时，会屏蔽cache，通常延时会表现很大。总体而言，IOPS是用作评估存储系统性能最常用的一个指标。</p>
+<p>但是，IOPS很难准确的去评估存储性能，同样系统，在不同的IO大小、读写比例、随机还是顺序、测试时间长短、测试数据大小等都会对测试结果产生很大偏差，特别现在AFA（全闪存阵列）越来越普及，测试时是否导致垃圾回收机制、磁盘累计写入数据量大小等也会带来对结果的影响。所以很多传统存储厂商如EMC等拒绝公布产品的IOPS测试值，而是强调根据用户的实际环境来做性能评估（例如Exchange的jetstress、oracle的orion等）。</p>
+<p>Azure也公布了一些存储的性能参数，本文通过对Azure下磁盘进行测试，来实际评估Azure的磁盘性能。</p>
+<a id="more"></a>
+
+<h1 id="Azure的磁盘存储系统简介"><a href="#Azure的磁盘存储系统简介" class="headerlink" title="Azure的磁盘存储系统简介"></a>Azure的磁盘存储系统简介</h1><p>不同于传统的DAS、NAS、SAN分类，Azure对存储的分类是从逻辑上来进行的，很容易弄得用户一头雾水，不知道各种存储到底是干嘛用的。这里，简单的把Azure的存储的适用场景做了一下分类：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmo77q3j30yk0ef419.jpg" alt="Azure存储分类"></p>
+<p>从分类可以看到，Azure中，用作磁盘（VHD）的存储共有三类：Page Blob、高级存储SSD、托管磁盘（分为标准托管磁盘和高级托管磁盘），而目前托管磁盘在Mooncake还未提供。</p>
+<p>下边，我们将分别对这几类磁盘存储进行IOPS测试。</p>
+<h1 id="Azure磁盘性能测试"><a href="#Azure磁盘性能测试" class="headerlink" title="Azure磁盘性能测试"></a>Azure磁盘性能测试</h1><p>Azure公开发布的磁盘性能IOPS如下：</p>
+<ul>
+<li>Page Blob的磁盘：500</li>
+<li>高级存储（不同容量性能不一样）：<ul>
+<li>P10：500</li>
+<li>P20：2300</li>
+<li>P30：5000</li>
+</ul>
+</li>
+<li>托管磁盘：<ul>
+<li>标准托管磁盘：500</li>
+<li>高级托管磁盘：5000</li>
+</ul>
+</li>
+</ul>
+<p>此IOPS的标准是IO尺寸为8KB，但并未说明读写比、随机还是顺序等。</p>
+<p>为了避免CPU和内存成为瓶颈，本次测试采用DS12_V2 Promo（4Core、28GB RAM）的虚机，操作系统Windows2016 DataCenter：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmp697xj31hc0u01kx.jpg" alt="mark"></p>
+<p>测试软件为IOMeter：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrmq50rgj31hc0u04qf.jpg" alt="mark"></p>
+<h2 id="iometer使用"><a href="#iometer使用" class="headerlink" title="iometer使用"></a>iometer使用</h2><p>Azure会给每台虚机分配一个SSD的临时磁盘，但是关机时该盘的数据可能会丢失，所以不建议在该盘存放需要持久化的数据，但是一些临时表空间、页面缓存等，可以使用该盘来加速。在测试虚机里，可以看到一个55.9GB的D盘即改临时盘：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrmr0u3fj31hc0u07ud.jpg" alt="mark"></p>
+<p>我们首先使用该盘来做iometer的使用测试。</p>
+<p>运行iomer，选择Access Specification，可以看到已内置了一些测试模型：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmswfo0j31hc0u01kx.jpg" alt="mark"></p>
+<p>由于Azure公布的IOPS数值是基于8KB的IO，内置模型没有，所以我们要点击New创建一个，先创建一个全读全随机的8K测试模型：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrmtshgwj31hc0u0u02.jpg" alt="mark"></p>
+<p>然后点击Add添加到测试项目里：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrmvn52cj31hc0u01kx.jpg" alt="mark"></p>
+<p>点击左边列表的Worker 1，并在Disk Target里选择D盘（表示以D盘为测试目标），Maximum Disk Size填入83886080（这里表示测试数据的大小，以Sector为单位，每个Sector为512byte，所以83886080个Sectors表示40GB）：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrmx32t4j31hc0u01kx.jpg" alt="mark"></p>
+<p>点击上部绿色小旗运行，会弹出窗口指定结果保存的路径和文件名，根据实际需求指定即可：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170529/220802582.png?imageslim" alt="mark"></p>
+<p>运行后选择Results Display并将Update Frequency选择1，表示每秒刷新一次结果：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrmyyao4j31hc0u01kx.jpg" alt="mark"></p>
+<p>打开资源管理器，可以看到D盘的剩余空间在不断减少，这是iometer在准备测试文件：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170529/220907720.png?imageslim" alt="mark"></p>
+<p>测试文件准备完成后，可以看到有结果显示了：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrn028p0j31hc0u01kx.jpg" alt="mark"></p>
+<p>点击Stop，停止测试，重新创建一个模型，将100%读改为100%写：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrn62o60j31hc0u0hcz.jpg" alt="mark"></p>
+<p>然后移除前次测试模型，添加全写的测试模型：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrna61mgj31hc0u01kx.jpg" alt="mark"></p>
+<p>因为测试文件已经存在，所以运行后马上就有结果显示：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrnbnbyvj31hc0u01kx.jpg" alt="mark"></p>
+<p>再分别做100%Sequential下的全读和全写结果如下：</p>
+<p>全读：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrndigrmj31hc0u01kx.jpg" alt="mark"></p>
+<p>全写：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnefl18j31hc0u01kx.jpg" alt="mark"></p>
+<p>总结一下单个worker情况下，临时盘的读写性能IOPS如下：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>全读</th>
+<th>全写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>全随机</td>
+<td>4400</td>
+<td>8600</td>
+</tr>
+<tr>
+<td>全顺序</td>
+<td>4400</td>
+<td>8300</td>
+</tr>
+</tbody></table>
+<p>由于该虚机有4个Core，所以最多有4个worker。以全顺序写为基础测试不同数量worker的影响，结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>1 worker</th>
+<th>2 worker</th>
+<th>3 worker</th>
+<th>4 worker</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8300</td>
+<td>16300</td>
+<td>16500</td>
+<td>16500</td>
+</tr>
+</tbody></table>
+<p>可以看到，当worker从1个增加到2个时，IOPS基本上 翻了一杯，但数量再增加，就基本不变了。</p>
+<h2 id="Page-Blob的IOPS测试"><a href="#Page-Blob的IOPS测试" class="headerlink" title="Page Blob的IOPS测试"></a>Page Blob的IOPS测试</h2><h3 id="HDD-Page-Blob测试"><a href="#HDD-Page-Blob测试" class="headerlink" title="HDD Page Blob测试"></a>HDD Page Blob测试</h3><p>在虚机的磁盘选项里，可为虚机附加磁盘（可新建也可使用以前创建的，但是一个磁盘不能给两台虚机共享）：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170529/224109319.png?imageslim" alt="mark"></p>
+<p>选择附加新项，可看到新加磁盘可以是HDD也可以是SDD，现在选择HDD（性能限制为IOPS500，带宽60MB/s），大小最大为1023GB，需要为创建的磁盘选择一个Blob的容器：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fwrrnfqtvnj31hc0qujtm.jpg" alt="mark"></p>
+<p>进入虚机的Disk Management，会发现多出一块硬盘：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrng9vypj31hc0u0goe.jpg" alt="mark"></p>
+<p>将其分成一个分区并格式化为NTFS，不压缩，资源浏览器里多出一个0.99TB的新分区F:，即附加的新磁盘：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrnh6yofj31hc0u0jwd.jpg" alt="mark"></p>
+<p>按照上述方式采用一个worker分顺序随机、读写的方式对F：进行测试：</p>
+<p>随机读：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrnj6qp8j31hc0u01kx.jpg" alt="mark"></p>
+<p>随机写：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrnl0gspj31hc0u01kx.jpg" alt="mark"></p>
+<p>顺序读：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnm6scuj31hc0u01kx.jpg" alt="mark"></p>
+<p>顺序写：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170529/233448571.png?imageslim" alt="mark"></p>
+<p>可以看到，顺序读的时候达IOPS到了标称值500。普通温式硬盘的结构特征导致了随机性能较差。</p>
+<p>将worker数量加到4个，再次测试，结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>随机读</th>
+<th>随机写</th>
+<th>顺序读</th>
+<th>顺序写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>439</td>
+<td>501</td>
+<td>503</td>
+<td>500</td>
+</tr>
+</tbody></table>
+<p>可以看出，如果加大并发数量，可以基本达到Azure宣称的500IOPS。</p>
+<p>点击新添加的磁盘，可以看到有一项主机缓存，可以为磁盘提供加速，默认设置为无，可选择只读和读写：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrnnf0w9j31hc0qu76z.jpg" alt="mark"></p>
+<p>分别将主机缓存设置为只读和读写，进行IOPS测试（1 worker），结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>主机缓存</th>
+<th>随机读</th>
+<th>随机写</th>
+<th>顺序读</th>
+<th>顺序写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>只读</td>
+<td>96</td>
+<td>478</td>
+<td>1165</td>
+<td>480</td>
+</tr>
+<tr>
+<td>读写</td>
+<td>96</td>
+<td>12500</td>
+<td>1154</td>
+<td>16500</td>
+</tr>
+</tbody></table>
+<p>可见，启用缓存后对随机写和顺序读写都有比较好的性能提升，但是对随机读基本没有影响。</p>
+<p><em>Tips</em></p>
+<p>​    在Azure中，临时盘和磁盘的主机缓存都是用服务器本地的SSD硬盘模拟，属于计算资源。当虚机重新开机或漂移时，服务器上SSD的内容并不会随之迁移到新服务器上，所以临时盘和磁盘的主机缓存里的内容不会持久化。在Azure的最佳实践建议里：</p>
+<ul>
+<li>临时盘只用作放置无需落地的数据，例如DB临时表，缓存页面文件里</li>
+<li>磁盘的主机缓存不建议打开，除非确实数据无需保护，所以默认情况下HHD Page Blob类型的磁盘主机缓存关闭</li>
+</ul>
+<h3 id="SSD-Page-Blob测试"><a href="#SSD-Page-Blob测试" class="headerlink" title="SSD Page Blob测试"></a>SSD Page Blob测试</h3><p>将现有的HDD Page Blob磁盘卸载，重新建立一个SSD Page Blob的磁盘（1 worker）：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170531/102321727.png?imageslim" alt="mark"></p>
+<p>注：</p>
+<ul>
+<li>SSD类型的磁盘需要高级存储账号<ul>
+<li>SSD类型的磁盘大小目前固定为3种：128、512、1023GB，每种磁盘的IOPS也是固定的，分别为：500、2300、5000</li>
+<li>SSD磁盘主机缓存默认为只读，尽量不要修改</li>
+</ul>
+</li>
+</ul>
+<p>为虚机添加一个1023GB的SSD磁盘，按之前步骤用iometer做8KB数据块的随机和顺序读写测试，结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>随机读</th>
+<th>随机写</th>
+<th>顺序读</th>
+<th>顺序写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5250</td>
+<td>539</td>
+<td>15900</td>
+<td>539</td>
+</tr>
+</tbody></table>
+<p>可见随机读可以轻易达到公开值，顺序读由于只读缓存的加速，可达到15900。写的值比较低，下边通过增加worker数量测试</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>随机写</th>
+<th>顺序写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1 worker</td>
+<td>539</td>
+<td>539</td>
+</tr>
+<tr>
+<td>2 worker</td>
+<td>1020</td>
+<td>1017</td>
+</tr>
+<tr>
+<td>3 worker</td>
+<td>1478</td>
+<td>1477</td>
+</tr>
+<tr>
+<td>4 worker</td>
+<td>1880</td>
+<td>1874</td>
+</tr>
+</tbody></table>
+<p>可以看到，随着worker的增加，写的IOPS基本上是线性上升，但是受到Core数量的影响（Demo环境最大只允许4Core），预计12Core的情况下能达到标称的5000IOPS。</p>
+<p>为了验证，在Azure.com上建立一台16core的虚机：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnoq7cgj31hc0xcb29.jpg" alt="mark"></p>
+<p>添加1023GB的SSD Page Blob磁盘后，同时运行16 worker的8KB随机写，可看到IOPS达到5000：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnpzrlaj31hc0xce81.jpg" alt="mark"></p>
+<h2 id="Managed-DIsk的IOPS测试"><a href="#Managed-DIsk的IOPS测试" class="headerlink" title="Managed DIsk的IOPS测试"></a>Managed DIsk的IOPS测试</h2><p>Mooncake目前没有提供Managed Disk服务，所以使用azure.com来进行测试。</p>
+<p>由于Managed Disk作为数据盘只支持附加到OS盘也为Managed Disk的虚机，所以首先要创建一个符合的虚机，该虚机的Size仍采用16Core的虚机，注意建虚机过程中此处选择Yes：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnqyfpfj31hc0u6mzg.jpg" alt="mark"></p>
+<p>创建完成后创建Managed Disk的数据盘。</p>
+<p>登录azure.com，进入compute-Disk：</p>
+<p><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170531/133503145.png?imageslim" alt="mark"></p>
+<p>点击Add添加Disk，选择建立一个空磁盘，分别建立Stand和Premium的DIsk，可以看到IOPS分别为500和5000，并且添加时无需存储账号的选择：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrnryo84j31hc0u6jtd.jpg" alt="mark"></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrrnsccptj31hc0u640l.jpg" alt="mark"></p>
+<p>进入新建虚机，选择Disks-Add data disk，添加刚才创建的两个磁盘：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrnsxw28j31hc0u6q5p.jpg" alt="mark"></p>
+<p>远程桌面到虚机，可以看到增加了两个磁盘，分区并格式化（F盘HDD和G盘SSD）：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrntzatgj31hc0xc1kx.jpg" alt="mark"></p>
+<p>启用16 worker，对F盘做随机读测试：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrnuyhzkj31hc0u01kx.jpg" alt="mark"></p>
+<p>按此对F、G两个磁盘分别做随机读写、顺序读写结果如下：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>随机读</th>
+<th>随机写</th>
+<th>顺序读</th>
+<th>顺序写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F盘（HDD）</td>
+<td>500</td>
+<td>501</td>
+<td>499</td>
+<td>501</td>
+</tr>
+<tr>
+<td>G盘（SDD）</td>
+<td>5100</td>
+<td>5098</td>
+<td>5102</td>
+<td>5099</td>
+</tr>
+</tbody></table>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本次测试比较仓促，只是简单的对Azure的各种磁盘进行了IOPS方面测试，没有涉及延时带宽等，而且测试时间比较短，没有严格的进行固定时长测试。但从结果还是可以看出：</p>
+<ul>
+<li>Azure标称的IOPS值都可达到，而且和IO类型无关</li>
+<li>很多时候的IO性能差，需要从应用负载去找原因，很有可能是压力不够（例如对HDD，1 worker下，随机读只有不到100，随着worker数量增加，可达到标称值500）</li>
+<li>如果单块磁盘的性能不够，需要通过lvm或storage pool方式将多个磁盘组合在一起提升性能</li>
+<li>如果使用Page Blob形式的磁盘，不仅单个磁盘受限制，同时存储账户还有20000IOPS的限制，换个角度，就是同一个存储账户里如果大于40块HDD磁盘，或者4块1023GB的SSD磁盘，就会出现IOPS争抢，为了避免这种情况，在系统架构设计时，应把磁盘分散到多个存储账户里（存储账户的数量是免费的）</li>
+<li>Managed Disk由于不属于存储账户，所以没有这方面的性能限制，如果可能情况下（Mooncake支持），应尽量使用Managed DIsk</li>
+<li>主机缓存可以提升磁盘性能，但是也带来了数据安全的隐患，尽可能保持默认设置，不要去改动</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/44759/" rel="next" title="Blob简单文件操作">
+                <i class="fa fa-chevron-left"></i> Blob简单文件操作
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/8542/" rel="prev" title="利用Azure搭建自己的私有云盘">
+                利用Azure搭建自己的私有云盘 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure的磁盘存储系统简介"><span class="nav-number">2.</span> <span class="nav-text">Azure的磁盘存储系统简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure磁盘性能测试"><span class="nav-number">3.</span> <span class="nav-text">Azure磁盘性能测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#iometer使用"><span class="nav-number">3.1.</span> <span class="nav-text">iometer使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Page-Blob的IOPS测试"><span class="nav-number">3.2.</span> <span class="nav-text">Page Blob的IOPS测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HDD-Page-Blob测试"><span class="nav-number">3.2.1.</span> <span class="nav-text">HDD Page Blob测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSD-Page-Blob测试"><span class="nav-number">3.2.2.</span> <span class="nav-text">SSD Page Blob测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Managed-DIsk的IOPS测试"><span class="nav-number">3.3.</span> <span class="nav-text">Managed DIsk的IOPS测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

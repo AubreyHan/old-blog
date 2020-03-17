@@ -1,0 +1,759 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,管理基础," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言Azure作为公有云，由虚机、网络、存储等各种资源组成，用户根据需要随时增减资源，按实际用量付费即可，非常方便。但是在订阅里，每种资源都有一定配额，例如azure.cn的1元试用账号，虚机（以下简称vm）的活动cpu核（以下简称core）总数不能超过4个，意味着用户可以创建很多vm，但是同时开机的vm的总core数量不能超过4个。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何在Azure查看用量及配额">
+<meta property="og:url" content="http://aubreyhan.net/undefined/56381/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="前言Azure作为公有云，由虚机、网络、存储等各种资源组成，用户根据需要随时增减资源，按实际用量付费即可，非常方便。但是在订阅里，每种资源都有一定配额，例如azure.cn的1元试用账号，虚机（以下简称vm）的活动cpu核（以下简称core）总数不能超过4个，意味着用户可以创建很多vm，但是同时开机的vm的总core数量不能超过4个。">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/181002968.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwt0m8c56qj31hc0orjy8.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/181839652.png">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwt0m98tn8j31hc0or783.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/182726769.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/182815896.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/182841984.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/183203300.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/183523638.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/184637450.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwt0mamxcnj31hc0sq4as.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/191733485.png">
+<meta property="article:published_time" content="2017-04-23T09:06:55.000Z">
+<meta property="article:modified_time" content="2018-11-01T16:14:04.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="管理基础">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://oorpx53f8.bkt.clouddn.com/blog/20170422/181002968.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/56381/"/>
+
+
+
+
+
+  <title> 如何在Azure查看用量及配额 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/56381/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                如何在Azure查看用量及配额
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-23T17:06:55+08:00">
+                2017-04-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E7%AE%A1%E7%90%86%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">管理基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Azure作为公有云，由虚机、网络、存储等各种资源组成，用户根据需要随时增减资源，按实际用量付费即可，非常方便。<br>但是在订阅里，每种资源都有一定配额，例如azure.cn的1元试用账号，虚机（以下简称vm）的活动cpu核（以下简称core）总数不能超过4个，意味着用户可以创建很多vm，但是同时开机的vm的总core数量不能超过4个。<a id="more"></a><br>所以Azure日常管理工作中，对资源用量和额度非常重要。以规模集（scale set）为例，客户可以通过规模集的方式实现vm根据业务压力自动缩放vm数量。但是如果客户core的配额是100，目前用量已到90，当业务压力增长，需要规模集自动扩充20台2core的vm时，就会出现core配额不够的情况，导致扩充失败影响业务。</p>
+<h1 id="查看方法"><a href="#查看方法" class="headerlink" title="查看方法"></a>查看方法</h1><p>众所周知，目前azure.cn提供了经典管理门户（ASM）和Azure门户预览（ARM）两种不同架构。两种架构下，对资源用量和配额的查看方式不一样，下边分别描述。</p>
+<h2 id="ASM"><a href="#ASM" class="headerlink" title="ASM"></a>ASM</h2><p>ASM模式查看方式比较简单，打开azure.cn：<br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/181002968.jpg" alt="mark"><br>点击“经典管理门户”登录到ASM：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwt0m8c56qj31hc0orjy8.jpg" alt="mark"><br>左边菜单栏滚动到最下方可以看到“设置”：<br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/181839652.png" alt="mark"><br>点击“设置”，并点击右边tab的最后一项使用情况，即可看到当前订阅的用量和配额情况：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwt0m98tn8j31hc0or783.jpg" alt="mark"></p>
+<h2 id="ARM"><a href="#ARM" class="headerlink" title="ARM"></a>ARM</h2><p>ARM模式目前在azure.cn还未提供图形化界面去查看用量和配额，所以当我们登录到ARM，左边菜单下拉到底，点击更多服务——订阅——选择订阅——用法与配额时，可看到提醒，只能查看经典门户中经典计算和存储的使用情况：<br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/182726769.png" alt="mark"><br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/182815896.png" alt="mark"><br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/182841984.png" alt="mark"><br>那么，在ARM模式下如何查看用量与配额？这时候我们就需祭出大杀器powershell了.<br>打开powershell，通过命令Login-AzureRmAccount -EnvironmentName azurechinacloud<br>登录到azure.cn：<br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/183203300.png" alt="mark"><br>如果想查看core的用量与配额，输入命令Get-AzureRmVMUsage -Location “china north”查看：<br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/183523638.jpg" alt="mark"><br>从这个命令可以看到ARM和ASM在资源用量与配额有不一样的地方需要注意：</p>
+<ul>
+<li><em>core资源是按区域划分的，所以在查看时需要指明在北区（china north）还是东区（china east）；</em></li>
+<li><em>core的配额不仅有总数量（Total Regional Cores）的限制，对每种机型系列（A、D、DS等）还有分别限制；</em><br>如果想查看其他资源怎么办？可以通过命令help get-*usage* 来查看可以查看哪些资源：<br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/184637450.jpg" alt="mark"><br>从输出结果可以看到，通过命令Get-AzureRmStorageUsage可以查看存储的用量与配额：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwt0mamxcnj31hc0sq4as.jpg" alt="mark"><br>可以看到此订阅下存储账号的配额是100个，已使用27个，而且存储账号的用量和配额是全局的，没有-Location参数指定区域。</li>
+</ul>
+<h1 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h1><p>目前globe的Azure已推出直接图形界面查看资源的用量与配额如下：<br><img src="http://oorpx53f8.bkt.clouddn.com/blog/20170422/191733485.png" alt="mark"><br>根据Azure TSP男神@stan与研发的沟通，中国区也即将上线，到时就可以有跟只管的方式查看资源的用量与配额。<br>但是powershell方式可以通过管道将相关数据传输进各种平台与程序，有利于自动化运维，建议从事Azure管理的人员掌握。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E7%AE%A1%E7%90%86%E5%9F%BA%E7%A1%80/" rel="tag"># 管理基础</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/10880/" rel="next" title="新家总算搭好了">
+                <i class="fa fa-chevron-left"></i> 新家总算搭好了
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/24305/" rel="prev" title="Azure下共享目录的使用方法">
+                Azure下共享目录的使用方法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#查看方法"><span class="nav-number">2.</span> <span class="nav-text">查看方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ASM"><span class="nav-number">2.1.</span> <span class="nav-text">ASM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM"><span class="nav-number">2.2.</span> <span class="nav-text">ARM</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其它"><span class="nav-number">3.</span> <span class="nav-text">其它</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

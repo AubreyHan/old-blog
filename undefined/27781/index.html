@@ -1,0 +1,795 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="技术,杂项," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前几天给家里宽带续费，顺便升级到100M，联通上门更换光猫后发现现在的联通策略和以前不一样了，直接在光猫上做了路由和wifi，家里的无线路由器AC88U没用了。但是光猫的wifi功能很弱，我想用的一些高级功能如SS、IP绑定、MAC控制、访客网络等都没有，所以只好把AC88U的wan口设置为DHCP，获得一个内网IP，成为二级路由，然后所有家里设备通过AC88U上网。但这样又出现新的问题，经过两级">
+<meta property="og:type" content="article">
+<meta property="og:title" content="北京联通光猫改造">
+<meta property="og:url" content="http://aubreyhan.net/undefined/27781/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="前几天给家里宽带续费，顺便升级到100M，联通上门更换光猫后发现现在的联通策略和以前不一样了，直接在光猫上做了路由和wifi，家里的无线路由器AC88U没用了。但是光猫的wifi功能很弱，我想用的一些高级功能如SS、IP绑定、MAC控制、访客网络等都没有，所以只好把AC88U的wan口设置为DHCP，获得一个内网IP，成为二级路由，然后所有家里设备通过AC88U上网。但这样又出现新的问题，经过两级">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrliitvsj30gw0begnr.jpg">
+<meta property="article:published_time" content="2017-06-10T14:15:59.000Z">
+<meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="技术">
+<meta property="article:tag" content="杂项">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrliitvsj30gw0begnr.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/27781/"/>
+
+
+
+
+
+  <title> 北京联通光猫改造 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/27781/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                北京联通光猫改造
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-10T22:15:59+08:00">
+                2017-06-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E9%A1%B9/" itemprop="url" rel="index">
+                    <span itemprop="name">杂项</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E9%A1%B9/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前几天给家里宽带续费，顺便升级到100M，联通上门更换光猫后发现现在的联通策略和以前不一样了，直接在光猫上做了路由和wifi，家里的无线路由器AC88U没用了。但是光猫的wifi功能很弱，我想用的一些高级功能如SS、IP绑定、MAC控制、访客网络等都没有，所以只好把AC88U的wan口设置为DHCP，获得一个内网IP，成为二级路由，然后所有家里设备通过AC88U上网。但这样又出现新的问题，经过两级路由后，DMZ、DDNS等等功能又不正常了，要为每个设备设置两层端口映射和转发，实在太麻烦，看来只能破解光猫了。</p>
+<p>联通这次送的光猫型号为HW的HG8347R，比较新，网上相关的教程不多而且步骤可能有错。经过多次实验，总算找到完整的破解方案。</p>
+<p><em>注：</em></p>
+<ul>
+<li>本方案针对北京联通所赠送HG8347R，其他省的同型号设备不一定有用</li>
+<li>破解过程需要一点技术经验，但不难，基本上按照此步骤可能能成功</li>
+</ul>
+<a id="more"></a>
+
+<h1 id="HG8347R破解"><a href="#HG8347R破解" class="headerlink" title="HG8347R破解"></a>HG8347R破解</h1><p>北京联通赠送的HG8347R（以下简称8347）是联通定制版的配置文件，屏蔽了很多设置，并且关掉了管理员账号。破解的思路就是恢复为HW原版，并应用具备管理员权限的配置文件，然后将8347修改为桥接模式。</p>
+<h2 id="工具准备"><a href="#工具准备" class="headerlink" title="工具准备"></a>工具准备</h2><p>一台windows电脑，因为破解过程中所用的工具软件都是windows版本。</p>
+<p>破解软件：链接:<a href="http://pan.baidu.com/s/1hrK2mH2" target="_blank" rel="noopener">http://pan.baidu.com/s/1hrK2mH2</a> 密码: jdhu（可能会报有病毒，关掉所有杀毒软件和防火墙），下载并解压缩。</p>
+<p>telnet工具，下载个putty吧，简单好用。</p>
+<p>gz解压缩软件，推荐7zip。</p>
+<h2 id="获取并修改配置文件"><a href="#获取并修改配置文件" class="headerlink" title="获取并修改配置文件"></a>获取并修改配置文件</h2><h3 id="修改光猫状态"><a href="#修改光猫状态" class="headerlink" title="修改光猫状态"></a>修改光猫状态</h3><p>将8347上所有的连线拔掉（特别是入户光纤），笔记本通过网线直连到8347的LAN1口（最好把笔记本无线关闭，避免影响），并设置为自动获得IP，将8347断电再加电（拔插头、按光猫后部按钮均可）</p>
+<p>等8347完全启动后，检查笔记本IP，应该获得192.168.1.*（一般为192.168.1.2，以下就以192.168.1.2为例说明），网关为192.168.1.1。</p>
+<p>在浏览器打开192.168.1.1，用户名和密码在8347底部可以看到，登录后进入无线配置，关掉无线（非常重要，网上所有教程都没写这一步，害得我折腾了两个晚上）。</p>
+<p>打开工具《华为ONT组播版本配置工具.exe》，点击刷新，下拉列表里选择192.168.1.2的网卡，点击启动。</p>
+<p>注意观察8347指示灯，直到所有灯亮，点击工具的停止。</p>
+<p>通过8347后部的按钮关闭8347电源再打开。</p>
+<p>如能到这一步，基本上成功率到70%。</p>
+<h3 id="下载并修改配置文件"><a href="#下载并修改配置文件" class="headerlink" title="下载并修改配置文件"></a>下载并修改配置文件</h3><p>8347重启完成后（笔记本再次获得192.168.1.2的IP），启动工具《tftp64》，下拉菜单选择192.168.1.2，并选择tftp server模式（第一个tab）</p>
+<p>打开telnet工具如putty，选择telnet模式，连接到192.168.1.1，用户名root，密码admin。</p>
+<p>登录后输入：backup cfg by tftp svrip 192.168.1.2 remotefile hw_ctree.xml</p>
+<p>执行成功，可看到tftp目录里多了一个文件hw_ctree.xml，将此文件拷入上级目录。</p>
+<p>运行工具《华为光猫配置文件加解密工具.exe》，选择输入文件hw_ctree.xml，并选择输出文件为同目录的tmp.gz；点击解密，生成tmp.gz。</p>
+<p>使用7zip解压缩tmp.gz。并用写字板打开生成的文件，查找如下行：</p>
+<p><code>&lt;X_HW_WebUserInfo NumberOfInstances=&quot;1&quot;&gt;</code><br>​      <code>&lt;X_HW_WebUserInfoInstance InstanceID=&quot;1&quot; UserName=&quot;***&quot; Password=&quot;******&quot; UserLevel=&quot;1&quot; Enable=&quot;1&quot; ModifyPasswordFlag=&quot;0&quot; PassMode=&quot;0&quot;/&gt;</code><br>​<code>&lt;/X_HW_WebUserInfo&gt;</code>  </p>
+<p>其中User和Password就是8347底部的用户名和密码，将此行中的UserLevel改为0，此用户即具备管理员权限。当然此处可以把用户名和密码改为自己容易记的。</p>
+<p>这样，我们就获得具备管理员权限的配置文件。</p>
+<h2 id="恢复HW版本"><a href="#恢复HW版本" class="headerlink" title="恢复HW版本"></a>恢复HW版本</h2><p>还是在telnet界面（如果断掉，重新连接），依次输入：</p>
+<p>su</p>
+<p>shell</p>
+<p>?</p>
+<p>restorehwmode.sh</p>
+<p>执行完毕后8347恢复为HW原版</p>
+<h2 id="更新配置文件"><a href="#更新配置文件" class="headerlink" title="更新配置文件"></a>更新配置文件</h2><p>将笔记本IP设置为192.168.100.2，掩码255.255.255.0，网关192.168.100.1</p>
+<p>关闭并打开8347电源，重启动8347。</p>
+<p>启动完成后在浏览器打开192.168.100.1，用户名telecomadmin，密码：admintelecom 。</p>
+<p>在系统工具栏中找到配置文件选项，将配置文件更新为修改后的配置文件。</p>
+<p>更新后8347将重启。</p>
+<h2 id="将8347修改为桥接模式"><a href="#将8347修改为桥接模式" class="headerlink" title="将8347修改为桥接模式"></a>将8347修改为桥接模式</h2><p>8347重启完成后，将笔记本IP设置为动态获得。</p>
+<p>在浏览器打开192.168.1.1，用户名和密码使用刚才配置文件里的用户名和密码。</p>
+<p>选择WAN，将类型改为桥接WAN：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrliitvsj30gw0begnr.jpg" alt="mark"></p>
+<p>应用配置后，8347成为桥接模式。</p>
+<p>到无线路由器里，将WAN修改为PPPoE，输入宽带账号，无线路由器重新成为一级路由，DDNS等功能恢复正常。</p>
+<h1 id="8347无线连接联通机顶盒"><a href="#8347无线连接联通机顶盒" class="headerlink" title="8347无线连接联通机顶盒"></a>8347无线连接联通机顶盒</h1><p>联通的宽带包年还免费附送IPTV机顶盒，通过网线连接到8347的LAN4口可使用IPTV。</p>
+<p>但是我在装修时，入户的接口在电视对面，走明线过去不现实，只好用电力猫连接光猫和联通机顶盒。</p>
+<p>用了两年后，电力猫不幸阵亡，打算重买一对时，发现新的机顶盒带无线功能，正好手边有便携的无线路由器，于是将便携无线路由器连接到光猫的LAN4，将有线转化为无线，变相实现了光猫无线连接机顶盒。</p>
+<p>这次破解8347后，8347的无线功能没用了，于是想试试使用可以直接使用其无线功能连接机顶盒？</p>
+<p>还是用笔记本直连到8347（随便一个LAN口），通过浏览器登录8347。</p>
+<p>因为在之前的破解过程中关闭了无线，所以首先到无线网络里打开无线功能（里边有几个无线，建议打开第一个），并根据习惯将SSID和密码改为自己好记的。</p>
+<p>回到WAN，选择第四项（有IPTV标识那个），在基本信息里可以看到有一个绑定项，由于我们打开了第一个无线，所以这里SSID1是可勾选的，勾选上此项，并保存应用。</p>
+<p>打开机顶盒，选择我的设备，进入无线，扫描并连接我们为8347设置的无线，输入无线的密码。</p>
+<p>连接成功后推出（或关闭机顶盒再重开），即可无线连接到8347并观看节目。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          
+            <a href="/tags/%E6%9D%82%E9%A1%B9/" rel="tag"># 杂项</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/36737/" rel="next" title="合理使用冷热存储，节约IT成本">
+                <i class="fa fa-chevron-left"></i> 合理使用冷热存储，节约IT成本
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/undefined/60718/" rel="prev" title="那些年，我们掉过的坑">
+                那些年，我们掉过的坑 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HG8347R破解"><span class="nav-number">1.</span> <span class="nav-text">HG8347R破解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#工具准备"><span class="nav-number">1.1.</span> <span class="nav-text">工具准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取并修改配置文件"><span class="nav-number">1.2.</span> <span class="nav-text">获取并修改配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改光猫状态"><span class="nav-number">1.2.1.</span> <span class="nav-text">修改光猫状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下载并修改配置文件"><span class="nav-number">1.2.2.</span> <span class="nav-text">下载并修改配置文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#恢复HW版本"><span class="nav-number">1.3.</span> <span class="nav-text">恢复HW版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更新配置文件"><span class="nav-number">1.4.</span> <span class="nav-text">更新配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#将8347修改为桥接模式"><span class="nav-number">1.5.</span> <span class="nav-text">将8347修改为桥接模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8347无线连接联通机顶盒"><span class="nav-number">2.</span> <span class="nav-text">8347无线连接联通机顶盒</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
