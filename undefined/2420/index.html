@@ -1,0 +1,770 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,虚机," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;近期，Azure China正式启用了Azure专用主机功能。对于用户，选用专用主机，相当于独占了一台物理服务器，部署在专用主机的VM，不会与其他VM分享主机资源，进了一步提升了安全性，并且在Azure主动性维护时，用户可自行决定主机的重启时间，大大提升了高可靠性。&amp;emsp;&amp;emsp;但是和普通VM相比，使用专用主机的VM从创建、管理和高可靠都有些不一样，今天就看看如何">
+<meta property="og:type" content="article">
+<meta property="og:title" content="尔来四万八千岁，不与秦塞通人烟————Azure专用主机">
+<meta property="og:url" content="http://aubreyhan.net/undefined/2420/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;近期，Azure China正式启用了Azure专用主机功能。对于用户，选用专用主机，相当于独占了一台物理服务器，部署在专用主机的VM，不会与其他VM分享主机资源，进了一步提升了安全性，并且在Azure主动性维护时，用户可自行决定主机的重启时间，大大提升了高可靠性。&amp;emsp;&amp;emsp;但是和普通VM相比，使用专用主机的VM从创建、管理和高可靠都有些不一样，今天就看看如何">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912800440952.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912801358841.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912818433471.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912819193946.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912819866724.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912823156751.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912824778513.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912825719778.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15912829658419.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15913102914379.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15913103618534.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15913104748302.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15913105863928.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15913109609961.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15913117423593.jpg">
+<meta property="article:published_time" content="2020-06-04T08:34:08.000Z">
+<meta property="article:modified_time" content="2020-06-04T23:11:09.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="虚机">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hyblob.blob.core.windows.net/blog/15912800440952.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/2420/"/>
+
+
+
+
+
+  <title> 尔来四万八千岁，不与秦塞通人烟————Azure专用主机 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/2420/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                尔来四万八千岁，不与秦塞通人烟————Azure专用主机
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-04T16:34:08+08:00">
+                2020-06-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E8%99%9A%E6%9C%BA/" itemprop="url" rel="index">
+                    <span itemprop="name">虚机</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;近期，Azure China正式启用了Azure专用主机功能。对于用户，选用专用主机，相当于独占了一台物理服务器，部署在专用主机的VM，不会与其他VM分享主机资源，进了一步提升了安全性，并且在Azure主动性维护时，用户可自行决定主机的重启时间，大大提升了高可靠性。<br>&emsp;&emsp;但是和普通VM相比，使用专用主机的VM从创建、管理和高可靠都有些不一样，今天就看看如何配置基于专用主机的VM。</p>
+<a id="more"></a>
+<h1 id="专用主机基础"><a href="#专用主机基础" class="headerlink" title="专用主机基础"></a>专用主机基础</h1><p>&emsp;&emsp;传统的VM底层物理节点对用户是不透明的，用户不知道VM落在哪个物理主机，而专用主机则指定了VM的位置。相对于传统VM，多了两个概念：主机组（Host Group）和专用主机（Dedicated Host）。若干台VM运行在同一台专用主机上，若干台专用主机组成一个主机组。<br>&emsp;&emsp;由于每台专用主机的计算资源（CPU类型、core数量、内存）是固定的，所以专用主机分为若干型号，每种型号上只能运行固定系列的VM，具体参见如下下：<br><a href="https://www.azure.cn/pricing/details/virtual-machines/dedicated-host/index.html" target="_blank" rel="noopener">专用主机型号及配置价格</a></p>
+<h1 id="创建专用主机及VM"><a href="#创建专用主机及VM" class="headerlink" title="创建专用主机及VM"></a>创建专用主机及VM</h1><p>&emsp;&emsp;根据VM、专用主机、主机组的关系，可以看出，如果需要创建使用专用主机的VM，首先应该创建专用主机及主机组，然后再创建VM。</p>
+<h2 id="创建主机组"><a href="#创建主机组" class="headerlink" title="创建主机组"></a>创建主机组</h2><p>&emsp;&emsp;在所有服务中搜索Host Group并创建：<br><img src="https://hyblob.blob.core.windows.net/blog/15912800440952.jpg" alt="-w1015"><br><img src="https://hyblob.blob.core.windows.net/blog/15912801358841.jpg" alt="-w808"></p>
+<p>&emsp;&emsp;如果创建其它资源，需要给主机组指定资源组、Region（本例以美西为例，Azure China相同），由于该区域没有AZ，所以此选项为灰色不能选择。另一个注意的地方是Fault domian count选项将在高可靠讨论。<br>&emsp;&emsp;创建完成如下，此时专用主机的数量为0：<br><img src="https://hyblob.blob.core.windows.net/blog/15912818433471.jpg" alt="-w1058"></p>
+<h2 id="创建专用主机"><a href="#创建专用主机" class="headerlink" title="创建专用主机"></a>创建专用主机</h2><p>&emsp;&emsp;在所有服务中搜索Hosts并创建：<br><img src="https://hyblob.blob.core.windows.net/blog/15912819193946.jpg" alt="-w1023"></p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/15912819866724.jpg" alt="-w835"></p>
+<p>&emsp;&emsp;选择对应的资源组、Region（和主机组要一致）、主机组，以及专用主机的类型（Size family）；同样Fault domain放到高可靠讨论。<br>&emsp;&emsp;本文只讨论技术，所以关于License选项保持默认即可。<br>&emsp;&emsp;创建完如下，在属性里可以看到支持的VM型号和数量：<br><img src="https://hyblob.blob.core.windows.net/blog/15912823156751.jpg" alt="-w1204"></p>
+<h2 id="VM创建"><a href="#VM创建" class="headerlink" title="VM创建"></a>VM创建</h2><p>&emsp;&emsp;创建专用主机上的VM可以如普通VM一样，也可以在专用主机的Instance里创建：<br><img src="https://hyblob.blob.core.windows.net/blog/15912824778513.jpg" alt="-w722"></p>
+<p>&emsp;&emsp;点击Add VM出现创建VM的界面，和普通的VM创建界面一样：<br><img src="https://hyblob.blob.core.windows.net/blog/15912825719778.jpg" alt="-w824"></p>
+<p>&emsp;&emsp;这里需要注意，要选择和专用主机一样的资源组、Region，Availability需要选择No infrastructure redundancy required，而且不支持spot；另外，在Size选择里虽然能看到该Region支持的所有Size，但只能需选择该专用主机支持的Size。<br>&emsp;&emsp;其它选项与创建普通VM没区别，按实际需要配置，一直到Advanced页面，拉到下方，选择对应的主机组和专用主机：<br><img src="https://hyblob.blob.core.windows.net/blog/15912829658419.jpg" alt="-w813"></p>
+<p>&emsp;&emsp;如果这里不能选择，请回退到前边页面检查是否选择有误。<br>&emsp;&emsp;创建完成，在Instances可以看到该VM：<br><img src="https://hyblob.blob.core.windows.net/blog/15913102914379.jpg" alt="-w1400"></p>
+<p>&emsp;&emsp;在Overview界面可以看到可以使用的VM数量也随之变化：<br><img src="https://hyblob.blob.core.windows.net/blog/15913103618534.jpg" alt="-w1204"></p>
+<p>&emsp;&emsp;现在将该VM关机并Deallocate：<br><img src="https://hyblob.blob.core.windows.net/blog/15913104748302.jpg" alt="-w1397"></p>
+<p>&emsp;&emsp;再检查可以使用的VM数量，又恢复没有该VM的状态：<br><img src="https://hyblob.blob.core.windows.net/blog/15913105863928.jpg" alt="-w1199"></p>
+<p>&emsp;&emsp;说明专用主机的资源占用以分配资源的VM计算，我们可以创建多余主机资源的VM，只需要同时开机的VM资源不超过主机资源即可。</p>
+<h1 id="专用主机的高可靠设计"><a href="#专用主机的高可靠设计" class="headerlink" title="专用主机的高可靠设计"></a>专用主机的高可靠设计</h1><p>&emsp;&emsp;普通VM一般通过放置到跨越多个Fault domain的AV Set实现高可靠，但使用专用主机的VM无法配置AV Set，需要手工配置，高可靠架构如下：<br><img src="https://hyblob.blob.core.windows.net/blog/15913109609961.jpg" alt="-w767"></p>
+<p>&emsp;&emsp;从前边可知，在创建主机组时，可以通过参数Fault domain count指定该主机组跨越几个Fault domain；在创建专用主机时，可以通过参数Fault domain指定该主机属于哪一个Fault domain。<br>&emsp;&emsp;所以对于需要高可靠的VM，首先要在同一个主机组里，创建多个类型一样属于不同Fault domain的专用主机如下：<br><img src="https://hyblob.blob.core.windows.net/blog/15913117423593.jpg" alt="-w1430"></p>
+<p>&emsp;&emsp;然后在多个专用主机上创建需要高可靠的VM即可。注意前端的NLB要选用标准版而不能是基本版。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;&emsp;以上简单介绍了专用主机的基本创建和配置相关信息，具体使用时还有一些小细节需要注意，例如专用主机创建后即会占用所有core的quota等，需要大家在使用中注意。<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E8%99%9A%E6%9C%BA/" rel="tag"># 虚机</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/15904/" rel="next" title="数据上云何所依？月光宝盒来助力。—————— 使用DataBox Edge数据传输">
+                <i class="fa fa-chevron-left"></i> 数据上云何所依？月光宝盒来助力。—————— 使用DataBox Edge数据传输
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#专用主机基础"><span class="nav-number">1.</span> <span class="nav-text">专用主机基础</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建专用主机及VM"><span class="nav-number">2.</span> <span class="nav-text">创建专用主机及VM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建主机组"><span class="nav-number">2.1.</span> <span class="nav-text">创建主机组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建专用主机"><span class="nav-number">2.2.</span> <span class="nav-text">创建专用主机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VM创建"><span class="nav-number">2.3.</span> <span class="nav-text">VM创建</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#专用主机的高可靠设计"><span class="nav-number">3.</span> <span class="nav-text">专用主机的高可靠设计</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

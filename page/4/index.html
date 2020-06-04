@@ -255,6 +255,167 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/49750/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/undefined/49750/" itemprop="url">
+                  天下武功，唯快不破——Linux虚机的磁盘调优初探
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-24T14:43:23+08:00">
+                2017-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>话说天下武功、唯富不破，不对，是唯快不破，对于IT系统，这句话也同样适用。虽然现在的IT系统发展方向逐步弱化单机性能和安全性，但对单机的性能优化永远是解决问题的根本之道。</p>
+<p>而磁盘系统作为IT系统中最慢的一个环节，在用户DC里，可以通过对RAID配置修改、调整缓存、增大并发等各种方式来优化磁盘性能，但在公有云环境里，每种磁盘的性能是固定的：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrroiokzgj30nl0fu74i.jpg" alt="mark"></p>
+<p>对于磁盘本身，没有什么可调优的空间；而对主机系统来说，我们还是可以有些手段来优化磁盘。下边就看看Linux具体的测试结果。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/undefined/49750/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/18947/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1670,167 +1831,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/25493/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Aubrey Han">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Reid爸的菜园子">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/undefined/25493/" itemprop="url">
-                  虚拟机存储性能-磁盘篇
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-29T16:06:02+08:00">
-                2017-05-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Azure/" itemprop="url" rel="index">
-                    <span itemprop="name">Azure</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
-                    <span itemprop="name">存储</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>存储系统是整个IT系统中性能最薄弱的一个环节，很多时候在做系统调优时会发现大多数情况下短板都在存储。</p>
-<p>对存储系统的性能评估一般会从三个方面着手：IOPS（每秒能处理多少IO）、延时（每个IO发出请求后多长时间能完成）、带宽（每秒能处理多大量的数据）。这三个指标相互影响（带宽=IO尺寸*IOPS）有时候甚至相互矛盾，不同应用场景的要求也不一样。例如在数据库环境中，要求IOPS尽量高，延时尽量低，而数据库一般IO尺寸大约在4KB、8KB，所以即使很高的IOPS例如5万，带宽也就约400MB/s，还不到一个SFP的接口带宽；而在大文件处理时，由于IO尺寸很大，所以IOPS并不高，而且这种情况下延时并不敏感，存储系统在处理这种大尺寸IO时，会屏蔽cache，通常延时会表现很大。总体而言，IOPS是用作评估存储系统性能最常用的一个指标。</p>
-<p>但是，IOPS很难准确的去评估存储性能，同样系统，在不同的IO大小、读写比例、随机还是顺序、测试时间长短、测试数据大小等都会对测试结果产生很大偏差，特别现在AFA（全闪存阵列）越来越普及，测试时是否导致垃圾回收机制、磁盘累计写入数据量大小等也会带来对结果的影响。所以很多传统存储厂商如EMC等拒绝公布产品的IOPS测试值，而是强调根据用户的实际环境来做性能评估（例如Exchange的jetstress、oracle的orion等）。</p>
-<p>Azure也公布了一些存储的性能参数，本文通过对Azure下磁盘进行测试，来实际评估Azure的磁盘性能。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/undefined/25493/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1880,7 +1880,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">45</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1891,7 +1891,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1902,7 +1902,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-count">17</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

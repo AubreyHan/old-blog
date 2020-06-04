@@ -91,26 +91,26 @@
 <meta property="og:url" content="http://aubreyhan.net/undefined/23597/index.html">
 <meta property="og:site_name" content="Reid爸的菜园子">
 <meta property="og:description" content="&amp;emsp;&amp;emsp;细心的同学可能会注意到，近来Azure创建VM过程中，选择磁盘时会多出一个“使用临时OS磁盘”的选项：&amp;emsp;&amp;emsp;今天，我们就来盘盘这个临时OS磁盘（Ephemeral OS Disk）。">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862490334030.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862628317232.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862629468438.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862632316337.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862634202589.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862636120722.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862638072481.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862639557616.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862640413997.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862649711586.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862653019698.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862661121629.jpg">
-<meta property="og:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862662799155.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862490334030.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862628317232.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862629468438.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862632316337.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862634202589.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862636120722.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862638072481.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862639557616.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862640413997.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862649711586.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862653019698.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862661121629.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/15862662799155.jpg">
 <meta property="article:published_time" content="2020-04-07T08:39:27.000Z">
-<meta property="article:modified_time" content="2020-04-07T13:36:33.705Z">
+<meta property="article:modified_time" content="2020-06-04T06:17:00.000Z">
 <meta property="article:author" content="Aubrey Han">
 <meta property="article:tag" content="Azure">
 <meta property="article:tag" content="存储">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://hyblog.blob.core.chinacloudapi.cn/blog/15862490334030.jpg">
+<meta name="twitter:image" content="https://hyblob.blob.core.windows.net/blog/15862490334030.jpg">
 
 
 
@@ -378,22 +378,22 @@
       
 
       
-        <p>&emsp;&emsp;细心的同学可能会注意到，近来Azure创建VM过程中，选择磁盘时会多出一个“使用临时OS磁盘”的选项：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862490334030.jpg" alt="-w658"><br>&emsp;&emsp;今天，我们就来盘盘这个临时OS磁盘（Ephemeral OS Disk）。</p>
+        <p>&emsp;&emsp;细心的同学可能会注意到，近来Azure创建VM过程中，选择磁盘时会多出一个“使用临时OS磁盘”的选项：<br><img src="https://hyblob.blob.core.windows.net/blog/15862490334030.jpg" alt="-w658"><br>&emsp;&emsp;今天，我们就来盘盘这个临时OS磁盘（Ephemeral OS Disk）。</p>
 <a id="more"></a>
 <h1 id="Ephemeral-OS-Disk简介"><a href="#Ephemeral-OS-Disk简介" class="headerlink" title="Ephemeral OS Disk简介"></a>Ephemeral OS Disk简介</h1><p>&emsp;&emsp;众所周知，在谈到云原生架构时，我们通常希望计算与存储分离，计算尽可能无状态化，便于scale-out。典型的如容器，本身并不存储数据，持久化数据都放在持久化卷里。同样，对Azure的VMSS（虚拟机规模集）也一样，性能出现压力时，快速从镜像生成新的VM横向分担，而性能需求下降时，则关闭部分VM来降低成本。<br>&emsp;&emsp;所以对此类计算层，通常并不看重计算资源的数据持久化，配置好固定镜像，快速生成多副本的方式来解决应用持续性及性能需求；而当部分计算资源释放时，最好是对应的计算存储资源（如OS磁盘）也销毁以进一步节省成本。<br>&emsp;&emsp;传统Azure磁盘放置在Storage Cluster，与计算资源分离，并且通过强一致性三副本保证安全；删除VM时，磁盘并不随之删除，显然不能满足。而Ephemeral OS Disk的出现正式为了面对此类需求。<br>&emsp;&emsp;与传统磁盘不同，Ephemeral OS Disk并未放置在Storage Cluster，二是放在VM所在物理Node上，并且只有单副本。所以当VM出现任何原因的Deallocate，Ephemeral OS Disk就会丢失。这个特点正好符合云原生的多副本、快速创建、用完即丢的特点。<br>&emsp;&emsp;下边就来看看Ephemeral OS Disk的具体使用。</p>
-<h1 id="Ephemeral-OS-Disk使用"><a href="#Ephemeral-OS-Disk使用" class="headerlink" title="Ephemeral OS Disk使用"></a>Ephemeral OS Disk使用</h1><h2 id="创建Ephemeral-OS-Disk"><a href="#创建Ephemeral-OS-Disk" class="headerlink" title="创建Ephemeral OS Disk"></a>创建Ephemeral OS Disk</h2><p>&emsp;&emsp;Ephemeral OS Disk必须依赖VM，因此不能独立创建，要在创建VM的过程中创建。下边以创建一台Ubuntu VM为例：<br>&emsp;&emsp;第一步和创建普通VM一样，这里选择D2s v3的机型：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862628317232.jpg" alt=""></p>
-<p>&emsp;&emsp;需要注意的是第二步磁盘选择，拉倒最下边，点开高级选项，选择使用“临时OS磁盘”：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862629468438.jpg" alt=""></p>
-<p>&emsp;&emsp;然后剩余步骤和普通VM一样，即可创建一台使用Ephemeral OS Disk的VM。<br>&emsp;&emsp;创建完成，登录到VM，检查磁盘：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862632316337.jpg" alt="-w676"></p>
-<p>&emsp;&emsp;可以看到，如同普通VM，配置了OS磁盘sda和一块临时盘sdb。<br>&emsp;&emsp;同样我们也可以给VM添加新的数据盘，或将已有未分配给其他VM的磁盘附加给此VM：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862634202589.jpg" alt=""></p>
+<h1 id="Ephemeral-OS-Disk使用"><a href="#Ephemeral-OS-Disk使用" class="headerlink" title="Ephemeral OS Disk使用"></a>Ephemeral OS Disk使用</h1><h2 id="创建Ephemeral-OS-Disk"><a href="#创建Ephemeral-OS-Disk" class="headerlink" title="创建Ephemeral OS Disk"></a>创建Ephemeral OS Disk</h2><p>&emsp;&emsp;Ephemeral OS Disk必须依赖VM，因此不能独立创建，要在创建VM的过程中创建。下边以创建一台Ubuntu VM为例：<br>&emsp;&emsp;第一步和创建普通VM一样，这里选择D2s v3的机型：<br><img src="https://hyblob.blob.core.windows.net/blog/15862628317232.jpg" alt=""></p>
+<p>&emsp;&emsp;需要注意的是第二步磁盘选择，拉倒最下边，点开高级选项，选择使用“临时OS磁盘”：<br><img src="https://hyblob.blob.core.windows.net/blog/15862629468438.jpg" alt=""></p>
+<p>&emsp;&emsp;然后剩余步骤和普通VM一样，即可创建一台使用Ephemeral OS Disk的VM。<br>&emsp;&emsp;创建完成，登录到VM，检查磁盘：<br><img src="https://hyblob.blob.core.windows.net/blog/15862632316337.jpg" alt="-w676"></p>
+<p>&emsp;&emsp;可以看到，如同普通VM，配置了OS磁盘sda和一块临时盘sdb。<br>&emsp;&emsp;同样我们也可以给VM添加新的数据盘，或将已有未分配给其他VM的磁盘附加给此VM：<br><img src="https://hyblob.blob.core.windows.net/blog/15862634202589.jpg" alt=""></p>
 <p>&emsp;&emsp;注意，Ephemeral OS Disk只能作为OS磁盘，不能作为附加的数据盘。</p>
-<h2 id="Ephemeral-OS-Disk-VM关机"><a href="#Ephemeral-OS-Disk-VM关机" class="headerlink" title="Ephemeral OS Disk VM关机"></a>Ephemeral OS Disk VM关机</h2><p>&emsp;&emsp;如同介绍，Ephemeral OS Disk在VM关机解除分配时会自动释放，检查Ephemeral OS Disk VM的概述：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862636120722.jpg" alt=""></p>
-<p>&emsp;&emsp;关机按钮是灰色，只有删除可以操作。<br>&emsp;&emsp;删除VM后检查资源，发现和普通VM删除不一样，OS磁盘也没有了：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862638072481.jpg" alt=""></p>
-<h2 id="Ephemeral-OS-Disk限制"><a href="#Ephemeral-OS-Disk限制" class="headerlink" title="Ephemeral OS Disk限制"></a>Ephemeral OS Disk限制</h2><p>&emsp;&emsp;我们再创建一台使用Ephemeral OS Disk的VM，这次OS选择Windows，其它包括VM的规模保持不变：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862639557616.jpg" alt=""></p>
-<p>&emsp;&emsp;再次选择“临时OS磁盘”时，却由于容量不足无法选择：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862640413997.jpg" alt=""></p>
-<p>&emsp;&emsp;这是什么原因？<br>&emsp;&emsp;在Azure上创建虚机有两种方式：一是直接使用现成的VHD磁盘（客户化上传的、快照生成的、复制出来的磁盘等）；而另一种更广泛的方式是使用镜像生成VM（MarketPlace里的镜像或客户自己制作的镜像），镜像一般也同时确定了OS磁盘的容量，创建VM时会自动根据镜像要求去选择合适容量的磁盘用作OS盘。以Azure的官方镜像为例，Linux一般是31GB，Windows一般是127GB。<br>&emsp;&emsp;但对于使用Ephemeral OS Disk磁盘作为OS盘的VM，OS磁盘有最大容量的限制，这个最大容量不能超过该机型VM的缓存容量（最大不能超过2TB）。不同机型缓存大小可以在VM大小查询：<br><a href="https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes" target="_blank" rel="noopener">VM Size</a><br>&emsp;&emsp;以刚才使用的D2s v3为例，缓存容量为50GiB如下图：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862649711586.jpg" alt=""></p>
-<p>&emsp;&emsp;显然不能满足Azure官方windows镜像127GiB的需求。<br>&emsp;&emsp;遇到这种情况如何解决？两种方案：一是选择大Size的机型，二是自己制作客户化镜像，减小对OS盘容量的要求。<br>&emsp;&emsp;除了容量限制，Ephemeral OS Disk和普通OS盘的差异可参加如下：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862653019698.jpg" alt=""></p>
-<p>&emsp;&emsp;另一点需要注意的地方，由于Ephemeral OS Disk的VM不能关机，所以无法关机后分离磁盘来调整OS磁盘的容量。因此，如果需要指定OS盘容量，需要用命令行方式在创建VM过程中指定容量：<br><code>az vm create --name vm01 -g MSDN_Tools --size Standard_D2s_v3 --image UbuntuLTS --ephemeral-os-disk true --os-disk-size-gb 50 --admin-username demo --admin-password Password=123 -l westcentralus</code><br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862661121629.jpg" alt=""></p>
-<p>&emsp;&emsp;顺便做个小广告，AZ CLI输入az interactive可以启动交互模式，每一步都有提示，妈妈再也不用担心我记不住命令和参数了。。。<br>&emsp;&emsp;登录VM，检查磁盘，可以看到OS盘sda为50GB：<br><img src="https://hyblog.blob.core.chinacloudapi.cn/blog/15862662799155.jpg" alt=""></p>
+<h2 id="Ephemeral-OS-Disk-VM关机"><a href="#Ephemeral-OS-Disk-VM关机" class="headerlink" title="Ephemeral OS Disk VM关机"></a>Ephemeral OS Disk VM关机</h2><p>&emsp;&emsp;如同介绍，Ephemeral OS Disk在VM关机解除分配时会自动释放，检查Ephemeral OS Disk VM的概述：<br><img src="https://hyblob.blob.core.windows.net/blog/15862636120722.jpg" alt=""></p>
+<p>&emsp;&emsp;关机按钮是灰色，只有删除可以操作。<br>&emsp;&emsp;删除VM后检查资源，发现和普通VM删除不一样，OS磁盘也没有了：<br><img src="https://hyblob.blob.core.windows.net/blog/15862638072481.jpg" alt=""></p>
+<h2 id="Ephemeral-OS-Disk限制"><a href="#Ephemeral-OS-Disk限制" class="headerlink" title="Ephemeral OS Disk限制"></a>Ephemeral OS Disk限制</h2><p>&emsp;&emsp;我们再创建一台使用Ephemeral OS Disk的VM，这次OS选择Windows，其它包括VM的规模保持不变：<br><img src="https://hyblob.blob.core.windows.net/blog/15862639557616.jpg" alt=""></p>
+<p>&emsp;&emsp;再次选择“临时OS磁盘”时，却由于容量不足无法选择：<br><img src="https://hyblob.blob.core.windows.net/blog/15862640413997.jpg" alt=""></p>
+<p>&emsp;&emsp;这是什么原因？<br>&emsp;&emsp;在Azure上创建虚机有两种方式：一是直接使用现成的VHD磁盘（客户化上传的、快照生成的、复制出来的磁盘等）；而另一种更广泛的方式是使用镜像生成VM（MarketPlace里的镜像或客户自己制作的镜像），镜像一般也同时确定了OS磁盘的容量，创建VM时会自动根据镜像要求去选择合适容量的磁盘用作OS盘。以Azure的官方镜像为例，Linux一般是31GB，Windows一般是127GB。<br>&emsp;&emsp;但对于使用Ephemeral OS Disk磁盘作为OS盘的VM，OS磁盘有最大容量的限制，这个最大容量不能超过该机型VM的缓存容量（最大不能超过2TB）。不同机型缓存大小可以在VM大小查询：<br><a href="https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes" target="_blank" rel="noopener">VM Size</a><br>&emsp;&emsp;以刚才使用的D2s v3为例，缓存容量为50GiB如下图：<br><img src="https://hyblob.blob.core.windows.net/blog/15862649711586.jpg" alt=""></p>
+<p>&emsp;&emsp;显然不能满足Azure官方windows镜像127GiB的需求。<br>&emsp;&emsp;遇到这种情况如何解决？两种方案：一是选择大Size的机型，二是自己制作客户化镜像，减小对OS盘容量的要求。<br>&emsp;&emsp;除了容量限制，Ephemeral OS Disk和普通OS盘的差异可参加如下：<br><img src="https://hyblob.blob.core.windows.net/blog/15862653019698.jpg" alt=""></p>
+<p>&emsp;&emsp;另一点需要注意的地方，由于Ephemeral OS Disk的VM不能关机，所以无法关机后分离磁盘来调整OS磁盘的容量。因此，如果需要指定OS盘容量，需要用命令行方式在创建VM过程中指定容量：<br><code>az vm create --name vm01 -g MSDN_Tools --size Standard_D2s_v3 --image UbuntuLTS --ephemeral-os-disk true --os-disk-size-gb 50 --admin-username demo --admin-password Password=123 -l westcentralus</code><br><img src="https://hyblob.blob.core.windows.net/blog/15862661121629.jpg" alt=""></p>
+<p>&emsp;&emsp;顺便做个小广告，AZ CLI输入az interactive可以启动交互模式，每一步都有提示，妈妈再也不用担心我记不住命令和参数了。。。<br>&emsp;&emsp;登录VM，检查磁盘，可以看到OS盘sda为50GB：<br><img src="https://hyblob.blob.core.windows.net/blog/15862662799155.jpg" alt=""></p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;&emsp;以上简单介绍Ephemeral OS Disk的使用，当然一般不会直接使用官方镜像来创建Ephemeral OS Disk的VM，二是需要自定义镜像。<br>&emsp;&emsp;Ephemeral OS Disk比较符合云原生的架构，重要的是，这种磁盘是免费的！是免费的！是免费的！（重要事情说三遍）<br>&emsp;&emsp;希望对大家有所帮助。<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;<br>&emsp;&emsp;</p>
 
       
@@ -455,7 +455,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/undefined/312797/" rel="next" title="你有我有全都有——Azure Shared Disk">
+              <a href="/undefined/31279/" rel="next" title="你有我有全都有——Azure Shared Disk">
                 <i class="fa fa-chevron-left"></i> 你有我有全都有——Azure Shared Disk
               </a>
             
@@ -539,7 +539,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">45</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -550,7 +550,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -561,7 +561,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-count">17</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
