@@ -85,36 +85,33 @@
 
 
 
-<meta name="description" content="随着IT上云的日益推进，现在如何上好云、用好云已成为企业上云的关键。所以，今年Azure将云治理、安全等作为了重点；其中，Azure Policy是一个重要环节。">
+<meta name="description" content="&amp;emsp;&amp;emsp;在私有云环境里，VMware毫无疑问是市场老大。出于整合IT环境、简化管理等原因，客户希望可以将本地VMWare环境平滑过渡到公有云。众所周知，传统的公有云虚拟化底层并没有采用ESXi，无法兼容VMware；但为了满足客户需求，各大公有云也开始推出VMware解决方案，在Azure，叫做Azure VMware Solution（AVS）。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="22条军规之Azure Policy">
-<meta property="og:url" content="http://aubreyhan.net/undefined/52096/index.html">
+<meta property="og:title" content="天下大势，分久必合——Azure VMware Solution">
+<meta property="og:url" content="http://aubreyhan.net/undefined/57067/index.html">
 <meta property="og:site_name" content="Reid爸的菜园子">
-<meta property="og:description" content="随着IT上云的日益推进，现在如何上好云、用好云已成为企业上云的关键。所以，今年Azure将云治理、安全等作为了重点；其中，Azure Policy是一个重要环节。">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819105741831.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819105910901.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819110510876.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819110618302.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819110709401.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819110801629.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819110926752.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819111004656.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819111219620.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819111315262.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819111514228.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819112408498.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819115249379.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819115403246.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819115457063.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819115637676.png">
-<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819121159196.png">
-<meta property="article:published_time" content="2020-08-19T01:56:08.000Z">
-<meta property="article:modified_time" content="2020-08-19T04:20:45.640Z">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;在私有云环境里，VMware毫无疑问是市场老大。出于整合IT环境、简化管理等原因，客户希望可以将本地VMWare环境平滑过渡到公有云。众所周知，传统的公有云虚拟化底层并没有采用ESXi，无法兼容VMware；但为了满足客户需求，各大公有云也开始推出VMware解决方案，在Azure，叫做Azure VMware Solution（AVS）。">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209121803471.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209123238650.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209123431700.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209123836468.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209125146556.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209125353690.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209154537597.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209155146946.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209155328406.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209160546364.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209161030575.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209161227582.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209161402722.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209161637704.png">
+<meta property="article:published_time" content="2020-12-09T02:22:46.000Z">
+<meta property="article:modified_time" content="2020-12-09T08:37:13.000Z">
 <meta property="article:author" content="Aubrey Han">
 <meta property="article:tag" content="Azure">
 <meta property="article:tag" content="Others">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://hyblob.blob.core.windows.net/blog/image-20200819105741831.png">
+<meta name="twitter:image" content="https://hyblob.blob.core.windows.net/blog/image-20201209121803471.png">
 
 
 
@@ -142,13 +139,13 @@
 
 
 
-  <link rel="canonical" href="http://aubreyhan.net/undefined/52096/"/>
+  <link rel="canonical" href="http://aubreyhan.net/undefined/57067/"/>
 
 
 
 
 
-  <title> 22条军规之Azure Policy | Reid爸的菜园子 </title>
+  <title> 天下大势，分久必合——Azure VMware Solution | Reid爸的菜园子 </title>
 <meta name="generator" content="Hexo 4.2.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -277,7 +274,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/52096/">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/57067/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Aubrey Han">
@@ -298,7 +295,7 @@
             
             
               
-                22条军规之Azure Policy
+                天下大势，分久必合——Azure VMware Solution
               
             
           </h1>
@@ -313,8 +310,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-19T09:56:08+08:00">
-                2020-08-19
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-12-09T10:22:46+08:00">
+                2020-12-09
               </time>
             
 
@@ -382,52 +379,75 @@
       
 
       
-        <p>随着IT上云的日益推进，现在如何上好云、用好云已成为企业上云的关键。所以，今年Azure将云治理、安全等作为了重点；其中，Azure Policy是一个重要环节。</p>
+        <p>&emsp;&emsp;在私有云环境里，VMware毫无疑问是市场老大。出于整合IT环境、简化管理等原因，客户希望可以将本地VMWare环境平滑过渡到公有云。众所周知，传统的公有云虚拟化底层并没有采用ESXi，无法兼容VMware；但为了满足客户需求，各大公有云也开始推出VMware解决方案，在Azure，叫做Azure VMware Solution（AVS）。</p>
 <a id="more"></a>
 
-<h1 id="Azure-Policy简介"><a href="#Azure-Policy简介" class="headerlink" title="Azure Policy简介"></a>Azure Policy简介</h1><p>在正规企业的IT环境，有一系列的规章制度保障IT的正常运行，例如哪些服务器需要备份，是否做了定时更新，防火墙等配置是否完善等。但在很多企业，这些规章制度的执行和检查都是靠人工完成，随着企业IT规模的扩大，很容易有遗漏。</p>
-<p>Azure Policy（策略）提供了一个自动化的管理方式，定期扫描Azure的各种资源，检查是否符合规定的策略。这样减轻了人工工作量，同时也避免人为遗漏错误。</p>
-<h1 id="Azure-Policy配置"><a href="#Azure-Policy配置" class="headerlink" title="Azure Policy配置"></a>Azure Policy配置</h1><p>我们可以通过一个Demo展示Azure Policy的工作方式。</p>
-<p>本Demo中，我们有两个资源组（rg01、rg02），rg01是生产环境，虚机需要日常备份；rg02是测试环境，虚机无需备份。Demo通过Policy进行检查，如果发现rg01中有未配置备份的虚机，则不合规。</p>
-<p>首先创建两个空的资源组rg01和rg02：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819105741831.png" alt="image-20200819105741831"></p>
-<p>在Azure的所有服务中选择Policy（策略）：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819105910901.png" alt="image-20200819105910901"></p>
-<p>Azure Policy的工作原理是选择或新建一个策略或计划（计划是一组策略的集合），分配给指定范围的资源，然后定期（24小时左右）Policy会检查这些资源是否符合策略或计划，并列出不合规项。</p>
-<p>首先进入定义，可以看到已经内置了一系列的策略和计划：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819110510876.png" alt="image-20200819110510876"></p>
-<p>可以看到，是否启用了备份就是一个内置的策略。当然，如果内置策略不满足要求，也可以通过策略定义自己创建：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819110618302.png" alt="image-20200819110618302"></p>
-<p>或者根据需要将若干已有策略组合成一个计划：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819110709401.png" alt="image-20200819110709401"></p>
-<p>现在进入分配页面，按Demo需求，通过分配策略将检查是否备份分配到rg01：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819110801629.png" alt="image-20200819110801629"></p>
-<p>点击分配策略：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819110926752.png" alt="image-20200819110926752"></p>
-<p>首先选择范围，指定订阅和资源组：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819111004656.png" alt="image-20200819111004656"></p>
-<p>如果rg01里有vm无需备份，可以在排除里填入，这里忽略。</p>
-<p>在策略定义里按需选择策略，包括内置和自定义的，这里选择启用备份：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819111219620.png" alt="image-20200819111219620"></p>
-<p>分配名称和说明按需填写即可，基本信息完成如下：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819111315262.png" alt="image-20200819111315262"></p>
-<p>参数和修正保持默认即可，点击创建即可完成分配：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819111514228.png" alt="image-20200819111514228"></p>
-<p>现在分别在rg01和rg02里各创建两台虚机（vm01，vm02，vm03，vm04），均不启用备份：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819112408498.png" alt="image-20200819112408498"></p>
-<p>由于Azure Policy的检查是定期执行，所以这里我们可以通过Azure CLI手工启动检查：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819115249379.png" alt="image-20200819115249379"></p>
-<p>执行完成，到Policy可以看到，有一条不符合的策略，两个资源（虚机）不符合：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819115403246.png" alt="image-20200819115403246"></p>
-<p>进入详细信息可以看到，vm01和vm02不符合策略：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819115457063.png" alt="image-20200819115457063"></p>
-<p>vm03和vm04虽然也没配置备份，但是因为策略并没有分配给这两台vm所在的rg02，所以不对其进行策略检查。</p>
-<p>现在为vm01启用备份：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819115637676.png" alt="image-20200819115637676"></p>
-<p>再次手工执行策略检查后，可以看到只有vm02不合规：</p>
-<p><img src="https://hyblob.blob.core.windows.net/blog/image-20200819121159196.png" alt="image-20200819121159196"></p>
-<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>Azure Policy虽然不是直接可使用的计算存储网络等资源，但其能帮我们做环境合规检查，特别是大型复杂的环境，很容易出现纰漏，完全靠人工的方式存在太多瑕疵，而Policy弥补上了这个问题，是用好云，合规化的重要助手。</p>
-<p>Demo只是用内置的策略做简单演示，实际环境中可以根据需要自定义各种复杂的策略和计划来满足需求。抛砖引玉，希望对大家有所帮助。</p>
+<h1 id="AVS概述"><a href="#AVS概述" class="headerlink" title="AVS概述"></a>AVS概述</h1><p> &emsp;&emsp;AVS在Azure为用户提供原生的VMware HCI环境，客户可将VMware底层托管，专心于上层的开发和工作负载。Azure VMware 解决方案提供一个私有云环境，可通过本地和基于 Azure 的环境或资源进行访问。 Azure ExpressRoute 和 VPN 连接等服务可提供连接：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209121803471.png" alt=""></p>
+<p>&emsp;&emsp;与VSAN类似，AVS从3节点起配，到16节点，每节点配置576 GB RAM 和 Intel 18 核 2.3 GHz 双处理器。 HE 主机具有两个 vSAN 磁盘组，其中采用 15.36 TB (SSD) 的原始 vSAN 容量层和 3.2 TB (NVMe) vSAN 缓存层，通过VSAN提供DataStore。</p>
+<h1 id="AVS配置"><a href="#AVS配置" class="headerlink" title="AVS配置"></a>AVS配置</h1><p>&emsp;&emsp;目前，在Global Azure部分Region提供正式的AVS服务（澳洲东部、美西、美东、西欧、英国南部），其他Region正在部署。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>&emsp;&emsp;如果要使用AVS，首先需要一个EA合同，并且还有两步预操作：</p>
+<ul>
+<li><p>开Case申请AVS的Quota，注明需要的节点数量和Region，可参考此链接：<a href="https://docs.microsoft.com/zh-cn/azure/azure-vmware/enable-azure-vmware-solution?WT.mc_id=Portal-VMCP" target="_blank" rel="noopener">申请AVS Quota</a></p>
+</li>
+<li><p>在订阅里注册AVS服务，在CLI执行如下命令或在Portal里订阅的服务Provider里注册：</p>
+<p><code>az provider register -n Microsoft.AVS --subscription &lt;your subscription ID&gt;</code></p>
+</li>
+</ul>
+<h2 id="创建AVS"><a href="#创建AVS" class="headerlink" title="创建AVS"></a>创建AVS</h2><p>&emsp;&emsp;在所有服务里搜索AVS，找到Azure VMware Solution：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209123238650.png" alt=""></p>
+<p>&emsp;&emsp;点击AVS进入服务并创建：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209123431700.png" alt=""></p>
+<p>&emsp;&emsp;注意：如果没有申请AVS Quota或者申请的Region和实际Region不一致，在订阅下会有红字警告。</p>
+<p>&emsp;&emsp;根据实际情况填写内容：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209123836468.png" alt=""></p>
+<p>&emsp;&emsp;相关说明如下：</p>
+<ul>
+<li><p>Location：选择Region，和申请Quota时选择一致</p>
+</li>
+<li><p>Resource Group：和普通资源的RG一样，可以选择现有也可以新建，建议新建</p>
+</li>
+<li><p>SKU：节点（相当于额ESXi的Host），目前就这一种</p>
+</li>
+<li><p>ESXi Hosts：主机数量，3-16个，但不能超过申请的数量</p>
+</li>
+<li><p>vCenter admin password和NSX-T Manager password：不懂的自己去学习VCP；但足以这里有一个大坑，Azure本身会对密码检查，例如不能低于12位，需要多种字符组合等；但是VMware还会做一次检查，如果认为是字典里的密码，这里可以通过，但创建时会报错；例如’Password=123’这种密码，满足Azure的校验条件，但是VMware认为属于常用密码字典，所以创建时一直报错找不到原因，最后看log才发现是这个问题</p>
+</li>
+<li><p>Address block：VMware内部使用的地址段（如ESXi管理ip、VC的IP等），要求22位，不要用Azure上的vnet和本地的ip地址冲突（如果使用混合云环境）</p>
+</li>
+<li><p>Virtual Network：用过和本地环境的ER连接以及与Azure里vnet的连接，注意，这里需要一个名为GatewaySubnet的子网</p>
+</li>
+</ul>
+<p>&emsp;&emsp;设置完成后系统会进行校验，如果没有任何问题，就可以开始创建：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209125146556.png" alt=""></p>
+<p>&emsp;&emsp;创建过程大约需要两个小时，可以喝喝茶，慢慢等：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209125353690.png" alt=""></p>
+<p>&emsp;&emsp;部署完成，在资源组里可以看到资源如下：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209154537597.png" alt=""></p>
+<h2 id="连接至AVS"><a href="#连接至AVS" class="headerlink" title="连接至AVS"></a>连接至AVS</h2><p>&emsp;&emsp;VMware的管理一般是通过浏览器连接至vCenter。AVS通常会和客户的本地环境打通，建议使用ER专线的连接方式，所以AVS的vCenter没有外网访问的地址。</p>
+<p>&emsp;&emsp;还有一个方式，就是在AVS的vnet里部署一台跳板机，通过跳板机访问vCenter。</p>
+<p>&emsp;&emsp;创建一个windows 10的VM，与AVS在同一个region：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209155146946.png" alt=""></p>
+<p>&emsp;&emsp;网络选择要选择AVS的vnet，注意子网无法选择AVS使用的GatewaySubnet，如果创建AVS过程中没有创建其他子网，就需要在这里新创建一个：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209155328406.png" alt=""></p>
+<p>&emsp;&emsp;其他选项根据实际情况选择即可。</p>
+<p>&emsp;&emsp;要用跳板机连接至vCenter，需要先知道连接信息。</p>
+<p>&emsp;&emsp;到AVS资源的Identify查看，可以看到AVS的连接信息如下：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209160546364.png" alt=""></p>
+<p>&emsp;&emsp;虚机创建完成，通过rdp连接至虚机，打开浏览器，输入vCenter的地址，忽略安全警告，到了熟悉的界面：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209161030575.png" alt=""></p>
+<p>&emsp;&emsp;使用vCenter的管理员（<a href="mailto:cloudadmin@vsphere.local">cloudadmin@vsphere.local</a>）和预设的密码登录：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209161227582.png" alt=""></p>
+<p>&emsp;&emsp;进入vCenter管理界面：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209161402722.png" alt=""></p>
+<p>&emsp;&emsp;一共3个节点（Host）组成的Cluster，已经预配置好了整个VMware HCI环境，客户无需做任何操作即可直接使用。</p>
+<p>&emsp;&emsp;点击一个Host，查看具体的配置情况（熟悉的EMC，热烈盈眶！）：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201209161637704.png" alt=""></p>
+<p>&emsp;&emsp;剩下的操作，就如同在普通VMware下一样，创建或者导入VM，配置HA或者FT等，直接操作即可，不需要客户再去烦恼底层的架构、管理。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>&emsp;&emsp;在谈到公有云时，很多时候都会去讲云原生、severless、k8s等比较前卫的概念。但客户的IT环境千变万化，不可能一蹴而就做好云适配。类似于AVS这样的搭建在公有云的VMware环境，给了客户更多选择，让客户上云的阻碍不再那么大，可以做私有云到混合云、公有云的逐步平滑过渡，给了客户更多的选择。</p>
+<p>&emsp;&emsp;这里只是简单的做了一个Demo，到客户具体环境还有很多安全、网络方面的规划和设计，具体可以参考：</p>
+<p><a href="https://docs.microsoft.com/zh-cn/azure/azure-vmware/" target="_blank" rel="noopener">Azure VMware 解决方案文档</a></p>
+<p>&emsp;&emsp;当然，最后还是照常希望尽快在月饼落地。</p>
 
       
     </div>
@@ -488,8 +508,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/undefined/2867/" rel="next" title="工具巧上手，运维自动化">
-                <i class="fa fa-chevron-left"></i> 工具巧上手，运维自动化
+              <a href="/undefined/52096/" rel="next" title="22条军规之Azure Policy">
+                <i class="fa fa-chevron-left"></i> 22条军规之Azure Policy
               </a>
             
           </div>
@@ -497,10 +517,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/undefined/57067/" rel="prev" title="天下大势，分久必合——Azure VMware Solution">
-                天下大势，分久必合——Azure VMware Solution <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -629,7 +645,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure-Policy简介"><span class="nav-number">1.</span> <span class="nav-text">Azure Policy简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure-Policy配置"><span class="nav-number">2.</span> <span class="nav-text">Azure Policy配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">3.</span> <span class="nav-text">小结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AVS概述"><span class="nav-number">1.</span> <span class="nav-text">AVS概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AVS配置"><span class="nav-number">2.</span> <span class="nav-text">AVS配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备工作"><span class="nav-number">2.1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建AVS"><span class="nav-number">2.2.</span> <span class="nav-text">创建AVS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#连接至AVS"><span class="nav-number">2.3.</span> <span class="nav-text">连接至AVS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">3.</span> <span class="nav-text">小结</span></a></li></ol></div>
             
 
           </div>
