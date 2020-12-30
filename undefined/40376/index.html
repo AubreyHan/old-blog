@@ -1,0 +1,833 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,Others," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;前一篇文档简单介绍了Azure Migrate相关概念和功能，这次以Hyper-V为例，测试如何使用Azure Migrate发现、评估和迁移虚机。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实践出真知——利用Azure Migrate迁移Hyper-V虚机之虚机发现">
+<meta property="og:url" content="http://aubreyhan.net/undefined/40376/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;前一篇文档简单介绍了Azure Migrate相关概念和功能，这次以Hyper-V为例，测试如何使用Azure Migrate发现、评估和迁移虚机。">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229200258822.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229221618496.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229221834183.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229221957620.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229222048786.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229222150911.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229222238846.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229222717761.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229223243508.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229225146523.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229225255471.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229225407152.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229225540952.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229225732776.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229225814490.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229230123804.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229231052305.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229231156799.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229231411182.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229231733055.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229232225558.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229232502404.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229232713188.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229232820791.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201230094857281.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201230100136794.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201230100245659.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201230100729478.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20201230101058811.png">
+<meta property="article:published_time" content="2020-12-29T10:57:26.000Z">
+<meta property="article:modified_time" content="2020-12-30T02:16:12.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="Others">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hyblob.blob.core.windows.net/blog/image-20201229200258822.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/40376/"/>
+
+
+
+
+
+  <title> 实践出真知——利用Azure Migrate迁移Hyper-V虚机之虚机发现 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/40376/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                实践出真知——利用Azure Migrate迁移Hyper-V虚机之虚机发现
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-12-29T18:57:26+08:00">
+                2020-12-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index">
+                    <span itemprop="name">Others</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;前一篇文档简单介绍了Azure Migrate相关概念和功能，这次以Hyper-V为例，测试如何使用Azure Migrate发现、评估和迁移虚机。</p>
+<a id="more"></a>
+
+<h1 id="实验环境"><a href="#实验环境" class="headerlink" title="实验环境"></a>实验环境</h1><p>&emsp;&emsp;如上篇文档介绍，Hyper-V环境下的VM，需要通过Azure Migrate 设备来进行迁移。Azure Migrate 设备实际也是一台Hyper-V环境下的VM，通过从Azure网站上下载的vhd文件生成。</p>
+<p>&emsp;&emsp;我们将在Azure上搭建该实验环境，使用了两台支持虚拟化的Azure VM，安装Windows Server 2016，作为Hyper-V宿主机，一台宿主机（虚机名Hyper-V）放置需要迁移的VM，另一台宿主机（虚机名MigrateAppliance）放置Azure Migrate 设备。为了简化实验环境，将这两台宿主机放在同一个VNet里，MigrateAppliance通过公网连接到Azure Migrate服务，整体架构如下：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229200258822.png" alt="image-20201229200258822"></p>
+<h1 id="实验环境准备"><a href="#实验环境准备" class="headerlink" title="实验环境准备"></a>实验环境准备</h1><h2 id="Hyper-V环境准备"><a href="#Hyper-V环境准备" class="headerlink" title="Hyper-V环境准备"></a>Hyper-V环境准备</h2><p>&emsp;&emsp;在Azure上创建两台VM作为宿主机，选择Ev系列，放置在同一个VNet里，并在VM上安装配置Hyper-V。</p>
+<p>&emsp;&emsp;在虚机名Hyper-V的宿主机上，通过Hyper-V管理器创建Ubuntu和Windows Server 2016的VM各一台：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229221618496.png" alt="image-20201229221618496"></p>
+<h2 id="Azure-Migrate设备安装注册"><a href="#Azure-Migrate设备安装注册" class="headerlink" title="Azure Migrate设备安装注册"></a>Azure Migrate设备安装注册</h2><p>&emsp;&emsp;在Azure Portal的所有服务搜索Migrate，找到Azure Migrate：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229221834183.png" alt="image-20201229221834183"></p>
+<p>&emsp;&emsp;点击进入，可以看到在Azure Migrate整合了服务器、DB、VDI、Web App、Data的迁移：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229221957620.png" alt="image-20201229221957620"></p>
+<p>&emsp;&emsp;选择评估和迁移服务器，进入后现在还没有项目：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229222048786.png" alt="image-20201229222048786"></p>
+<p>&emsp;&emsp;创建一个项目，选择和输入所需信息：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229222150911.png" alt="image-20201229222150911"></p>
+<p>&emsp;&emsp;完成后如下：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229222238846.png" alt="image-20201229222238846"></p>
+<p>&emsp;&emsp;首先需要去发现服务器，所以点击Assessment tools框你的Discover，发现服务器的方式有两种：</p>
+<ul>
+<li>在线使用Azure Migrate 设备去动态自动发现，这种情况下要求Azure Migrate 设备可以连接至Azure发送数据</li>
+<li>如果不能联网，可以通过下载CSV文件手工填写后导入</li>
+</ul>
+<p>&emsp;&emsp;在此，根据我们的要求选择使用设备导入，并且选择Hyper-V平台：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229222717761.png" alt="image-20201229222717761"></p>
+<p>&emsp;&emsp;然后为Azure Migrate Appliance（以下简称AMA）命名，并生成key，这个key非常重要，是AMA和Azure Migrate通讯的凭据，所以一定要保存好：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229223243508.png" alt="image-20201229223243508"></p>
+<p>&emsp;&emsp;然后下载VHD文件后传到要部署MAM的Hyper-V宿主机（此处为名为MigrateAppliance的Azure VM），下载完成是一个zip文件，解压缩得到MAM的虚机文件夹：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229225146523.png" alt="image-20201229225146523"></p>
+<p>&emsp;&emsp;在Hyper-V管理界面里，选择导入虚机：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229225255471.png" alt="image-20201229225255471"></p>
+<p>&emsp;&emsp;定位到刚才解压缩出来的文件夹里的Virtual Machines文件夹：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229225407152.png" alt="image-20201229225407152"></p>
+<p>&emsp;&emsp;连续点击下一步，在“Choose Import Type”选择“create a new unique ID”：</p>
+<p> <img src="https://hyblob.blob.core.windows.net/blog/image-20201229225540952.png" alt="image-20201229225540952"></p>
+<p>&emsp;&emsp;按要求AMA需要8个vCPU，但实验环境达不到这个数量，所以选择4颗：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229225732776.png" alt="image-20201229225732776"></p>
+<p>&emsp;&emsp;根据实际情况选择网络（这里要注意，由于该实验环境在Azure，所以Hyper-V的External交换机没法让VM的网卡通过DHCP获得IP，所以要提前创建好一个Internal交换机和NAT环境）：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229225814490.png" alt="image-20201229225814490"></p>
+<p>&emsp;&emsp;到“Summary”检查无误后点击“Finish”完成AMA创建：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229230123804.png" alt="image-20201229230123804"></p>
+<p>&emsp;&emsp;将AMA连接并开机，首先需要接受协议：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229231052305.png" alt="image-20201229231052305"></p>
+<p>&emsp;&emsp;设置密码后进入登录界面：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229231156799.png" alt="image-20201229231156799"></p>
+<p>&emsp;&emsp;登录完成稍等自动进入AMA管理界面，接受协议后开始自检：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229231411182.png" alt="image-20201229231411182"></p>
+<p>&emsp;&emsp;这里由于宿主机没有提供DHCP，所以AMA无法联网，会提示是否要设置proxy，手工设置AMA虚机的ip后重新刷新页面，开始自检和update：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229231733055.png" alt="image-20201229231733055"></p>
+<p>&emsp;&emsp;全部通过后在第二部将AMA注册到Azure Migrate，在输入框里粘贴刚才记下的key并login，如验证无误，则生成Device Code：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229232225558.png" alt="image-20201229232225558"></p>
+<p>&emsp;&emsp;点击Copy code &amp; Login，出来Azure的device验证界面，输入code并Next，用自己的用户名口令登录Azure（使用Azure cli的同学应该很熟悉这个步骤了）：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229232502404.png" alt="image-20201229232502404"></p>
+<p>&emsp;&emsp;登录完成，回到AMA界面，稍等几分钟，AMA已经成功注册：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229232713188.png" alt="image-20201229232713188"></p>
+<p>&emsp;&emsp;到Portal检查Azure Migrate，也可以看到AMA已经注册：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201229232820791.png" alt="image-20201229232820791"></p>
+<h2 id="连接Hyper-V服务器"><a href="#连接Hyper-V服务器" class="headerlink" title="连接Hyper-V服务器"></a>连接Hyper-V服务器</h2><p>&emsp;&emsp;回到AMA，开始添加需要发现Hyper-V服务器。添加顺序有些特殊，第一步是添加凭据，即Hyper-V服务器的用户名口令。</p>
+<p>&emsp;&emsp;点击“Add credentials”，为凭据取一个名字，输入用户名口令并保存或继续添加：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201230094857281.png" alt="image-20201230094857281"></p>
+<p>&emsp;&emsp;然后点击“Add discovery source”添加source，即需要发现的Hyper-V主机或群集，可以单台添加，也可以同时添加多台或者用CSV导入，这里选择合适的凭据，以及Hyper-V主机的ip或者fqdn：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201230100136794.png" alt="image-20201230100136794"></p>
+<p>&emsp;&emsp;添加完成后自动校验状态，这里要注意，AMA需要通过5895端口和Hyper-V主机通讯，所以如果之间有防火墙或NAT等设备，需要打开端口或做映射；校验通过后可以点击“Start discovery”发现主机(这里把两台Hyper-V宿主机都添加了)：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201230100245659.png" alt="image-20201230100245659"></p>
+<p>&emsp;&emsp;回到Azure Portal，点击刷新，可以看到发现了3台服务器：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201230100729478.png" alt="image-20201230100729478"></p>
+<p>&emsp;&emsp;点击发现的服务器，就是我们在Hyper-V上创建的3台VM，并且列出了操作系统和配置：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20201230101058811.png" alt="image-20201230101058811"></p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>&emsp;&emsp;通过以上步骤完成了Hyper-V环境下，需要迁移的VM的发现，为下一步的评估和迁移做好了准备，后续将进行评估和迁移的实验。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/Others/" rel="tag"># Others</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/54527/" rel="next" title="上云之路千万条，安全快捷第一条——浅谈Azure Migrate">
+                <i class="fa fa-chevron-left"></i> 上云之路千万条，安全快捷第一条——浅谈Azure Migrate
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#实验环境"><span class="nav-number">1.</span> <span class="nav-text">实验环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验环境准备"><span class="nav-number">2.</span> <span class="nav-text">实验环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hyper-V环境准备"><span class="nav-number">2.1.</span> <span class="nav-text">Hyper-V环境准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Azure-Migrate设备安装注册"><span class="nav-number">2.2.</span> <span class="nav-text">Azure Migrate设备安装注册</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#连接Hyper-V服务器"><span class="nav-number">2.3.</span> <span class="nav-text">连接Hyper-V服务器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">3.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -69,7 +69,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Azure,综合," />
+  <meta name="keywords" content="Azure,存储," />
 
 
 
@@ -85,29 +85,53 @@
 
 
 
-<meta name="description" content="&amp;emsp;&amp;emsp;话说天下大同是个美好的理想，可是在理想实现之前，Azure还是被分成了4张网：Global Azure、美国政府Azure、中国Azure（Mooncake）、德国Azure（咦，难道德国也有方叫兽？）。">
+<meta name="description" content="&amp;emsp;&amp;emsp;Docker日渐成为生产环境中越来越重要的基础架构，除了传统的轻负载、无状态应用，逐步也开始走入类似于DB的环境。随之而来的是对容器数据持久化要求越来越多。&amp;emsp;&amp;emsp;Docker自身提供了多种数据持久化的方案，例如Bind Mount、Docker Managed Volume、Data-packed Volume Container等。无论哪种方式，都要依赖">
 <meta property="og:type" content="article">
-<meta property="og:title" content="走进足球、啤酒、肘子的国度">
+<meta property="og:title" content="使用Azure Files Storage实现Docker数据持久化及其他">
 <meta property="og:url" content="http://aubreyhan.net/undefined/34632/index.html">
 <meta property="og:site_name" content="Reid爸的菜园子">
-<meta property="og:description" content="&amp;emsp;&amp;emsp;话说天下大同是个美好的理想，可是在理想实现之前，Azure还是被分成了4张网：Global Azure、美国政府Azure、中国Azure（Mooncake）、德国Azure（咦，难道德国也有方叫兽？）。">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15182715302678.png">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15182716422385.png">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15182741794640.png">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/3.jpg">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/4.jpg">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/5.jpg">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15182757704776.png">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15182758278004.png">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15182759002383.png">
-<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/6.jpg">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;Docker日渐成为生产环境中越来越重要的基础架构，除了传统的轻负载、无状态应用，逐步也开始走入类似于DB的环境。随之而来的是对容器数据持久化要求越来越多。&amp;emsp;&amp;emsp;Docker自身提供了多种数据持久化的方案，例如Bind Mount、Docker Managed Volume、Data-packed Volume Container等。无论哪种方式，都要依赖">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165309150575.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165310130065.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165313051024.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165313713504.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165328332525.png">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrro55c7ij30hy05sq4u.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165331444392.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165332920147.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165342059593.png">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrro5z7gij30q907z0ti.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165348064295.png">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwrro6g0vuj30ty01gjs6.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165351285914.png">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrro76px6j30u004uacg.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrro8f30hj30tu0bcwkw.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165375657626.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165413171931.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165414654695.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165433539841.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165435109106.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165444697263.png">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrroa73uuj30th02kab7.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165447013520.png">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrobkj5qj30rm03dabm.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165454629395.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165455711585.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165464422341.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165464840213.png">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrodox5qj31e5074q6a.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165469202113.png">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrofe09aj30ep0el42k.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrogp9f6j30fw03wq46.jpg">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165476656230.png">
+<meta property="og:image" content="http://oorpx53f8.bkt.clouddn.com/15165477236042.png">
 <meta property="article:published_time" content="2018-01-21T15:19:59.000Z">
 <meta property="article:modified_time" content="2018-10-31T14:20:28.000Z">
 <meta property="article:author" content="Aubrey Han">
 <meta property="article:tag" content="Azure">
-<meta property="article:tag" content="综合">
+<meta property="article:tag" content="存储">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://oorpx53f8.bkt.clouddn.com/15182715302678.png">
+<meta name="twitter:image" content="http://oorpx53f8.bkt.clouddn.com/15165309150575.png">
 
 
 
@@ -141,7 +165,7 @@
 
 
 
-  <title> 走进足球、啤酒、肘子的国度 | Reid爸的菜园子 </title>
+  <title> 使用Azure Files Storage实现Docker数据持久化及其他 | Reid爸的菜园子 </title>
 <meta name="generator" content="Hexo 4.2.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -291,7 +315,7 @@
             
             
               
-                走进足球、啤酒、肘子的国度
+                使用Azure Files Storage实现Docker数据持久化及其他
               
             
           </h1>
@@ -340,8 +364,19 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Azure/%E7%BB%BC%E5%90%88/" itemprop="url" rel="index">
-                    <span itemprop="name">综合</span>
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/Docker/" itemprop="url" rel="index">
+                    <span itemprop="name">Docker</span>
                   </a>
                 </span>
 
@@ -375,20 +410,55 @@
       
 
       
-        <p>&emsp;&emsp;话说天下大同是个美好的理想，可是在理想实现之前，Azure还是被分成了4张网：Global Azure、美国政府Azure、中国Azure（Mooncake）、德国Azure（咦，难道德国也有方叫兽？）。</p>
+        <p>&emsp;&emsp;Docker日渐成为生产环境中越来越重要的基础架构，除了传统的轻负载、无状态应用，逐步也开始走入类似于DB的环境。随之而来的是对容器数据持久化要求越来越多。<br>&emsp;&emsp;Docker自身提供了多种数据持久化的方案，例如Bind Mount、Docker Managed Volume、Data-packed Volume Container等。无论哪种方式，都要依赖Docker宿主机的存储，当宿主机出现故障、Docker需要漂移时，会出现持久化数据无法访问的情况。</p>
 <a id="more"></a>
-<p>&emsp;&emsp;随着国内企业Go Global，越来越多的用户不止使用中国Azure，也逐步成为Global Azure的客户。所以前段时间，DevOps学术恶霸Claire老师专门写了一篇博客，说明怎么申请Global Azure的免费试用账号：<br><a href="http://www.cnblogs.com/meowmeow/p/7773226.html" target="_blank" rel="noopener">Go Global 之怎样在全球Azure上使用Azure Free Account</a><br>&emsp;&emsp;今天就来看看如何申请德国Azure的免费试用账号。<br>&emsp;&emsp;德国Azure的网址如下：<br><a href="https://azure.microsoft.com/zh-cn/overview/clouds/germany/" target="_blank" rel="noopener">德国Azure</a><br>&emsp;&emsp;令人欣慰的是，支持中文界面：<br><img src="http://oorpx53f8.bkt.clouddn.com/15182715302678.png" alt=""></p>
-<p>&emsp;&emsp;既然申请免费试用账号，当然是点击免费的Azure Germany账户，进入下一步：<br><img src="http://oorpx53f8.bkt.clouddn.com/15182716422385.png" alt=""></p>
-<p>&emsp;&emsp;试用账户将获得$200的免费额度，点击免费开始填写个人信息：<br>![Capto_Capture 2018-02-10_10-59-32_PM](<a href="http://oorpx53f8.bkt.clouddn.com/Capto_Capture" target="_blank" rel="noopener">http://oorpx53f8.bkt.clouddn.com/Capto_Capture</a> 2018-02-10_10-59-32_PM.jpg)</p>
-<p>&emsp;&emsp;可以看到，德国和中国一样，使用Org ID作为用户信息，只是后缀为onmicrosoft.de，而不是Global的Live ID。此处完整的用户名为：USER ID@Domain ID，即<a href="mailto:Aubrey@aubreyhan001.onmicrosoft.de">Aubrey@aubreyhan001.onmicrosoft.de</a><br>&emsp;&emsp;根据实际情况填写，注意邮箱需要以前没有试用过德国Azure的邮箱，根据以往经验，国家最好不要填写China，我在此处选择US。<br>&emsp;&emsp;输入手机号（同样没有试用过德国Azure），发送验证码，填写校验完成后点击Continue，并用刚才设置的用户名口令登录。<br>&emsp;&emsp;如果你的邮箱或手机号以前试用过Azure（非德国），会出现错误提示：<br><img src="http://oorpx53f8.bkt.clouddn.com/15182741794640.png" alt=""></p>
-<p>&emsp;&emsp;没关系，在下拉框选择Germany，确认填写信息，点击Next进入下一步：<br><img src="http://oorpx53f8.bkt.clouddn.com/3.jpg" alt="3"></p>
-<p>&emsp;&emsp;再次通过短信验证手机号码：<br><img src="http://oorpx53f8.bkt.clouddn.com/4.jpg" alt="4"></p>
-<p>&emsp;&emsp;输入信用卡信息，确认个人身份：<br><img src="http://oorpx53f8.bkt.clouddn.com/5.jpg" alt="5"></p>
-<p>&emsp;&emsp;注意，这里只支持VISA、Master、AE的卡，国内银联信用卡不支持；如实填写信息，最后一栏邮编，由于德国是5位，直接填写10000即可。<br>&emsp;&emsp;信用卡验证过程中会预授权1欧元做验证。<br>&emsp;&emsp;验证通过后，同意相关协议即可：<br><img src="http://oorpx53f8.bkt.clouddn.com/15182757704776.png" alt=""></p>
-<p>&emsp;&emsp;完成注册，进入订阅创建界面，稍等几分钟，创建完成：<br><img src="http://oorpx53f8.bkt.clouddn.com/15182758278004.png" alt=""></p>
-<p>&emsp;&emsp;点击Get Start即可进入Azure，试用账号余额位170欧元：<br><img src="http://oorpx53f8.bkt.clouddn.com/15182759002383.png" alt=""></p>
-<p>&emsp;&emsp;下次进入时，浏览器打开<a href="https://azure.microsoft.com/zh-cn/overview/clouds/germany/，点击登录到Azure德国：" target="_blank" rel="noopener">https://azure.microsoft.com/zh-cn/overview/clouds/germany/，点击登录到Azure德国：</a><br><img src="http://oorpx53f8.bkt.clouddn.com/6.jpg" alt="6"></p>
-<p>&emsp;&emsp;使用之前创建的Org ID及密码登录即可。<br>&emsp;&emsp;如果使用PowerShell或CLI，请使用相关命令配置登录环境。<br>&emsp;&emsp;注意：由于该账号关联信用卡，请务必关注账单，不要超过额度。<br>&emsp;&emsp;<br>&emsp;&emsp;</p>
+<p>&emsp;&emsp;要解决此问题，需要将Docker使用的持久化存储从宿主机独立出来提供给Docker使用。NAS恰好可以满足此需求；而在Azure上的files storage提供了基于SMB2、3的NAS访问，可以作为Docker的持久化存储的目标。</p>
+<h1 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h1><h2 id="Docker主机"><a href="#Docker主机" class="headerlink" title="Docker主机"></a>Docker主机</h2><p>&emsp;&emsp;在Azure创建一台Centos 7.4作为宿主机，登陆后安装Docker软件：<br><code>sudo yum install -y docker*</code><br>&emsp;&emsp;启动Docker服务：<br><code>sudo systemctl start docker</code><br>&emsp;&emsp;运行一个httpd的Docker，将宿主机端口80映射给该Docker：<br><code>sudo docker run -d -p 80:80 httpd</code><br><img src="http://oorpx53f8.bkt.clouddn.com/15165309150575.png" alt=""></p>
+<p>&emsp;&emsp;访问Docker提供的httpd服务，正常：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165310130065.png" alt=""></p>
+<h2 id="共享存储"><a href="#共享存储" class="headerlink" title="共享存储"></a>共享存储</h2><p>&emsp;&emsp;创建一个通用存储账号，并在其下创建Files Storage：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165313051024.png" alt=""></p>
+<p>&emsp;&emsp;点击Connect并记下linux下的连接命令：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165313713504.png" alt=""></p>
+<p>&emsp;&emsp;<em>Tips：记住将命令中的[mount point]更换为实际加载点。很多次被询问为什么执行不成功发现是这里没修改</em></p>
+<h1 id="Docker加载共享存储"><a href="#Docker加载共享存储" class="headerlink" title="Docker加载共享存储"></a>Docker加载共享存储</h1><h2 id="Blind-Mount"><a href="#Blind-Mount" class="headerlink" title="Blind Mount"></a>Blind Mount</h2><p>&emsp;&emsp;Blind Mount是Docker原生提供的将宿主机存储映射给Docker的方式，通过-v参数指定原卷和目标卷。<br>&emsp;&emsp;共享存储挂载给宿主机后，可以作为主机存储资源映射给Docker。下边测试这种方案是否可行。<br>&emsp;&emsp;在宿主机建立挂载点/mnt/smb，并挂载Files Storage:<br><code>sudo mkdir /mnt/smb</code><br><code>sudo mount -t cifs //dockersto.file.core.windows.net/docker /mnt/smb -o vers=3.0,username=dockersto,password=8XOUIi+lUsSsKXrSKU6SVOgTuPxaPb9pbPiNoHNdUYRbkLPbcVX85ynk7wWmB5zZIILjnvEs3OTn7XDuBYWgpg==,dir_mode=0777,file_mode=0777,sec=ntlmssp</code><br><img src="http://oorpx53f8.bkt.clouddn.com/15165328332525.png" alt=""></p>
+<p>&emsp;&emsp;检查挂载情况可看到成功挂载：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrro55c7ij30hy05sq4u.jpg" alt=""></p>
+<p>&emsp;&emsp;运行一个Centos的Docker，并通过-v参数将宿主机的/mnt/smb映射给Docker里的/mnt:<br><code>sudo docker run -it -v /mnt/smb:/mnt centos</code><br><img src="http://oorpx53f8.bkt.clouddn.com/15165331444392.png" alt=""></p>
+<p>&emsp;&emsp;由于使用了-it参数，所以登录后自动进入Docker的sh环境。<br>&emsp;&emsp;检查Docker里的存储挂载情况：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165332920147.png" alt=""></p>
+<p>&emsp;&emsp;可以看到共享的Files Storage通过宿主机映射到了Docker指定的目录/mnt。<br>&emsp;&emsp;在该目录下创建一个文件（由于权限问题，先将宿主机的selinux禁用才能成功）：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165342059593.png" alt=""></p>
+<p>&emsp;&emsp;检查Azure Files Storage，可以看到创建的文件：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrro5z7gij30q907z0ti.jpg" alt=""></p>
+<h2 id="Docker直接挂载"><a href="#Docker直接挂载" class="headerlink" title="Docker直接挂载"></a>Docker直接挂载</h2><p>&emsp;&emsp;Docker里也可以直接执行mount指令挂载共享存储。<br>&emsp;&emsp;启动一个没有主机映射的Docker：<br><code>sudo docker run -it centos</code><br><img src="http://oorpx53f8.bkt.clouddn.com/15165348064295.png" alt=""></p>
+<p>&emsp;&emsp;直接在Docker里mount共享存储：<br><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwrro6g0vuj30ty01gjs6.jpg" alt=""></p>
+<p>&emsp;&emsp;出现权限错误。<br>&emsp;&emsp;这是由于安全管理造成，需要在运行Docker时用–privileged=true提升Docker的权限：<br><code>sudo docker run -it --privileged=true centos</code><br>&emsp;&emsp;重新运行Docker后挂载共享存储：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165351285914.png" alt=""></p>
+<p>&emsp;&emsp;因为Centos的Docker镜像里没有cifs文件系统支持，需要手工安装：<br><code>yum install -y cifs*</code><br>&emsp;&emsp;再次执行mount命令，顺利挂载：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrro76px6j30u004uacg.jpg" alt=""></p>
+<hr>
+<p>&emsp;&emsp;可以看到，无论是宿主机挂载映射给Docker还是Docker里直接挂载，都可以实现将共享存储作为Docker持久化存储，避免因为宿主机原因导致的数据丢失。</p>
+<h1 id="文件系统兼容问题"><a href="#文件系统兼容问题" class="headerlink" title="文件系统兼容问题"></a>文件系统兼容问题</h1><p>&emsp;&emsp;在Docker里执行mount命令检查，可以看到无论哪种方式，Docker并不改变文件系统类型，通过Files Storage映射到Docker仍然是CIFS的文件系统：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrro8f30hj30tu0bcwkw.jpg" alt=""></p>
+<p>&emsp;&emsp;CIFS和NFS作为非结构化文件系统，只能用作文件类型数据保存，一般不能用作结构化数据（如数据库）等存放位置。但是随着数据库发展，也慢慢开始支持共享文件系统。</p>
+<h2 id="SQL-Server"><a href="#SQL-Server" class="headerlink" title="SQL Server"></a>SQL Server</h2><p>&emsp;&emsp;SQL Server有明确官方说明，从2012开始支持SMB（CIFS）：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165375657626.png" alt=""></p>
+<p>&emsp;&emsp;并且SQL2017已经开始退出官方的Docker版本，正好可以直接用来测试：<br><code>sudo docker run -e &#39;ACCEPT_EULA=Y&#39; -e &#39;MSSQL_SA_PASSWORD=Password123!&#39; -p 1402:1433 -v /mnt/smb/:/var/opt/mssql --privileged=true --name sql01 -d microsoft/mssql-server-linux</code><br>&emsp;&emsp;如上命令从Docker Hub下载MS SQL的官方镜像运行，并将/mnt/smb（Files Storage加载点）映射给Docker作为/var/opt/mssql（数据库目录）。<br>&emsp;&emsp;检查运行结果：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165413171931.png" alt=""></p>
+<p>&emsp;&emsp;成功执行。<br>&emsp;&emsp;检查Azure Files Storage，可以看到已生成SQL的文件夹：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165414654695.png" alt=""></p>
+<h2 id="Oracle"><a href="#Oracle" class="headerlink" title="Oracle"></a>Oracle</h2><p>&emsp;&emsp;Oracle官方文档明确说明不支持CIFS：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165433539841.png" alt=""></p>
+<p>&emsp;&emsp;在Docker Hub里有非官方的Oracle DB镜像：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165435109106.png" alt=""></p>
+<p>&emsp;&emsp;首先测试用宿主机本地目录作为Docker内oracle目录，可正常运行：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165444697263.png" alt=""></p>
+<p>&emsp;&emsp;再将/mnt/smb作为Docker内oracle目录，可以看到运行后马上退出：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrroa73uuj30th02kab7.jpg" alt=""></p>
+<p>&emsp;&emsp;通过-it参数进入Docker内部可以看到，错误原因是文件系统不支持：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165447013520.png" alt=""></p>
+<h2 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h2><p>&emsp;&emsp;MySQL也提供了官方Docker镜像，测试如下：<br><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fwrrobkj5qj30rm03dabm.jpg" alt=""></p>
+<p>&emsp;&emsp;MySQL正常运行并创建了相关文件。<br>&emsp;&emsp;但是MySQL在运行前需要对目录做初始化，所以目录必须为空，不能有任何文件或文件夹。</p>
+<hr>
+<p>&emsp;&emsp;不同软件对文件系统有不同要求。对于不支持CIFS的软件，没法用此方式实现数据持久化。</p>
+<h1 id="对kernel的兼容性问题"><a href="#对kernel的兼容性问题" class="headerlink" title="对kernel的兼容性问题"></a>对kernel的兼容性问题</h1><p>&emsp;&emsp;从Docker与虚拟化技术的对比可以看出：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165454629395.png" alt=""></p>
+<p>&emsp;&emsp;虚拟化是从底层开始一步步实现，而Docker则是使用的宿主机kernel：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165455711585.png" alt=""></p>
+<p>&emsp;&emsp;那么，问题来了，如果Linux软件有kernel版本要求，那么是由宿主机的kernel版本决定还是Docker里的Linux发行版本决定？<br>&emsp;&emsp;还是以Azure Files Storage为例，使用了SMB v2、3；而CentOS 7以下版本由于kernel限制只支持SMB v1.x。<br>&emsp;&emsp;CentOS 7作为宿主机，运行CentOS 6是否可以挂载Azure Files Storage？或者反之是否可以？</p>
+<h2 id="CentOS-7宿主机"><a href="#CentOS-7宿主机" class="headerlink" title="CentOS 7宿主机"></a>CentOS 7宿主机</h2><p>&emsp;&emsp;在CentOS 7宿主机运行CentOS 6的Docker：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165464422341.png" alt=""></p>
+<p>&emsp;&emsp;检查/etc/redhat-release文件确认版本：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165464840213.png" alt=""></p>
+<p>&emsp;&emsp;由于CentOS 6的Docker不带mount、cifs等，所以需要手工安装：<br><code>yum install -y mount* cifs*</code><br>&emsp;&emsp;执行mount命令顺利挂载：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrodox5qj31e5074q6a.jpg" alt=""></p>
+<h2 id="CentOS-6宿主机"><a href="#CentOS-6宿主机" class="headerlink" title="CentOS 6宿主机"></a>CentOS 6宿主机</h2><p>&emsp;&emsp;创建一台CentOS 6的虚机，挂载Azure Files Storage，可以看到由于兼容性问题报错：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165469202113.png" alt=""></p>
+<p>&emsp;&emsp;CentOS 6不原生支持Docker，所以安装Docker需要通过Fedora EPEL仓库来进行。依次执行如下指令安装：<br><code>sudo rpm -ivh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</code><br><code>sudo yum install -y docker-io</code></p>
+<p>&emsp;&emsp;安装完成启动Dockeer服务并检查：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrofe09aj30ep0el42k.jpg" alt=""></p>
+<p>&emsp;&emsp;下载运行CentOS 7的Docker：<br><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwrrogp9f6j30fw03wq46.jpg" alt=""></p>
+<p>&emsp;&emsp;在Docker里安装cifs的支持：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165476656230.png" alt=""></p>
+<p>&emsp;&emsp;挂载共享存储：<br><img src="http://oorpx53f8.bkt.clouddn.com/15165477236042.png" alt=""></p>
+<p>&emsp;&emsp;和宿主机同样错误，说明也有kernel兼容性问题。</p>
+<hr>
+<p>&emsp;&emsp;通过SMB挂载的测试可以看出，在Docker里运行软件，和宿主机kernel的兼容性有关；如果是kernel版本比较敏感的应用，为了避免和底层kernel兼容性导致的不确定因素，还是建议使用主机虚拟化。</p>
 
       
     </div>
@@ -436,7 +506,7 @@
           
             <a href="/tags/Azure/" rel="tag"># Azure</a>
           
-            <a href="/tags/%E7%BB%BC%E5%90%88/" rel="tag"># 综合</a>
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
           
         </div>
       
@@ -459,8 +529,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/undefined/34632/" rel="prev" title="使用Azure Files Storage实现Docker数据持久化及其他">
-                使用Azure Files Storage实现Docker数据持久化及其他 <i class="fa fa-chevron-right"></i>
+              <a href="/undefined/34632/" rel="prev" title="走进足球、啤酒、肘子的国度">
+                走进足球、啤酒、肘子的国度 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -508,8 +578,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.jpg"
@@ -524,7 +603,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">50</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -571,6 +650,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#配置环境"><span class="nav-number">1.</span> <span class="nav-text">配置环境</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker主机"><span class="nav-number">1.1.</span> <span class="nav-text">Docker主机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#共享存储"><span class="nav-number">1.2.</span> <span class="nav-text">共享存储</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker加载共享存储"><span class="nav-number">2.</span> <span class="nav-text">Docker加载共享存储</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Blind-Mount"><span class="nav-number">2.1.</span> <span class="nav-text">Blind Mount</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker直接挂载"><span class="nav-number">2.2.</span> <span class="nav-text">Docker直接挂载</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件系统兼容问题"><span class="nav-number">3.</span> <span class="nav-text">文件系统兼容问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL-Server"><span class="nav-number">3.1.</span> <span class="nav-text">SQL Server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Oracle"><span class="nav-number">3.2.</span> <span class="nav-text">Oracle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL"><span class="nav-number">3.3.</span> <span class="nav-text">MySQL</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对kernel的兼容性问题"><span class="nav-number">4.</span> <span class="nav-text">对kernel的兼容性问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CentOS-7宿主机"><span class="nav-number">4.1.</span> <span class="nav-text">CentOS 7宿主机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CentOS-6宿主机"><span class="nav-number">4.2.</span> <span class="nav-text">CentOS 6宿主机</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
