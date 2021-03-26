@@ -1,0 +1,776 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储,Docker," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;Azure的File Storage以前只支持SMB，所以aks也只支持SMB，随着NFS服务的发布和k8s发布CSI驱动，aks预览版也开始支持NFS。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="旧瓶也能装新酒续——在AKS使用NFS">
+<meta property="og:url" content="http://aubreyhan.net/undefined/36394/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;Azure的File Storage以前只支持SMB，所以aks也只支持SMB，随着NFS服务的发布和k8s发布CSI驱动，aks预览版也开始支持NFS。">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16166759473987.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167231785994.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167223517589.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167232422818.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167233255435.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167235294260.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16166771147475.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167235773002.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167237018760.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167283831878.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167284847391.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167291439392.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167292806101.jpg">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/16167293113426.jpg">
+<meta property="article:published_time" content="2021-03-25T12:02:27.000Z">
+<meta property="article:modified_time" content="2021-03-26T03:36:06.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hyblob.blob.core.windows.net/blog/16166759473987.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/36394/"/>
+
+
+
+
+
+  <title> 旧瓶也能装新酒续——在AKS使用NFS | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/36394/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                旧瓶也能装新酒续——在AKS使用NFS
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-25T20:02:27+08:00">
+                2021-03-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;Azure的File Storage以前只支持SMB，所以aks也只支持SMB，随着NFS服务的发布和k8s发布CSI驱动，aks预览版也开始支持NFS。</p>
+<a id="more"></a>
+<p>&emsp;&emsp;与共享磁盘不同，NFS为aks提供了原生的NAS共享支持，pod或node之间无需仲裁，对非结构化数据环境里存储和计算的解耦提供了良好的解决方案。例如用aks做http服务器，可以将共用的config、静态页面等放入NFS，提供给前端container使用，这些文件做更新时，只需更新NFS上的单副本即可，无需对container轮流更新，简化了管理。<br>&emsp;&emsp;Azure不支持NFS时，需要手工搭建NFS Server，过程比较复杂，并且vm自身成为单点故障。现在则可直接在aks调用NFS服务。<br>&emsp;&emsp;原以为，aks配置NFS比共享磁盘简单，没想到遇到了一些坑，折腾一晚上才搞定。一定看文档，一定看文档，一定看文档，重要的事情说三遍！</p>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>&emsp;&emsp;参照前两篇文章激活Azure的NFS服务，创建支持CSI驱动的aks集群并添加到vs code（添加到vs code并不是必须，只是为了便于管理）：<br><img src="https://hyblob.blob.core.windows.net/blog/16166759473987.jpg" alt="-w1552"></p>
+<p>&emsp;&emsp;并创建一个存储账户备用（可以和aks集群在一个资源组也可以不在，建议放入MC开头的资源组便于管理，类型必须是高级版FileStorage才支持NFS）：<br><code>az storage account create -g MC_aks-csi-rg_aks-csi-cluster_westus2   -n aksnfs --sku Premium_LRS --kind FileStorage -l westus2 -o table</code><br><img src="https://hyblob.blob.core.windows.net/blog/16167231785994.jpg" alt="-w1082"></p>
+<p>&emsp;&emsp;如果只是普通使用，很简单，将NFS的连接字串直接放到volumns配置就可以了。但是，如果希望通过PVC调用动态卷，就需要对存储账户进行配置。<br>&emsp;&emsp;文档里的描述如下：<br><img src="https://hyblob.blob.core.windows.net/blog/16167223517589.jpg" alt="-w803"><br>&emsp;&emsp;这里有两个地方需要对存储账户配置：一是禁用https，二是必须使用指定网络，并将aks node的网络加入。<br>&emsp;&emsp;测试的时候，我认为不配置存储账户不配置防火墙时，默认所有网络均可访问，不会影响。没想到就是这么一个简单问题，一直导致不成功。所以一定要注意。<br>&emsp;&emsp;存储账户配置修改完成后如下：<br><img src="https://hyblob.blob.core.windows.net/blog/16167232422818.jpg" alt="-w829"></p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/16167233255435.jpg" alt="-w1184"></p>
+<h1 id="创建NFS"><a href="#创建NFS" class="headerlink" title="创建NFS"></a>创建NFS</h1><h1 id="创建NFS-StorageClass"><a href="#创建NFS-StorageClass" class="headerlink" title="创建NFS StorageClass"></a>创建NFS StorageClass</h1><p>&emsp;&emsp;首先还是通过yaml文件创建NFS StorageClass。<br>&emsp;&emsp;创建内容如下名为nfs-class.yaml的文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: storage.k8s.io&#x2F;v1</span><br><span class="line">kind: StorageClass</span><br><span class="line">metadata:</span><br><span class="line">  name: azurefile-csi-nfs</span><br><span class="line">provisioner: file.csi.azure.com</span><br><span class="line">parameters:</span><br><span class="line">  resourceGroup: MC_aks-csi-rg_aks-csi-cluster_westus2</span><br><span class="line">  storageAccount: aksnfs</span><br><span class="line">  protocol: nfs</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;其中，如果和aks集群在一个资源组，可以不用填写资源组；存储账户填入预先准备的放置NFS共享的存储账户。<br>&emsp;&emsp;应用此文件：<br><img src="https://hyblob.blob.core.windows.net/blog/16167235294260.jpg" alt="-w1552"></p>
+<p>&emsp;&emsp;检查StorageClass，可以看到新建的StorageClass：<br><img src="https://hyblob.blob.core.windows.net/blog/16166771147475.jpg" alt="-w1082"></p>
+<h2 id="创建NFS数据卷"><a href="#创建NFS数据卷" class="headerlink" title="创建NFS数据卷"></a>创建NFS数据卷</h2><p>&emsp;&emsp;创建内容如下名为nfs-pvc.yaml的文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: PersistentVolumeClaim</span><br><span class="line">metadata:</span><br><span class="line">  name: nfs-pvc</span><br><span class="line">spec:</span><br><span class="line">  resources:</span><br><span class="line">    requests:</span><br><span class="line">      storage: 100Gi</span><br><span class="line">  volumeMode: Filesystem</span><br><span class="line">  accessModes:</span><br><span class="line">    - ReadWriteMany</span><br><span class="line">  storageClassName: azurefile-csi-nfs</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;注意，高级FileStorage要求的最小容量是100Gi，所以这里storage的参数不能小于100Gi<br>&emsp;&emsp;应用此文件：<br><img src="https://hyblob.blob.core.windows.net/blog/16167235773002.jpg" alt="-w1552"></p>
+<p>&emsp;&emsp;创建完成后，到存储账户里可以看到自动生成了共享，协议是NFS：<br><img src="https://hyblob.blob.core.windows.net/blog/16167237018760.jpg" alt="-w1440"></p>
+<h1 id="使用nfs"><a href="#使用nfs" class="headerlink" title="使用nfs"></a>使用nfs</h1><p>&emsp;&emsp;创建如下名为nfs-deploy.yaml文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: apps&#x2F;v1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: nfsdemo</span><br><span class="line">spec:</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: nfsdemo</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: nfsdemo</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: nfsdemo</span><br><span class="line">        image: busybox</span><br><span class="line">        volumeMounts:</span><br><span class="line">          - mountPath: &#x2F;mnt</span><br><span class="line">            name: nfsshare </span><br><span class="line">      volumes:</span><br><span class="line">        - name: nfsshare</span><br><span class="line">          persistentVolumeClaim:</span><br><span class="line">            claimName: nfs-pvc</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;注意，此处附件nfs的参数是volumeMounts，而不是附加磁盘用的volumeDevices.<br>&emsp;&emsp;应用此文件：<br><img src="https://hyblob.blob.core.windows.net/blog/16167283831878.jpg" alt="-w1552"></p>
+<p>&emsp;&emsp;用如下命令检查pvc的使用情况：<br><code>kubectl describe persistentvolumeclaims nfs-pvc</code><br><img src="https://hyblob.blob.core.windows.net/blog/16167284847391.jpg" alt="-w1508"></p>
+<p>&emsp;&emsp;可以看到已经被pod使用。</p>
+<h1 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h1><p>&emsp;&emsp;可能大家会有疑问，为什么要用这么复杂的pvc的方式，而不去container直接mount数据卷？<br>&emsp;&emsp;考虑一个场景，存储的管理通常是运维负责，而k8s的配置则是应用开发管理。如果直接使用container mount的方式，无论是数据卷的创建、容量修改还是销毁等操作，都需要运维参与。特别是在生产过程中的变更，很繁琐。<br>&emsp;&emsp;而pvc的方式，则把存储管理交给应用开发，可以按需随时配置，这即是IaaC（Infra as a code）的一种实现方式，方便了从应用到底层的生命周期管理。<br>&emsp;&emsp;刚才我们看了如何用code去生成并mount存储。下边看看销毁过程。<br>&emsp;&emsp;先看看现有的数据卷pv情况：<br><code>kubectl get persistentvolume</code><br>&emsp;&emsp;<img src="https://hyblob.blob.core.windows.net/blog/16167291439392.jpg" alt="-w1199"></p>
+<p>&emsp;&emsp;执行命令依次删除deployment、pvc：<br><code>kubectl delete deployments.apps nfsdemo</code><br><code>kubectl delete persistentvolumeclaims nfs-pvc</code><br>&emsp;&emsp;再检查pv：<br><img src="https://hyblob.blob.core.windows.net/blog/16167292806101.jpg" alt="-w1243"></p>
+<p>&emsp;&emsp;到存储账户里查看：<br><img src="https://hyblob.blob.core.windows.net/blog/16167293113426.jpg" alt="-w1122"></p>
+<p>&emsp;&emsp;该共享已自动删除。而整个过程无需通过命令行或portal对azure进行任何操作。完全自动化进行。当然，在配置pvc时，可以设计策略，对数据卷是删除、清空还是保留数据。完全根据需求设计。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>&emsp;&emsp;以上就是aks配置azure NFS的简单尝试，希望大家都能愉快的玩耍。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+            <a href="/tags/Docker/" rel="tag"># Docker</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/8157/" rel="next" title="旧瓶也能装新酒——在AKS使用共享磁盘">
+                <i class="fa fa-chevron-left"></i> 旧瓶也能装新酒——在AKS使用共享磁盘
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境搭建"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建NFS"><span class="nav-number">2.</span> <span class="nav-text">创建NFS</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建NFS-StorageClass"><span class="nav-number">3.</span> <span class="nav-text">创建NFS StorageClass</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建NFS数据卷"><span class="nav-number">3.1.</span> <span class="nav-text">创建NFS数据卷</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用nfs"><span class="nav-number">4.</span> <span class="nav-text">使用nfs</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后续"><span class="nav-number">5.</span> <span class="nav-text">后续</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
