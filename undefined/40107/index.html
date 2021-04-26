@@ -1,0 +1,877 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Azure,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;Azure磁盘快照是Azure备份等数据保护服务的基础。不同于传统本地存储快照指针的方式，Azure快照更类似磁盘有效数据的克隆，使用方式也有较大差异。快照的操作很简单，portal界面选择磁盘即可直接创建快照，但仔细研究一下，还是有很多有意思的地方。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="月既不解饮，影徒随我身——浅析Azure快照">
+<meta property="og:url" content="http://aubreyhan.net/undefined/40107/index.html">
+<meta property="og:site_name" content="Reid爸的菜园子">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;Azure磁盘快照是Azure备份等数据保护服务的基础。不同于传统本地存储快照指针的方式，Azure快照更类似磁盘有效数据的克隆，使用方式也有较大差异。快照的操作很简单，portal界面选择磁盘即可直接创建快照，但仔细研究一下，还是有很多有意思的地方。">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412113858152.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412122104055.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412123800600.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412123852977.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412123932579.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412124254594.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412124426516.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412124635041.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412125216893.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412125924739.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412130007862.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412130348348.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412131722784.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412132303582.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412132454440.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412132959650.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412133143441.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412133426304.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412133554775.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412135809745.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210416100410665.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210416101108812.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210416102643765.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210416224024743.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210416224405527.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210419095606190.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210421142824637.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210421142858861.png">
+<meta property="og:image" content="https://hyblob.blob.core.windows.net/blog/image-20210421143048046.png">
+<meta property="article:published_time" content="2021-04-12T03:21:41.000Z">
+<meta property="article:modified_time" content="2021-04-26T06:03:59.000Z">
+<meta property="article:author" content="Aubrey Han">
+<meta property="article:tag" content="Azure">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hyblob.blob.core.windows.net/blog/image-20210412113858152.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://aubreyhan.net/undefined/40107/"/>
+
+
+
+
+
+  <title> 月既不解饮，影徒随我身——浅析Azure快照 | Reid爸的菜园子 </title>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Reid爸的菜园子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">IT、技术、杂谈、牢骚、旅行、玩物，想到哪里写到哪里的杂草丛。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://aubreyhan.net/undefined/40107/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aubrey Han">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Reid爸的菜园子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                月既不解饮，影徒随我身——浅析Azure快照
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-12T11:21:41+08:00">
+                2021-04-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/" itemprop="url" rel="index">
+                    <span itemprop="name">Azure</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Azure/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;&emsp;Azure磁盘快照是Azure备份等数据保护服务的基础。不同于传统本地存储快照指针的方式，Azure快照更类似磁盘有效数据的克隆，使用方式也有较大差异。快照的操作很简单，portal界面选择磁盘即可直接创建快照，但仔细研究一下，还是有很多有意思的地方。</p>
+<a id="more"></a>
+
+<h1 id="Azure快照基础概念"><a href="#Azure快照基础概念" class="headerlink" title="Azure快照基础概念"></a>Azure快照基础概念</h1><p>&emsp;&emsp;Azure磁盘快照分为两类：全量和增量，两者的区别和计价方式（以美东的Premium Disk为例）如下：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412113858152.png" alt="image-20210412113858152"></p>
+<p>&emsp;&emsp;从描述中可以看出：</p>
+<ul>
+<li>快照分为全量和增量</li>
+<li>快照只支持本地副本保护：LRS或ZRS（如果Region支持）</li>
+<li>Premium Disk的全量快照可以放在Premium存储或标准储存，增量快照只能放标准存储（标准SSD和标准磁盘的全量和增量快照都只能放在标准存储）</li>
+<li>快照的容量由磁盘的有效数据量决定，而非磁盘大小</li>
+<li>全量快照的基准点是当前磁盘；增量快照的基准点是上一次快照，无论上次快照是全量还是增量都可以</li>
+</ul>
+<h1 id="快照实验"><a href="#快照实验" class="headerlink" title="快照实验"></a>快照实验</h1><p>&emsp;&emsp;下边，我们搭建一台vm，验证快照功能。</p>
+<h2 id="实验设计"><a href="#实验设计" class="headerlink" title="实验设计"></a>实验设计</h2><p>&emsp;&emsp;vm使用windows 10，附加了一块1TB的数据盘用作快照测试，整体流程如下：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412122104055.png" alt="image-20210412122104055"></p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;首先，再磁盘中放入一个10GB的文件，做全量快照Snapshot1，Snapshot1基于磁盘当前有效数据量，所以容量为10GB；然后做增量快照Snapshot2，由于增量快照基于Snapshot1，而磁盘没有任何变化，所以Snapshot2容量为0GB；向磁盘增加一个20GB的文件，磁盘有效数据量变为30GB，做全量快照Snapshot3，容量为30GB；接着做增量快照Snapshot4，同理容量为0GB；第三次向磁盘中放入一个40GB文件，磁盘有效数据量增加为70GB，再次做增量快照Snapshot5，这次增量快照的基准点是最近一次快照Snapshot4，所以Snapshot5的容量应该为70-30=40GB。</p>
+<h2 id="创建快照"><a href="#创建快照" class="headerlink" title="创建快照"></a>创建快照</h2><p>&emsp;&emsp;如下图，在创建好的VM的数据盘（F盘）里使用fsutil创建一个10GB的文件：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412123800600.png" alt="image-20210412123800600"></p>
+<p>&emsp;&emsp;然后做第一次全量快照Snapshot1：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412123852977.png" alt="image-20210412123852977"></p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412123932579.png" alt="image-20210412123932579"></p>
+<p>&emsp;&emsp;可以看到，因为这块磁盘是Premium SSD，所以全量快照时可以选择不同的存储类型，这里统一选择Standard HDD，然后一直Next创建快照：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412124254594.png" alt="image-20210412124254594"></p>
+<p>&emsp;&emsp;再对该磁盘创建增量快照Snapshot2：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412124426516.png" alt="image-20210412124426516"></p>
+<p>&emsp;&emsp;由于增量快照只支持标准存储（Standard HDD），所以没有存储类型的选择。</p>
+<p>&emsp;&emsp;创建完成如下：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412124635041.png" alt="image-20210412124635041"></p>
+<p>&emsp;&emsp;按此步骤增加文件后创建剩余的快照，列表如下：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412125216893.png" alt="image-20210412125216893"></p>
+<h2 id="快照验证"><a href="#快照验证" class="headerlink" title="快照验证"></a>快照验证</h2><p>&emsp;&emsp;不同于传统存储快照可以直接回退，Azure的快照必须生成磁盘才能使用。</p>
+<p>&emsp;&emsp;用Snapshot1生成Disk1：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412125924739.png" alt="image-20210412125516456"></p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412130007862.png" alt="image-20210412130007862"></p>
+<p>&emsp;&emsp;同样步骤，使用后边几个快照创建磁盘Disk2——Disk5：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412130348348.png" alt="image-20210412130348348"></p>
+<p>&emsp;&emsp;这些磁盘的来源还没附加到VM，所以没有Owner。</p>
+<p>&emsp;&emsp;回到VM的OS，我们在数据盘分别创建了3个文件：file01、file02、file03。按照创建快照的时间点，每个快照包含的文件如下：</p>
+<table>
+<thead>
+<tr>
+<th>快照</th>
+<th>包含文件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Snapshot1</td>
+<td>file01</td>
+</tr>
+<tr>
+<td>Snapshot2</td>
+<td>file01</td>
+</tr>
+<tr>
+<td>Snapshot3</td>
+<td>file01、file02</td>
+</tr>
+<tr>
+<td>Snapshot4</td>
+<td>file01、file02</td>
+</tr>
+<tr>
+<td>Snapshot5</td>
+<td>file01、file02、file03</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;现在将从快照生成的磁盘附加到VM:</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412131722784.png" alt="image-20210412131722784"></p>
+<p>&emsp;&emsp;在OS附加这些磁盘（G——K盘）：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412132303582.png" alt="image-20210412132303582"></p>
+<p>&emsp;&emsp;检查磁盘内容：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412132454440.png" alt="image-20210412132454440"></p>
+<p>&emsp;&emsp;符合预期。</p>
+<h1 id="进一步测试"><a href="#进一步测试" class="headerlink" title="进一步测试"></a>进一步测试</h1><p>&emsp;&emsp;前边说到，增量快照是基于前一次快照的变化量。那么，如果前一次快照被删除，会出现什么情况？还是通过测试做验证。</p>
+<p>&emsp;&emsp;现在删除Snapshot1（第一次全量快照）：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412132959650.png" alt="image-20210412132959650"></p>
+<p>&emsp;&emsp;快照列表里已经没有Snapshot1：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412133143441.png" alt="image-20210412133143441"></p>
+<p>&emsp;&emsp;再次用Snapshot2生成磁盘Disk6，并附加到VM：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412133426304.png" alt="image-20210412133426304"></p>
+<p>&emsp;&emsp;附加到VM（L盘），检查里边的内容：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412133554775.png" alt="image-20210412133554775"></p>
+<p>&emsp;&emsp;file01仍然存在，检查Hash，和之前的文件一致：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210412135809745.png" alt="image-20210412135809745"></p>
+<p>&emsp;&emsp;可以看出，即使删除作为基准点的快照，增量快照的安全也不受影响。</p>
+<h1 id="关于容量那些事"><a href="#关于容量那些事" class="headerlink" title="关于容量那些事"></a>关于容量那些事</h1><p>&emsp;&emsp;如前所述，快照的容量是由磁盘的有效数据量决定，对于全量快照，有效数据量比较容易确认；但对于增量快照，通常磁盘的使用不是简单的增加文件，而是一系列的增删改等操作，但Azure的快照并不提供容量查询的功能，属性里看到的容量是对应磁盘的容量。我们通过一个变通方式来确认快照容量，即根据快照的成本来反推容量。</p>
+<p>&emsp;&emsp;重新创建一个VM，附加两块1TB的数据盘：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210416100410665.png" alt="image-20210416100410665"></p>
+<p>&emsp;&emsp;进入OS，将两块出具盘分别创建分区和格式化（F盘和G盘）：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210416101108812.png" alt="image-20210416101108812"></p>
+<p>&emsp;&emsp;分别在F盘和G盘各创建一个300GB的文件，F盘用windows自带fsutil工具，G盘有第三方的rdfc工具：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210416102643765.png" alt="image-20210416102643765"></p>
+<p>&emsp;&emsp;可以看到，fsutil很快，而rdfc非常慢。原因是fsutil直接用0填充生成的稀疏文件，rdfc则是用随机数填充，真正生成了一个文件。完成后两个磁盘的占用空间基本一致：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210416224024743.png" alt="image-20210416224024743"></p>
+<p>&emsp;&emsp;对两个磁盘分别做全量快照SnapshotF和SnapshotG：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210416224405527.png" alt="image-20210416224405527"></p>
+<p>&emsp;&emsp;放置两天后，查看快照的使用成本。进入快照overview，有一个view cost的按钮：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210419095606190.png" alt="image-20210419095606190"></p>
+<p>&emsp;&emsp;点击进入，选择Daily costs：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210421142824637.png" alt="image-20210421142824637"></p>
+<p>&emsp;&emsp;G盘快照每天的成本大约$0.19。</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210421142858861.png" alt="image-20210421142858861"></p>
+<p>&emsp;&emsp;同样查看F盘的快照成本如下，基本为0：</p>
+<p><img src="https://hyblob.blob.core.windows.net/blog/image-20210421143048046.png" alt="image-20210421143048046"></p>
+<p>&emsp;&emsp;从对比可以看出：</p>
+<ul>
+<li>G盘和F盘虽然从空间占用基本一样，但快照成本相差较大，F盘的文件基本全部为0填充，快照时并没有实际占用空间，所以快照没有实际占用空间，成本为0</li>
+<li>G盘的文件实际大小为300GB，理论上的每天成本为$0.05/30*300=$0.50，但实际为$0.19，说明快照存储时使用了类似压缩去重的技术，节约空间</li>
+</ul>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>&emsp;&emsp;快照snapshot是一个很平常的概念，在云端和本地有不同的机制。</p>
+<p>&emsp;&emsp;虽然快照的操作很简单，但如果能熟练掌握，使用场景非常广泛，例如业务升级、数据更新等，可以利用快照做即时保护；另外在环境复制、远程迁移vm等情况下，也可以通过快照实现。</p>
+<p>&emsp;&emsp;这篇文章简单介绍了azure snapshot，希望对大家有帮助。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="Aubrey Han WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/undefined/36394/" rel="next" title="旧瓶也能装新酒续——在AKS使用NFS">
+                <i class="fa fa-chevron-left"></i> 旧瓶也能装新酒续——在AKS使用NFS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Aubrey Han" />
+          <p class="site-author-name" itemprop="name">Aubrey Han</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Azure快照基础概念"><span class="nav-number">1.</span> <span class="nav-text">Azure快照基础概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#快照实验"><span class="nav-number">2.</span> <span class="nav-text">快照实验</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实验设计"><span class="nav-number">2.1.</span> <span class="nav-text">实验设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建快照"><span class="nav-number">2.2.</span> <span class="nav-text">创建快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快照验证"><span class="nav-number">2.3.</span> <span class="nav-text">快照验证</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进一步测试"><span class="nav-number">3.</span> <span class="nav-text">进一步测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于容量那些事"><span class="nav-number">4.</span> <span class="nav-text">关于容量那些事</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aubrey Han</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
